@@ -23,10 +23,14 @@ export function DepositPage() {
   const [settings, setSettings] = useState<AdminSetting[]>([]);
   const [pageLoading, setPageLoading] = useState(true);
 
+  const bkashNumber = settings.find(s => s.key === 'payment_bkash')?.value || '';
+  const nagadNumber = settings.find(s => s.key === 'payment_nagad')?.value || '';
+  const rocketNumber = settings.find(s => s.key === 'payment_rocket')?.value || '';
+
   const paymentMethods = [
-    { id: 'bkash', name: 'bKash', number: '01XXXXXXXXX', color: 'bg-pink-500' },
-    { id: 'nagad', name: 'Nagad', number: '01XXXXXXXXX', color: 'bg-orange-500' },
-    { id: 'rocket', name: 'Rocket', number: '01XXXXXXXXX', color: 'bg-purple-500' },
+    { id: 'bkash', name: 'bKash', number: bkashNumber, color: 'bg-pink-500' },
+    { id: 'nagad', name: 'Nagad', number: nagadNumber, color: 'bg-orange-500' },
+    { id: 'rocket', name: 'Rocket', number: rocketNumber, color: 'bg-purple-500' },
   ];
 
   useEffect(() => {
@@ -137,7 +141,7 @@ export function DepositPage() {
           <div className="rounded-lg bg-gray-50 p-4 mb-5">
             <div className="text-xs text-gray-500">Send money to:</div>
             <div className="mt-1 text-lg font-bold text-gray-900">
-              {paymentMethods.find(pm => pm.id === method)?.name}: 01XXX-XXXXXX
+              {paymentMethods.find(pm => pm.id === method)?.name}: {paymentMethods.find(pm => pm.id === method)?.number || 'Contact support'}
             </div>
             <div className="mt-1 text-xs text-gray-500">
               After sending, fill out the form below with your transaction details.

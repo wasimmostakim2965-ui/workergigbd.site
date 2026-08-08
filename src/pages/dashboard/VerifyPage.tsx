@@ -44,10 +44,26 @@ export function VerifyPage() {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
-    if (file) {
-      const fakeEvent = { target: { files: [file] } } as any;
-      handleFileSelect(fakeEvent);
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('File size must be less than 5MB');
+      return;
     }
+
+    if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+      setError('Only JPG and PNG files are allowed');
+      return;
+    }
+
+    setSelectedFile(file);
+    setError('');
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setPreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async () => {

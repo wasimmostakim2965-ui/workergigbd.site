@@ -43,5 +43,8 @@ INSERT INTO public.admin_settings (key, value, category, description, is_boolean
 ('premium_duration_days', '30', 'limits', 'Premium subscription duration in days', false),
 ('site_name', 'Worker Gig BD', 'general', 'Website name', false),
 ('site_domain', 'workergigbd.site', 'general', 'Website domain', false),
-('support_email', 'support@workergigbd.site', 'general', 'Support email address', false)
+('support_email', 'support@workergigbd.site', 'general', 'Support email address', false),
+('payment_bkash', '', 'payment', 'bKash payment number', false),
+('payment_nagad', '', 'payment', 'Nagad payment number', false),
+('payment_rocket', '', 'payment', 'Rocket payment number', false)
 ON CONFLICT (key) DO NOTHING;

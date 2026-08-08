@@ -32,8 +32,9 @@ export function ShareEarnPage() {
 
   const referralBonus = parseFloat(settings.find(s => s.key === 'referral_bonus')?.value || '10');
   const referralEnabled = settings.find(s => s.key === 'referral_enabled')?.value === 'true';
+  const siteDomain = settings.find(s => s.key === 'site_domain')?.value || window.location.hostname;
   const referralLink = profile?.referral_code
-    ? `https://workergigbd.site/signup?ref=${profile.referral_code}`
+    ? `${window.location.origin}/signup?ref=${profile.referral_code}`
     : '';
   const referralCode = profile?.referral_code ?? '';
 

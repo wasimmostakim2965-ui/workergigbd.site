@@ -92,7 +92,7 @@ function AppRoutes() {
         <Route path="deposits" element={<AdminDepositsPage />} />
         <Route path="withdrawals" element={<AdminWithdrawalsPage />} />
         <Route path="jobs" element={<AdminJobsPage />} />
-      <Route path="tasks" element={<AdminTasksPage />} />
+        <Route path="tasks" element={<AdminTasksPage />} />
         <Route path="tickets" element={<AdminTicketsPage />} />
         <Route path="categories" element={<AdminCategoriesPage />} />
         <Route path="settings" element={<AdminSettingsPage />} />

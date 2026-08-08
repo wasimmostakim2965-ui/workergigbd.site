@@ -166,3 +166,14 @@ export interface Referral {
   status: 'pending' | 'completed';
   created_at: string;
 }
+
+export interface VerificationRequest {
+  id: string;
+  user_id: string;
+  document_url: string;
+  status: 'pending' | 'approved' | 'rejected';
+  admin_note: string;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+}

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Settings as SettingsIcon, Save, ToggleLeft, ToggleRight, DollarSign, Globe, Megaphone, Zap } from 'lucide-react';
+import { Settings as SettingsIcon, Save, ToggleLeft, ToggleRight, DollarSign, Globe, Megaphone, Zap, Smartphone } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -46,6 +46,7 @@ export function AdminSettingsPage() {
   const generalSettings = settings.filter(s => s.category === 'general');
   const bannerSettings = settings.filter(s => s.category === 'banner');
   const marqueeSettings = settings.filter(s => s.category === 'marquee');
+  const paymentSettings = settings.filter(s => s.category === 'payment');
 
   return (
     <div className="space-y-6">
@@ -144,6 +145,21 @@ export function AdminSettingsPage() {
         </div>
         <div className="divide-y divide-gray-50">
           {generalSettings.map((setting) => (
+            <LimitRow key={setting.id} setting={setting} onSave={updateSetting} savedKey={savedKey} />
+          ))}
+        </div>
+      </Card>
+
+      {/* Payment Settings */}
+      <Card>
+        <div className="border-b border-gray-100 px-5 py-4">
+          <h3 className="font-heading font-bold text-gray-900 flex items-center gap-2">
+            <Smartphone className="h-5 w-5 text-pink-600" /> Payment Numbers
+          </h3>
+          <p className="mt-1 text-xs text-gray-500">Payment numbers where users will send money (bKash, Nagad, Rocket)</p>
+        </div>
+        <div className="divide-y divide-gray-50">
+          {paymentSettings.map((setting) => (
             <LimitRow key={setting.id} setting={setting} onSave={updateSetting} savedKey={savedKey} />
           ))}
         </div>

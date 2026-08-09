@@ -12,11 +12,12 @@ import { Alert } from '@/components/ui/Alert';
 import { Advertisement } from '@/types';
 
 export function AdvertisementPage() {
-  const { profile } = useAuth();
+  const { profile, refreshProfile } = useAuth();
   const [ads, setAds] = useState<Advertisement[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const [form, setForm] = useState({ title: '', url: '', image_url: '', budget: '' });
   const [creating, setCreating] = useState(false);
@@ -50,12 +51,18 @@ export function AdvertisementPage() {
     setError('');
 
     const budget = parseFloat(form.budget);
+    if (!budget || budget <= 0) {
+      setError('Please enter a valid budget amount.');
+      setCreating(false);
+      return;
+    }
     if (profile.deposit_balance < budget) {
-      setError('Insufficient deposit balance for this ad budget.');
+      setError(`Insufficient deposit balance. You need ৳ ${budget.toFixed(3)} but have ৳ ${profile.deposit_balance.toFixed(3)}.`);
       setCreating(false);
       return;
     }
 
+    // Charge the ad budget up front so ads are not created for free.
     const { error: adError } = await supabase.from('advertisements').insert({
       user_id: profile.id,
       title: form.title,
@@ -72,6 +79,22 @@ export function AdvertisementPage() {
       return;
     }
 
+    await supabase.from('profiles').update({
+      deposit_balance: profile.deposit_balance - budget,
+      updated_at: new Date().toISOString(),
+    }).eq('id', profile.id);
+
+    await supabase.from('transactions').insert({
+      user_id: profile.id,
+      type: 'ad_charge',
+      amount: budget,
+      balance_type: 'deposit',
+      description: `Advertisement: ${form.title}`,
+    });
+
+    await refreshProfile();
+
+    setSuccess(true);
     setShowNew(false);
     setForm({ title: '', url: '', image_url: '', budget: '' });
     loadAds();

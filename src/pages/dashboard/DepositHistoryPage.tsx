@@ -14,10 +14,21 @@ export function DepositHistoryPage() {
 
   const loadDeposits = useCallback(async () => {
     if (!profile) return;
-    const { data } = await supabase.from('deposit_requests')
-      .select('*').eq('user_id', profile.id)
-      .order('created_at', { ascending: false });
-    setDeposits((data as DepositRequest[]) ?? []);
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.from('deposit_requests')
+        .select('*').eq('user_id', profile.id)
+        .order('created_at', { ascending: false });
+      if (error) {
+        console.error('Load deposits error:', error);
+        setDeposits([]);
+      } else {
+        setDeposits((data as DepositRequest[]) ?? []);
+      }
+    } catch (err) {
+      console.error('Load deposits error:', err);
+      setDeposits([]);
+    }
     setLoading(false);
   }, [profile]);
 

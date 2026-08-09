@@ -23,10 +23,21 @@ export function AdvertisementPage() {
 
   const loadAds = useCallback(async () => {
     if (!profile) return;
-    const { data } = await supabase.from('advertisements')
-      .select('*').eq('user_id', profile.id)
-      .order('created_at', { ascending: false });
-    setAds((data as Advertisement[]) ?? []);
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.from('advertisements')
+        .select('*').eq('user_id', profile.id)
+        .order('created_at', { ascending: false });
+      if (error) {
+        console.error('Load ads error:', error);
+        setAds([]);
+      } else {
+        setAds((data as Advertisement[]) ?? []);
+      }
+    } catch (err) {
+      console.error('Load ads error:', err);
+      setAds([]);
+    }
     setLoading(false);
   }, [profile]);
 

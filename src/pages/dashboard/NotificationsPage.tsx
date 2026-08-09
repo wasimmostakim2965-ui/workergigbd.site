@@ -28,10 +28,21 @@ export function NotificationsPage() {
 
   const loadNotifications = useCallback(async () => {
     if (!profile) return;
-    const { data } = await supabase.from('notifications')
-      .select('*').eq('user_id', profile.id)
-      .order('created_at', { ascending: false }).limit(50);
-    setNotifications((data as Notification[]) ?? []);
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.from('notifications')
+        .select('*').eq('user_id', profile.id)
+        .order('created_at', { ascending: false }).limit(50);
+      if (error) {
+        console.error('Load notifications error:', error);
+        setNotifications([]);
+      } else {
+        setNotifications((data as Notification[]) ?? []);
+      }
+    } catch (err) {
+      console.error('Load notifications error:', err);
+      setNotifications([]);
+    }
     setLoading(false);
   }, [profile]);
 

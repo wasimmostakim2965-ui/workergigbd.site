@@ -15,10 +15,21 @@ export function MyJobsPage() {
 
   const loadJobs = useCallback(async () => {
     if (!profile) return;
-    const { data } = await supabase.from('jobs')
-      .select('*').eq('user_id', profile.id)
-      .order('created_at', { ascending: false });
-    setJobs((data as Job[]) ?? []);
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.from('jobs')
+        .select('*').eq('user_id', profile.id)
+        .order('created_at', { ascending: false });
+      if (error) {
+        console.error('Load jobs error:', error);
+        setJobs([]);
+      } else {
+        setJobs((data as Job[]) ?? []);
+      }
+    } catch (err) {
+      console.error('Load jobs error:', err);
+      setJobs([]);
+    }
     setLoading(false);
   }, [profile]);
 

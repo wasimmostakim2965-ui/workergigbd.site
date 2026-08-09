@@ -27,10 +27,21 @@ export function TicketPage() {
 
   const loadTickets = useCallback(async () => {
     if (!profile) return;
-    const { data } = await supabase.from('tickets')
-      .select('*').eq('user_id', profile.id)
-      .order('updated_at', { ascending: false });
-    setTickets((data as Ticket[]) ?? []);
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.from('tickets')
+        .select('*').eq('user_id', profile.id)
+        .order('updated_at', { ascending: false });
+      if (error) {
+        console.error('Load tickets error:', error);
+        setTickets([]);
+      } else {
+        setTickets((data as Ticket[]) ?? []);
+      }
+    } catch (err) {
+      console.error('Load tickets error:', err);
+      setTickets([]);
+    }
     setLoading(false);
   }, [profile]);
 

@@ -18,12 +18,22 @@ export function MyTasksPage() {
   const loadTasks = useCallback(async () => {
     if (!profile) return;
     setLoading(true);
-    let query = supabase.from('tasks').select('*, jobs(*)').eq('worker_id', profile.id);
-    if (tab === 'active') query = query.in('status', ['pending', 'submitted']);
-    else if (tab === 'approved') query = query.eq('status', 'approved');
-    else if (tab === 'rejected') query = query.eq('status', 'rejected');
-    const { data } = await query.order('created_at', { ascending: false }).limit(50);
-    setTasks((data as (Task & { jobs?: Job })[]) ?? []);
+    try {
+      let query = supabase.from('tasks').select('*, jobs(*)').eq('worker_id', profile.id);
+      if (tab === 'active') query = query.in('status', ['pending', 'submitted']);
+      else if (tab === 'approved') query = query.eq('status', 'approved');
+      else if (tab === 'rejected') query = query.eq('status', 'rejected');
+      const { data, error } = await query.order('created_at', { ascending: false }).limit(50);
+      if (error) {
+        console.error('Load tasks error:', error);
+        setTasks([]);
+      } else {
+        setTasks((data as (Task & { jobs?: Job })[]) ?? []);
+      }
+    } catch (err) {
+      console.error('Load tasks error:', err);
+      setTasks([]);
+    }
     setLoading(false);
   }, [profile, tab]);
 

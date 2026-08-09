@@ -31,10 +31,20 @@ export function DashboardHome() {
 
   const loadJobs = useCallback(async () => {
     setLoading(true);
-    let query = supabase.from('jobs').select('*').eq('status', 'active').order('is_premium_only', { ascending: false }).order('created_at', { ascending: false });
-    if (categoryFilter !== 'all') query = query.eq('category', categoryFilter);
-    const { data } = await query.limit(20);
-    setJobs((data as Job[]) ?? []);
+    try {
+      let query = supabase.from('jobs').select('*').eq('status', 'active').order('is_premium_only', { ascending: false }).order('created_at', { ascending: false });
+      if (categoryFilter !== 'all') query = query.eq('category', categoryFilter);
+      const { data, error } = await query.limit(20);
+      if (error) {
+        console.error('Load jobs error:', error);
+        setJobs([]);
+      } else {
+        setJobs((data as Job[]) ?? []);
+      }
+    } catch (err) {
+      console.error('Load jobs error:', err);
+      setJobs([]);
+    }
     setLoading(false);
   }, [categoryFilter]);
 

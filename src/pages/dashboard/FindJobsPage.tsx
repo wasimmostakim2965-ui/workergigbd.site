@@ -40,17 +40,27 @@ export function FindJobsPage() {
 
   const loadJobs = useCallback(async () => {
     setLoading(true);
-    let query = supabase.from('jobs').select('*').eq('status', 'active');
-    if (categoryFilter !== 'all') query = query.eq('category', categoryFilter);
-    if (search) query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
+    try {
+      let query = supabase.from('jobs').select('*').eq('status', 'active');
+      if (categoryFilter !== 'all') query = query.eq('category', categoryFilter);
+      if (search) query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
 
-    if (sortBy === 'latest') query = query.order('created_at', { ascending: false });
-    else if (sortBy === 'high_price') query = query.order('reward_per_worker', { ascending: false });
-    else if (sortBy === 'low_price') query = query.order('reward_per_worker', { ascending: true });
-    else if (sortBy === 'best_paying') query = query.order('reward_per_worker', { ascending: false });
+      if (sortBy === 'latest') query = query.order('created_at', { ascending: false });
+      else if (sortBy === 'high_price') query = query.order('reward_per_worker', { ascending: false });
+      else if (sortBy === 'low_price') query = query.order('reward_per_worker', { ascending: true });
+      else if (sortBy === 'best_paying') query = query.order('reward_per_worker', { ascending: false });
 
-    const { data } = await query.limit(50);
-    setJobs((data as Job[]) ?? []);
+      const { data, error } = await query.limit(50);
+      if (error) {
+        console.error('Load jobs error:', error);
+        setJobs([]);
+      } else {
+        setJobs((data as Job[]) ?? []);
+      }
+    } catch (err) {
+      console.error('Load jobs error:', err);
+      setJobs([]);
+    }
     setLoading(false);
   }, [categoryFilter, search, sortBy]);
 

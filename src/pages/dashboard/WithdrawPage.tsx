@@ -39,18 +39,21 @@ export function WithdrawPage() {
   const emailVerified = profile?.email_verified ?? false;
 
   useEffect(() => {
-    supabase.from('admin_settings').select('*').then(({ data }) => {
-      setSettings((data as AdminSetting[]) ?? []);
-    });
-    if (profile) {
-      supabase.from('withdrawal_requests')
-        .select('*').eq('user_id', profile.id)
-        .order('created_at', { ascending: false }).limit(10)
-        .then(({ data }) => {
+    (async () => {
+      try {
+        const { data } = await supabase.from('admin_settings').select('*');
+        setSettings((data as AdminSetting[]) ?? []);
+      } catch { /* ignore */ }
+      if (profile) {
+        try {
+          const { data } = await supabase.from('withdrawal_requests')
+            .select('*').eq('user_id', profile.id)
+            .order('created_at', { ascending: false }).limit(10);
           setHistory((data as WithdrawalRequest[]) ?? []);
-          setPageLoading(false);
-        });
-    }
+        } catch { /* ignore */ }
+      }
+      setPageLoading(false);
+    })();
   }, [profile]);
 
   const withdrawEnabled = settings.find(s => s.key === 'withdrawal_enabled')?.value === 'true';

@@ -22,6 +22,7 @@ export function DepositPage() {
   const [history, setHistory] = useState<DepositRequest[]>([]);
   const [settings, setSettings] = useState<AdminSetting[]>([]);
   const [pageLoading, setPageLoading] = useState(true);
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
 
   const bkashNumber = settings.find(s => s.key === 'payment_bkash')?.value || '';
   const nagadNumber = settings.find(s => s.key === 'payment_nagad')?.value || '';
@@ -34,18 +35,22 @@ export function DepositPage() {
   ];
 
   useEffect(() => {
-    supabase.from('admin_settings').select('*').then(({ data }) => {
-      setSettings((data as AdminSetting[]) ?? []);
-    });
-    if (profile) {
-      supabase.from('deposit_requests')
-        .select('*').eq('user_id', profile.id)
-        .order('created_at', { ascending: false }).limit(10)
-        .then(({ data }) => {
+    (async () => {
+      try {
+        const { data } = await supabase.from('admin_settings').select('*');
+        setSettings((data as AdminSetting[]) ?? []);
+      } catch { /* ignore */ }
+      setSettingsLoaded(true);
+      if (profile) {
+        try {
+          const { data } = await supabase.from('deposit_requests')
+            .select('*').eq('user_id', profile.id)
+            .order('created_at', { ascending: false }).limit(10);
           setHistory((data as DepositRequest[]) ?? []);
-          setPageLoading(false);
-        });
-    }
+        } catch { /* ignore */ }
+      }
+      setPageLoading(false);
+    })();
   }, [profile]);
 
   const depositEnabled = settings.find(s => s.key === 'deposit_enabled')?.value === 'true';

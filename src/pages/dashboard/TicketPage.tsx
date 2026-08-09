@@ -26,7 +26,7 @@ export function TicketPage() {
   const [createError, setCreateError] = useState('');
 
   const loadTickets = useCallback(async () => {
-    if (!profile) return;
+    if (!profile) { setLoading(false); return; }
     setLoading(true);
     try {
       const { data, error } = await supabase.from('tickets')

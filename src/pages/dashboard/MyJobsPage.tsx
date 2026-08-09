@@ -14,7 +14,7 @@ export function MyJobsPage() {
   const [loading, setLoading] = useState(true);
 
   const loadJobs = useCallback(async () => {
-    if (!profile) return;
+    if (!profile) { setLoading(false); return; }
     setLoading(true);
     try {
       const { data, error } = await supabase.from('jobs')

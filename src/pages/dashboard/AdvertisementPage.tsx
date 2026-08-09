@@ -23,7 +23,7 @@ export function AdvertisementPage() {
   const [creating, setCreating] = useState(false);
 
   const loadAds = useCallback(async () => {
-    if (!profile) return;
+    if (!profile) { setLoading(false); return; }
     setLoading(true);
     try {
       const { data, error } = await supabase.from('advertisements')

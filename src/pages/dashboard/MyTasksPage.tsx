@@ -16,7 +16,7 @@ export function MyTasksPage() {
   const [tab, setTab] = useState('active');
 
   const loadTasks = useCallback(async () => {
-    if (!profile) return;
+    if (!profile) { setLoading(false); return; }
     setLoading(true);
     try {
       let query = supabase.from('tasks').select('*, jobs(*)').eq('worker_id', profile.id);

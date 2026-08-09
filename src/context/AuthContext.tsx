@@ -28,13 +28,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .select('*')
       .eq('id', uid)
       .maybeSingle();
+
+    // Table missing / RLS blocked → don't retry forever; leave profile null.
+    // (Pages guard on `!profile` and the SQL setup must exist.)
     if (error) {
       console.error('Profile load error:', error);
       return;
     }
     if (data) {
       setProfile(data as Profile);
-    } else if (retry < 3) {
+      return;
+    }
+    // No profile row yet. Try to self-heal by inserting a minimal profile,
+    // so the user is never stuck on an endless spinner.
+    if (retry === 0) {
+      const username = user?.email ? user.email.split('@')[0] : 'user';
+      const { error: insertError } = await supabase.from('profiles').insert({
+        id: uid,
+        username,
+        referral_code: 'WG' + uid.replace(/-/g, '').slice(0, 8).toUpperCase(),
+        status: 'active',
+      });
+      if (!insertError) {
+        await loadProfile(uid, 1);
+        return;
+      }
+    }
+    if (retry < 3) {
       await new Promise((r) => setTimeout(r, 1000));
       await loadProfile(uid, retry + 1);
     }

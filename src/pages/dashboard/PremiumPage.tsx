@@ -26,9 +26,12 @@ export function PremiumPage() {
   const [settings, setSettings] = useState<AdminSetting[]>([]);
 
   useEffect(() => {
-    supabase.from('admin_settings').select('*').then(({ data }) => {
-      setSettings((data as AdminSetting[]) ?? []);
-    });
+    (async () => {
+      try {
+        const { data } = await supabase.from('admin_settings').select('*');
+        setSettings((data as AdminSetting[]) ?? []);
+      } catch { /* ignore */ }
+    })();
   }, []);
 
   const premiumPrice = parseFloat(settings.find(s => s.key === 'premium_price')?.value || '500');

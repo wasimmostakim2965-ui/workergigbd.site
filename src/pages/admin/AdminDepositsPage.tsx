@@ -22,12 +22,22 @@ export function AdminDepositsPage() {
 
   const loadDeposits = useCallback(async () => {
     setLoading(true);
-    let query = supabase.from('deposit_requests').select('*, profiles(username)').order('created_at', { ascending: false });
-    if (tab === 'pending') query = query.eq('status', 'pending');
-    else if (tab === 'approved') query = query.eq('status', 'approved');
-    else if (tab === 'rejected') query = query.eq('status', 'rejected');
-    const { data } = await query.limit(100);
-    setDeposits((data as (DepositRequest & { profiles?: Profile })[]) ?? []);
+    try {
+      let query = supabase.from('deposit_requests').select('*, profiles(username)').order('created_at', { ascending: false });
+      if (tab === 'pending') query = query.eq('status', 'pending');
+      else if (tab === 'approved') query = query.eq('status', 'approved');
+      else if (tab === 'rejected') query = query.eq('status', 'rejected');
+      const { data, error } = await query.limit(100);
+      if (error) {
+        console.error('Load deposits error:', error);
+        setDeposits([]);
+      } else {
+        setDeposits((data as (DepositRequest & { profiles?: Profile })[]) ?? []);
+      }
+    } catch (err) {
+      console.error('Load deposits error:', err);
+      setDeposits([]);
+    }
     setLoading(false);
   }, [tab]);
 

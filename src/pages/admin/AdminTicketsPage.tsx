@@ -20,9 +20,20 @@ export function AdminTicketsPage() {
   const [sending, setSending] = useState(false);
 
   const loadTickets = useCallback(async () => {
-    const { data } = await supabase.from('tickets')
-      .select('*, profiles(username)').order('updated_at', { ascending: false }).limit(100);
-    setTickets((data as (Ticket & { profiles?: Profile })[]) ?? []);
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.from('tickets')
+        .select('*, profiles(username)').order('updated_at', { ascending: false }).limit(100);
+      if (error) {
+        console.error('Load tickets error:', error);
+        setTickets([]);
+      } else {
+        setTickets((data as (Ticket & { profiles?: Profile })[]) ?? []);
+      }
+    } catch (err) {
+      console.error('Load tickets error:', err);
+      setTickets([]);
+    }
     setLoading(false);
   }, []);
 

@@ -15,8 +15,19 @@ export function AdminSettingsPage() {
   const [savedKey, setSavedKey] = useState('');
 
   const loadSettings = useCallback(async () => {
-    const { data } = await supabase.from('admin_settings').select('*').order('category').order('key');
-    setSettings((data as AdminSetting[]) ?? []);
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.from('admin_settings').select('*').order('category').order('key');
+      if (error) {
+        console.error('Load settings error:', error);
+        setSettings([]);
+      } else {
+        setSettings((data as AdminSetting[]) ?? []);
+      }
+    } catch (err) {
+      console.error('Load settings error:', err);
+      setSettings([]);
+    }
     setLoading(false);
   }, []);
 

@@ -18,8 +18,19 @@ export function AdminCategoriesPage() {
   const [saving, setSaving] = useState(false);
 
   const loadCategories = useCallback(async () => {
-    const { data } = await supabase.from('categories').select('*').order('display_order');
-    setCategories((data as Category[]) ?? []);
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.from('categories').select('*').order('display_order');
+      if (error) {
+        console.error('Load categories error:', error);
+        setCategories([]);
+      } else {
+        setCategories((data as Category[]) ?? []);
+      }
+    } catch (err) {
+      console.error('Load categories error:', err);
+      setCategories([]);
+    }
     setLoading(false);
   }, []);
 

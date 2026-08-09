@@ -16,11 +16,21 @@ export function AdminJobsPage() {
 
   const loadJobs = useCallback(async () => {
     setLoading(true);
-    let query = supabase.from('jobs').select('*, profiles(username)').order('created_at', { ascending: false });
-    if (statusFilter !== 'all') query = query.eq('status', statusFilter);
-    if (search) query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
-    const { data } = await query.limit(100);
-    setJobs((data as (Job & { profiles?: Profile })[]) ?? []);
+    try {
+      let query = supabase.from('jobs').select('*, profiles(username)').order('created_at', { ascending: false });
+      if (statusFilter !== 'all') query = query.eq('status', statusFilter);
+      if (search) query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
+      const { data, error } = await query.limit(100);
+      if (error) {
+        console.error('Load jobs error:', error);
+        setJobs([]);
+      } else {
+        setJobs((data as (Job & { profiles?: Profile })[]) ?? []);
+      }
+    } catch (err) {
+      console.error('Load jobs error:', err);
+      setJobs([]);
+    }
     setLoading(false);
   }, [search, statusFilter]);
 

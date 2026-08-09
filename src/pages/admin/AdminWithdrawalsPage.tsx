@@ -22,12 +22,22 @@ export function AdminWithdrawalsPage() {
 
   const loadWithdrawals = useCallback(async () => {
     setLoading(true);
-    let query = supabase.from('withdrawal_requests').select('*, profiles(username)').order('created_at', { ascending: false });
-    if (tab === 'pending') query = query.eq('status', 'pending');
-    else if (tab === 'approved') query = query.eq('status', 'approved');
-    else if (tab === 'rejected') query = query.eq('status', 'rejected');
-    const { data } = await query.limit(100);
-    setWithdrawals((data as (WithdrawalRequest & { profiles?: Profile })[]) ?? []);
+    try {
+      let query = supabase.from('withdrawal_requests').select('*, profiles(username)').order('created_at', { ascending: false });
+      if (tab === 'pending') query = query.eq('status', 'pending');
+      else if (tab === 'approved') query = query.eq('status', 'approved');
+      else if (tab === 'rejected') query = query.eq('status', 'rejected');
+      const { data, error } = await query.limit(100);
+      if (error) {
+        console.error('Load withdrawals error:', error);
+        setWithdrawals([]);
+      } else {
+        setWithdrawals((data as (WithdrawalRequest & { profiles?: Profile })[]) ?? []);
+      }
+    } catch (err) {
+      console.error('Load withdrawals error:', err);
+      setWithdrawals([]);
+    }
     setLoading(false);
   }, [tab]);
 

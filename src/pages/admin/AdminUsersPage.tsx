@@ -20,11 +20,21 @@ export function AdminUsersPage() {
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
-    let query = supabase.from('profiles').select('*').neq('status', 'admin');
-    if (statusFilter !== 'all') query = query.eq('status', statusFilter);
-    if (search) query = query.or(`username.ilike.%${search}%,full_name.ilike.%${search}%`);
-    const { data } = await query.order('created_at', { ascending: false }).limit(100);
-    setUsers((data as Profile[]) ?? []);
+    try {
+      let query = supabase.from('profiles').select('*').neq('status', 'admin');
+      if (statusFilter !== 'all') query = query.eq('status', statusFilter);
+      if (search) query = query.or(`username.ilike.%${search}%,full_name.ilike.%${search}%`);
+      const { data, error } = await query.order('created_at', { ascending: false }).limit(100);
+      if (error) {
+        console.error('Load users error:', error);
+        setUsers([]);
+      } else {
+        setUsers((data as Profile[]) ?? []);
+      }
+    } catch (err) {
+      console.error('Load users error:', err);
+      setUsers([]);
+    }
     setLoading(false);
   }, [search, statusFilter]);
 

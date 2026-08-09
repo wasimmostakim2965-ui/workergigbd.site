@@ -41,9 +41,15 @@ END $$;
 -- ============================================================================
 -- 1. HELPER FUNCTIONS
 -- ============================================================================
+-- is_admin MUST be LANGUAGE plpgsql: plpgsql does NOT validate the body at
+-- CREATE time (unlike LANGUAGE sql), so this function can be created BEFORE
+-- the profiles table exists. Otherwise the whole script aborts on the first
+-- statement ("relation public.profiles does not exist") and nothing is created.
 CREATE OR REPLACE FUNCTION public.is_admin()
-RETURNS boolean LANGUAGE sql SECURITY DEFINER SET search_path = public AS $$
-  SELECT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND status = 'admin');
+RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+  RETURN EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND status = 'admin');
+END;
 $$;
 GRANT EXECUTE ON FUNCTION public.is_admin() TO authenticated;
 
@@ -239,8 +245,10 @@ CREATE POLICY "notifications_delete_own" ON public.notifications FOR DELETE TO a
 
 -- ---- notify_user() RPC (cross-user notifications, bypasses RLS) ----
 CREATE OR REPLACE FUNCTION public.notify_user(target_uid uuid, n_title text, n_message text, n_type text DEFAULT 'info')
-RETURNS void LANGUAGE sql SECURITY DEFINER SET search_path = public AS $$
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
   INSERT INTO public.notifications (user_id, title, message, type) VALUES (target_uid, n_title, n_message, n_type);
+END;
 $$;
 GRANT EXECUTE ON FUNCTION public.notify_user(uuid, text, text, text) TO authenticated;
 

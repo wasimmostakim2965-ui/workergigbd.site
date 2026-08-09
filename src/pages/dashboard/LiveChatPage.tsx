@@ -62,12 +62,13 @@ export function LiveChatPage() {
 
   // Realtime subscription for incoming messages.
   useEffect(() => {
-    if (!conversation) return;
+    const convId = conversation?.id;
+    if (!convId) return;
     const channel = supabase
-      .channel(`chat-user-${conversation.id}`)
+      .channel(`chat-user-${convId}`)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `conversation_id=eq.${conversation.id}` },
+        { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `conversation_id=eq.${convId}` },
         (payload) => {
           const msg = payload.new as ChatMessage;
           setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
@@ -78,20 +79,20 @@ export function LiveChatPage() {
               .update({ read_at: new Date().toISOString() })
               .eq('id', msg.id)
               .then(() => {
-                supabase.from('chat_conversations').update({ user_unread_count: 0 }).eq('id', conversation.id);
+                supabase.from('chat_conversations').update({ user_unread_count: 0 }).eq('id', convId);
               });
           }
         }
       )
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'chat_conversations', filter: `id=eq.${conversation.id}` },
+        { event: 'UPDATE', schema: 'public', table: 'chat_conversations', filter: `id=eq.${convId}` },
         (payload) => setConversation(payload.new as ChatConversation)
       )
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [conversation]);
+  }, [conversation?.id]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -116,12 +117,20 @@ export function LiveChatPage() {
       return;
     }
 
-    // Update conversation preview + bump admin unread.
+    // Update conversation preview + bump admin unread. Read the current
+    // conversation row first so the unread count isn't based on a stale snapshot.
+    const { data: curConv } = await supabase
+      .from('chat_conversations')
+      .select('admin_unread_count')
+      .eq('id', conversation.id)
+      .maybeSingle();
+    const nextAdminUnread = ((curConv as { admin_unread_count?: number })?.admin_unread_count ?? 0) + 1;
+
     await supabase.from('chat_conversations').update({
       last_message: newMessage.trim().slice(0, 120),
       last_sender_is_admin: false,
       last_message_at: new Date().toISOString(),
-      admin_unread_count: conversation.admin_unread_count + 1,
+      admin_unread_count: nextAdminUnread,
       updated_at: new Date().toISOString(),
       status: 'open',
     }).eq('id', conversation.id);

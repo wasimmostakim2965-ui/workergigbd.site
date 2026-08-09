@@ -97,21 +97,20 @@ export function PostJobPage() {
       return;
     }
 
-    const { error: jobError } = await supabase.from('jobs').insert({
-      user_id: profile.id,
-      title: form.title,
-      description: form.description,
-      category: form.category,
-      subcategory: form.subcategory,
-      url: form.url,
-      proof_instructions: form.requirements,
-      screenshot_count: form.screenshot_count,
-      screenshot_instructions: form.screenshot_instructions,
-      image_url: form.image_url,
-      reward_per_worker: reward,
-      total_slots: slots,
-      is_premium_only: form.is_premium_only,
-      status: 'active',
+    const { error: jobError } = await supabase.rpc('post_job', {
+      p_uid: profile.id,
+      p_title: form.title,
+      p_description: form.description,
+      p_category: form.category,
+      p_subcategory: form.subcategory,
+      p_url: form.url,
+      p_proof_instructions: form.requirements,
+      p_reward_per_worker: reward,
+      p_total_slots: slots,
+      p_is_premium_only: form.is_premium_only,
+      p_screenshot_count: form.screenshot_count,
+      p_screenshot_instructions: form.screenshot_instructions,
+      p_image_url: form.image_url,
     });
 
     if (jobError) {
@@ -119,22 +118,6 @@ export function PostJobPage() {
       setLoading(false);
       return;
     }
-
-    await supabase.from('transactions').insert({
-      user_id: profile.id,
-      type: 'ad_charge',
-      amount: totalCost,
-      balance_type: 'deposit',
-      description: `Job posting: ${form.title}`,
-    });
-
-    await supabase.from('profiles')
-      .update({
-        deposit_balance: profile.deposit_balance - totalCost,
-        jobs_posted: profile.jobs_posted + 1,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', profile.id);
 
     await refreshProfile();
 

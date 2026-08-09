@@ -9,9 +9,9 @@ import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { Tabs } from '@/components/ui/Tabs';
 import { LoadingSpinner, EmptyState } from '@/components/ui/EmptyState';
-import { Task, Job, Profile } from '@/types';
+import { Task, Job } from '@/types';
 
-type TaskWithRelations = Task & { jobs?: Job; profiles?: Profile };
+type TaskWithRelations = Task & { jobs?: Job; profiles?: { username: string } };
 
 export function AdminTasksPage() {
   const { profile: admin } = useAuth();
@@ -50,49 +50,22 @@ export function AdminTasksPage() {
     if (!selected || !admin) return;
     setProcessing(true);
 
-    const { error: taskError } = await supabase.from('tasks').update({
-      status: 'approved',
-      reviewed_by: admin.id,
-      reviewed_at: new Date().toISOString(),
-    }).eq('id', selected.id);
-
-    if (taskError) { console.error(taskError); setProcessing(false); return; }
-
-    const job = selected.jobs;
-    const reward = job?.reward_per_worker ?? 0;
-    const screenshotBonus = (job?.screenshot_count ?? 0) * 0.05;
-    const totalReward = reward + screenshotBonus;
-
-    const { data: workerProfile } = await supabase.from('profiles').select('*').eq('id', selected.worker_id).maybeSingle();
-    if (workerProfile) {
-      const wp = workerProfile as Profile;
-      await supabase.from('profiles').update({
-        earning_balance: wp.earning_balance + totalReward,
-        total_earned: wp.total_earned + totalReward,
-        tasks_completed: wp.tasks_completed + 1,
-        updated_at: new Date().toISOString(),
-      }).eq('id', selected.worker_id);
-
-      await supabase.from('transactions').insert({
-        user_id: selected.worker_id,
-        type: 'earning',
-        amount: totalReward,
-        balance_type: 'earning',
-        description: `Task approved: ${job?.title ?? 'Unknown job'}`,
-      });
-    }
-
-    await supabase.from('jobs').update({
-      filled_slots: (job?.filled_slots ?? 0) + 1,
-      updated_at: new Date().toISOString(),
-    }).eq('id', selected.job_id);
-
-    await supabase.from('notifications').insert({
-      user_id: selected.worker_id,
-      title: 'Task Approved!',
-      message: `Your task "${job?.title ?? ''}" has been approved. ৳${totalReward.toFixed(3)} has been credited to your earning balance.`,
-      type: 'success',
+    // Atomic RPC: pays the worker (earning_balance + total_earned), increments
+    // tasks_completed, writes the ledger row, notifies the worker and sets the
+    // status + reviewed_by — all inside one DB transaction. A status guard
+    // prevents double-payment on a double-click.
+    const { error } = await supabase.rpc('process_task', {
+      p_task_id: selected.id,
+      p_admin_uid: admin.id,
+      p_action: 'approve',
+      p_note: '',
     });
+
+    if (error) {
+      alert(error.message);
+      setProcessing(false);
+      return;
+    }
 
     setProcessing(false);
     setSelected(null);
@@ -103,18 +76,20 @@ export function AdminTasksPage() {
     if (!selected || !admin) return;
     setProcessing(true);
 
-    await supabase.from('tasks').update({
-      status: 'rejected',
-      reviewed_by: admin.id,
-      reviewed_at: new Date().toISOString(),
-    }).eq('id', selected.id);
-
-    await supabase.from('notifications').insert({
-      user_id: selected.worker_id,
-      title: 'Task Rejected',
-      message: `Your task "${selected.jobs?.title ?? ''}" was rejected. Please check the requirements and try again.`,
-      type: 'error',
+    // Atomic RPC: sets rejected + reviewed_by, frees the job slot back, and
+    // notifies the worker.
+    const { error } = await supabase.rpc('process_task', {
+      p_task_id: selected.id,
+      p_admin_uid: admin.id,
+      p_action: 'reject',
+      p_note: 'Task did not meet requirements.',
     });
+
+    if (error) {
+      alert(error.message);
+      setProcessing(false);
+      return;
+    }
 
     setProcessing(false);
     setSelected(null);

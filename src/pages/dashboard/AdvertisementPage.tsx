@@ -62,15 +62,15 @@ export function AdvertisementPage() {
       return;
     }
 
-    // Charge the ad budget up front so ads are not created for free.
-    const { error: adError } = await supabase.from('advertisements').insert({
-      user_id: profile.id,
-      title: form.title,
-      url: form.url,
-      image_url: form.image_url,
-      budget,
-      spent: 0,
-      status: 'pending',
+    // Atomic RPC: deducts the ad budget, inserts the ad (pending) and writes a
+    // ledger transaction in one DB transaction. Prevents free ads on partial
+    // failure and overdrafts under concurrency.
+    const { error: adError } = await supabase.rpc('create_ad', {
+      p_uid: profile.id,
+      p_title: form.title,
+      p_url: form.url,
+      p_image_url: form.image_url,
+      p_budget: budget,
     });
 
     if (adError) {
@@ -78,19 +78,6 @@ export function AdvertisementPage() {
       setCreating(false);
       return;
     }
-
-    await supabase.from('profiles').update({
-      deposit_balance: profile.deposit_balance - budget,
-      updated_at: new Date().toISOString(),
-    }).eq('id', profile.id);
-
-    await supabase.from('transactions').insert({
-      user_id: profile.id,
-      type: 'ad_charge',
-      amount: budget,
-      balance_type: 'deposit',
-      description: `Advertisement: ${form.title}`,
-    });
 
     await refreshProfile();
 

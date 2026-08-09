@@ -131,11 +131,20 @@ export function AdminLiveChatPage() {
       return;
     }
 
+    // Bump the user's unread count from the current row (not a stale snapshot)
+    // so rapid replies don't lose increments.
+    const { data: curConv } = await supabase
+      .from('chat_conversations')
+      .select('user_unread_count')
+      .eq('id', selected.id)
+      .maybeSingle();
+    const nextUserUnread = ((curConv as { user_unread_count?: number })?.user_unread_count ?? 0) + 1;
+
     await supabase.from('chat_conversations').update({
       last_message: reply.trim().slice(0, 120),
       last_sender_is_admin: true,
       last_message_at: new Date().toISOString(),
-      user_unread_count: selected.user_unread_count + 1,
+      user_unread_count: nextUserUnread,
       updated_at: new Date().toISOString(),
       status: 'open',
     }).eq('id', selected.id);

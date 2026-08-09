@@ -55,31 +55,17 @@ export function PremiumPage() {
       return;
     }
 
-    const expiryDate = new Date();
-    expiryDate.setDate(expiryDate.getDate() + premiumDays);
+    // Atomic RPC: deducts premium_price, sets is_premium + expiry, writes the
+    // ledger transaction — all in one DB transaction with a row lock.
+    const { error: rpcError } = await supabase.rpc('subscribe_premium', {
+      p_uid: profile.id,
+    });
 
-    const { error: profileError } = await supabase.from('profiles').update({
-      is_premium: true,
-      premium_expires_at: expiryDate.toISOString(),
-      deposit_balance: profile.deposit_balance - premiumPrice,
-      updated_at: new Date().toISOString(),
-    }).eq('id', profile.id);
-
-    if (profileError) {
-      setError(profileError.message);
+    if (rpcError) {
+      setError(rpcError.message);
       setLoading(false);
       return;
     }
-
-    const { error: txError } = await supabase.from('transactions').insert({
-      user_id: profile.id,
-      type: 'premium_charge',
-      amount: premiumPrice,
-      balance_type: 'deposit',
-      description: `Premium subscription - ${premiumDays} days`,
-    });
-
-    if (txError) console.error('Transaction error:', txError);
 
     await refreshProfile();
     setShowConfirm(false);

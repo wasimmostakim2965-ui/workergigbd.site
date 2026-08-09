@@ -48,6 +48,26 @@ export function NotificationsPage() {
 
   useEffect(() => { loadNotifications(); }, [loadNotifications]);
 
+  // Realtime: refresh the list when a new notification arrives so users see
+  // deposit/withdrawal/task approvals appear live without manual refresh.
+  useEffect(() => {
+    if (!profile) return;
+    const channel = supabase
+      .channel(`notifications-${profile.id}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${profile.id}` },
+        () => loadNotifications()
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${profile.id}` },
+        () => loadNotifications()
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [profile, loadNotifications]);
+
   const markAllRead = async () => {
     if (!profile) return;
     await supabase.from('notifications').update({ is_read: true }).eq('user_id', profile.id).eq('is_read', false);

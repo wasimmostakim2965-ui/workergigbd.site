@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Crown, Check, Zap, Shield, TrendingUp, Star, CheckCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
 import { Modal } from '@/components/ui/Modal';
+import { AdminSetting } from '@/types';
 
 const premiumFeatures = [
   { icon: Zap, title: '2x Task Rewards', desc: 'Earn double on all premium-only tasks' },
@@ -22,25 +23,42 @@ export function PremiumPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [settings, setSettings] = useState<AdminSetting[]>([]);
+
+  useEffect(() => {
+    supabase.from('admin_settings').select('*').then(({ data }) => {
+      setSettings((data as AdminSetting[]) ?? []);
+    });
+  }, []);
+
+  const premiumPrice = parseFloat(settings.find(s => s.key === 'premium_price')?.value || '500');
+  const premiumDays = parseInt(settings.find(s => s.key === 'premium_duration_days')?.value || '30', 10);
+  const premiumEnabled = settings.find(s => s.key === 'premium_enabled')?.value === 'true';
 
   const handleSubscribe = async () => {
     if (!profile) return;
     setError('');
     setLoading(true);
 
-    if (profile.deposit_balance < 500) {
-      setError('Insufficient deposit balance. You need at least ৳ 500. Please deposit first.');
+    if (!premiumEnabled) {
+      setError('Premium subscription is currently disabled by the administrator.');
+      setLoading(false);
+      return;
+    }
+
+    if (profile.deposit_balance < premiumPrice) {
+      setError(`Insufficient deposit balance. You need at least ৳ ${premiumPrice}. Please deposit first.`);
       setLoading(false);
       return;
     }
 
     const expiryDate = new Date();
-    expiryDate.setDate(expiryDate.getDate() + 30);
+    expiryDate.setDate(expiryDate.getDate() + premiumDays);
 
     const { error: profileError } = await supabase.from('profiles').update({
       is_premium: true,
       premium_expires_at: expiryDate.toISOString(),
-      deposit_balance: profile.deposit_balance - 500,
+      deposit_balance: profile.deposit_balance - premiumPrice,
       updated_at: new Date().toISOString(),
     }).eq('id', profile.id);
 
@@ -53,9 +71,9 @@ export function PremiumPage() {
     const { error: txError } = await supabase.from('transactions').insert({
       user_id: profile.id,
       type: 'premium_charge',
-      amount: 500,
+      amount: premiumPrice,
       balance_type: 'deposit',
-      description: 'Premium subscription - 30 days',
+      description: `Premium subscription - ${premiumDays} days`,
     });
 
     if (txError) console.error('Transaction error:', txError);
@@ -113,8 +131,8 @@ export function PremiumPage() {
           <Crown className="mx-auto h-12 w-12 text-accent-400" />
           <h2 className="mt-4 font-heading text-2xl font-bold">Premium Plan</h2>
           <div className="mt-4">
-            <span className="text-4xl font-extrabold">৳ 500</span>
-            <span className="text-primary-200"> / 30 days</span>
+            <span className="text-4xl font-extrabold">৳ {premiumPrice}</span>
+            <span className="text-primary-200"> / {premiumDays} days</span>
           </div>
           <p className="mt-2 text-sm text-primary-200">One-time payment from your deposit balance</p>
         </div>
@@ -144,8 +162,8 @@ export function PremiumPage() {
         <div className="space-y-4">
           <div className="rounded-lg bg-primary-50 p-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Premium Plan (30 days)</span>
-              <span className="font-bold text-gray-900">৳ 500</span>
+              <span className="text-sm text-gray-600">Premium Plan ({premiumDays} days)</span>
+              <span className="font-bold text-gray-900">৳ {premiumPrice}</span>
             </div>
             <div className="mt-2 flex items-center justify-between border-t border-primary-100 pt-2">
               <span className="text-sm text-gray-600">Your Deposit Balance</span>
@@ -153,7 +171,7 @@ export function PremiumPage() {
             </div>
             <div className="mt-2 flex items-center justify-between border-t border-primary-100 pt-2">
               <span className="text-sm font-semibold text-gray-700">Balance After</span>
-              <span className="font-bold text-primary-700">৳ {((profile?.deposit_balance ?? 0) - 500).toFixed(3)}</span>
+              <span className="font-bold text-primary-700">৳ {((profile?.deposit_balance ?? 0) - premiumPrice).toFixed(3)}</span>
             </div>
           </div>
           <div className="flex gap-3">

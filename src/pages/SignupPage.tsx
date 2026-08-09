@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, Lock, User, ArrowRight, AlertCircle, Gift } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Logo } from '@/components/Logo';
@@ -9,11 +9,12 @@ import { Button } from '@/components/ui/Button';
 export function SignupPage() {
   const navigate = useNavigate();
   const { signUp } = useAuth();
+  const [searchParams] = useSearchParams();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [referralCode, setReferralCode] = useState('');
+  const [referralCode, setReferralCode] = useState(searchParams.get('ref') ?? '');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 

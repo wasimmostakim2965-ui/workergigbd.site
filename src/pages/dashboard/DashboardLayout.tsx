@@ -170,7 +170,7 @@ export function DashboardLayout() {
               </span>
 
               {/* Mid-Right: Refresh Icon */}
-              <button className="p-2">
+              <button onClick={() => window.location.reload()} className="p-2" title="Refresh">
                 <RefreshCw className="h-5 w-5 text-white" />
               </button>
 
@@ -241,21 +241,25 @@ export function DashboardLayout() {
           <div className="px-4 pt-4 pb-2" style={{ backgroundColor: COLORS.bodyBg }}>
             {/* Filter Buttons Row */}
             <div className="flex gap-3">
-              <button className="flex-1 rounded-lg py-3 text-sm font-bold text-white" style={{ backgroundColor: COLORS.filterBlue }}>
-                <Filter className="inline-block h-4 w-4 mr-1.5" />
-                Select Category
-              </button>
-              <button className="flex-1 rounded-lg py-3 text-sm font-bold text-white" style={{ backgroundColor: COLORS.filterBlue }}>
-                <MapPin className="inline-block h-4 w-4 mr-1.5" />
-                Select Location
-              </button>
+              <Link to="/dashboard/find-jobs" className="flex-1">
+                <button className="w-full rounded-lg py-3 text-sm font-bold text-white" style={{ backgroundColor: COLORS.filterBlue }}>
+                  <Filter className="inline-block h-4 w-4 mr-1.5" />
+                  Select Category
+                </button>
+              </Link>
+              <Link to="/dashboard/find-jobs" className="flex-1">
+                <button className="w-full rounded-lg py-3 text-sm font-bold text-white" style={{ backgroundColor: COLORS.filterBlue }}>
+                  <MapPin className="inline-block h-4 w-4 mr-1.5" />
+                  Select Location
+                </button>
+              </Link>
             </div>
             {/* Sort Row */}
-            <div className="mt-3 flex justify-end items-center">
+            <Link to="/dashboard/find-jobs" className="mt-3 flex justify-end items-center block">
               <button className="text-sm font-extrabold" style={{ color: COLORS.primaryGreen }}>
                 Sort ▼
               </button>
-            </div>
+            </Link>
           </div>
 
           {/* Profile Dropdown */}

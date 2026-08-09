@@ -5,13 +5,13 @@ import { useAuth } from '@/context/AuthContext';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Input, Select } from '@/components/ui/Input';
+import { Input } from '@/components/ui/Input';
 import { Alert } from '@/components/ui/Alert';
 import { EmptyState, LoadingSpinner } from '@/components/ui/EmptyState';
 import { WithdrawalRequest, AdminSetting } from '@/types';
 
 export function WithdrawPage() {
-  const { profile, refreshProfile } = useAuth();
+  const { profile, user, refreshProfile } = useAuth();
   const [amount, setAmount] = useState('');
   const [method, setMethod] = useState('bkash');
   const [accountNumber, setAccountNumber] = useState('');
@@ -57,73 +57,46 @@ export function WithdrawPage() {
   const minWithdraw = parseFloat(settings.find(s => s.key === 'min_withdrawal')?.value || '500');
 
   const sendOtp = async () => {
-    if (!profile) return;
+    if (!profile || !user?.email) return;
     setOtpSending(true);
     setOtpError('');
 
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
-
-    const { error: insertError } = await supabase.from('email_otps').insert({
-      user_id: profile.id,
-      code,
-      expires_at: expiresAt,
+    // Send a real one-time code to the user's email via Supabase Auth.
+    // shouldCreateUser:false ensures it targets the existing account instead of creating a new one.
+    const { error: emailError } = await supabase.auth.signInWithOtp({
+      email: user.email,
+      options: { shouldCreateUser: false },
     });
 
-    if (insertError) {
-      setOtpError('Failed to send verification code. Please try again.');
+    if (emailError) {
+      setOtpError(emailError.message || 'Failed to send verification code. Please try again.');
       setOtpSending(false);
       return;
     }
-
-    // Send OTP via Supabase auth - resend verification email
-    const { error: emailError } = await supabase.auth.resend({
-      type: 'signup',
-      email: undefined,
-    });
-
-    // Also try sending via OTP email
-    await supabase.auth.signInWithOtp({
-      email: profile.email || '',
-      options: { shouldCreateUser: false },
-    }).catch(() => {});
 
     setOtpSent(true);
     setOtpSending(false);
   };
 
   const verifyOtp = async () => {
-    if (!profile || !otpCode) return;
+    if (!profile || !user?.email || !otpCode) return;
     setOtpVerifying(true);
     setOtpError('');
 
-    const { data, error: fetchError } = await supabase
-      .from('email_otps')
-      .select('*')
-      .eq('user_id', profile.id)
-      .eq('code', otpCode)
-      .eq('used', false)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    // Verify the code Supabase actually emailed to the user.
+    const { data, error: verifyError } = await supabase.auth.verifyOtp({
+      email: user.email,
+      token: otpCode,
+      type: 'email',
+    });
 
-    if (fetchError || !data) {
-      setOtpError('Invalid verification code. Please check and try again.');
+    if (verifyError || !data) {
+      setOtpError(verifyError?.message || 'Invalid verification code. Please check and try again.');
       setOtpVerifying(false);
       return;
     }
 
-    const otpRecord = data as { id: string; expires_at: string };
-    if (new Date(otpRecord.expires_at) < new Date()) {
-      setOtpError('Verification code has expired. Please request a new one.');
-      setOtpVerifying(false);
-      return;
-    }
-
-    // Mark OTP as used
-    await supabase.from('email_otps').update({ used: true }).eq('id', otpRecord.id);
-
-    // Update profile
+    // Mark the profile as email-verified so withdrawals are unlocked.
     await supabase.from('profiles').update({
       email_verified: true,
       updated_at: new Date().toISOString(),

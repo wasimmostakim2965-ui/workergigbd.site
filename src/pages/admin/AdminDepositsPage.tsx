@@ -9,7 +9,7 @@ import { Input, Textarea } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { Tabs } from '@/components/ui/Tabs';
 import { LoadingSpinner, EmptyState } from '@/components/ui/EmptyState';
-import { DepositRequest, Profile } from '@/types';
+import { DepositRequest, Profile, AdminSetting } from '@/types';
 
 export function AdminDepositsPage() {
   const { profile: admin } = useAuth();
@@ -19,6 +19,16 @@ export function AdminDepositsPage() {
   const [selected, setSelected] = useState<DepositRequest | null>(null);
   const [adminNote, setAdminNote] = useState('');
   const [processing, setProcessing] = useState(false);
+  const [settings, setSettings] = useState<AdminSetting[]>([]);
+
+  const referralEnabled = settings.find(s => s.key === 'referral_enabled')?.value === 'true';
+  const referralBonus = parseFloat(settings.find(s => s.key === 'referral_bonus')?.value || '10');
+
+  useEffect(() => {
+    supabase.from('admin_settings').select('*').then(({ data }) => {
+      setSettings((data as AdminSetting[]) ?? []);
+    });
+  }, []);
 
   const loadDeposits = useCallback(async () => {
     setLoading(true);
@@ -58,10 +68,11 @@ export function AdminDepositsPage() {
 
     const { data: userProfile } = await supabase.from('profiles').select('*').eq('id', selected.user_id).maybeSingle();
     if (userProfile) {
-      const newBalance = (userProfile as Profile).deposit_balance + selected.amount;
+      const up = userProfile as Profile;
+      const newBalance = up.deposit_balance + selected.amount;
       await supabase.from('profiles').update({
         deposit_balance: newBalance,
-        total_deposit: (userProfile as Profile).total_deposit + selected.amount,
+        total_deposit: up.total_deposit + selected.amount,
         updated_at: new Date().toISOString(),
       }).eq('id', selected.user_id);
 
@@ -73,12 +84,67 @@ export function AdminDepositsPage() {
         description: `Deposit approved - ${selected.method}`,
       });
 
-      await supabase.from('notifications').insert({
-        user_id: selected.user_id,
-        title: 'Deposit Approved!',
-        message: `Your deposit of ৳ ${selected.amount.toFixed(3)} has been approved and credited to your account.`,
-        type: 'success',
+      await supabase.rpc('notify_user', {
+        target_uid: selected.user_id,
+        n_title: 'Deposit Approved!',
+        n_message: `Your deposit of ৳ ${selected.amount.toFixed(3)} has been approved and credited to your account.`,
+        n_type: 'success',
       });
+
+      // Referral bonus: when a user's FIRST deposit is approved and they were
+      // referred by someone, credit the referrer once. Uses notify_user RPC
+      // because the referrer is a different user.
+      if (referralEnabled && up.referred_by && up.total_deposit === 0) {
+        const { data: referrer } = await supabase.from('profiles')
+          .select('id')
+          .eq('referral_code', up.referred_by)
+          .maybeSingle();
+
+        if (referrer) {
+          const ref = referrer as { id: string };
+
+          // Avoid double-crediting if a referral record already exists.
+          const { data: existing } = await supabase.from('referrals')
+            .select('id')
+            .eq('referred_id', selected.user_id)
+            .maybeSingle();
+
+          if (!existing) {
+            await supabase.from('referrals').insert({
+              referrer_id: ref.id,
+              referred_id: selected.user_id,
+              bonus_amount: referralBonus,
+              status: 'completed',
+            });
+
+            const { data: refProfile } = await supabase.from('profiles')
+              .select('deposit_balance')
+              .eq('id', ref.id)
+              .maybeSingle();
+            const refBal = (refProfile as { deposit_balance: number } | null)?.deposit_balance ?? 0;
+
+            await supabase.from('profiles').update({
+              deposit_balance: refBal + referralBonus,
+              updated_at: new Date().toISOString(),
+            }).eq('id', ref.id);
+
+            await supabase.from('transactions').insert({
+              user_id: ref.id,
+              type: 'referral_bonus',
+              amount: referralBonus,
+              balance_type: 'deposit',
+              description: `Referral bonus for ${up.username || 'a new user'}'s first deposit`,
+            });
+
+            await supabase.rpc('notify_user', {
+              target_uid: ref.id,
+              n_title: 'Referral Bonus Earned!',
+              n_message: `You earned ৳ ${referralBonus.toFixed(3)} referral bonus. Your referred user just made their first deposit.`,
+              n_type: 'success',
+            });
+          }
+        }
+      }
     }
 
     setProcessing(false);

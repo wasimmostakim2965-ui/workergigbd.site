@@ -110,11 +110,14 @@ export function FindJobsPage() {
       setSubmitError(error.message);
     } else {
       setSubmitSuccess(true);
-      await supabase.from('notifications').insert({
-        user_id: selectedJob.user_id,
-        title: 'New Task Submission',
-        message: `A worker has submitted a task for "${selectedJob.title}". Review it in your admin panel.`,
-        type: 'info',
+      // Notify the job owner that a worker submitted a task. Done via the
+      // notify_user RPC so it bypasses RLS (worker != owner). Falls back
+      // gracefully if the RPC isn't deployed yet.
+      await supabase.rpc('notify_user', {
+        target_uid: selectedJob.user_id,
+        n_title: 'New Task Submission',
+        n_message: `A worker has submitted a task for "${selectedJob.title}". Review it in your admin panel.`,
+        n_type: 'info',
       });
       setTimeout(() => {
         setSelectedJob(null);

@@ -21,6 +21,7 @@ import { ProfilePage } from '@/pages/dashboard/ProfilePage';
 import { TicketPage } from '@/pages/dashboard/TicketPage';
 import { AdvertisementPage } from '@/pages/dashboard/AdvertisementPage';
 import { VerifyPage } from '@/pages/dashboard/VerifyPage';
+import { LiveChatPage } from '@/pages/dashboard/LiveChatPage';
 import { AdminLayout } from '@/pages/admin/AdminLayout';
 import { AdminDashboard } from '@/pages/admin/AdminDashboard';
 import { AdminUsersPage } from '@/pages/admin/AdminUsersPage';
@@ -31,6 +32,8 @@ import { AdminTasksPage } from '@/pages/admin/AdminTasksPage';
 import { AdminTicketsPage } from '@/pages/admin/AdminTicketsPage';
 import { AdminCategoriesPage } from '@/pages/admin/AdminCategoriesPage';
 import { AdminSettingsPage } from '@/pages/admin/AdminSettingsPage';
+import { AdminLiveChatPage } from '@/pages/admin/AdminLiveChatPage';
+import { AdminVerificationsPage } from '@/pages/admin/AdminVerificationsPage';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -82,6 +85,7 @@ function AppRoutes() {
         <Route path="premium" element={<PremiumPage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="ticket" element={<TicketPage />} />
+        <Route path="live-chat" element={<LiveChatPage />} />
         <Route path="advertisement" element={<AdvertisementPage />} />
         <Route path="verify" element={<VerifyPage />} />
       </Route>
@@ -94,6 +98,8 @@ function AppRoutes() {
         <Route path="jobs" element={<AdminJobsPage />} />
         <Route path="tasks" element={<AdminTasksPage />} />
         <Route path="tickets" element={<AdminTicketsPage />} />
+        <Route path="live-chat" element={<AdminLiveChatPage />} />
+        <Route path="verifications" element={<AdminVerificationsPage />} />
         <Route path="categories" element={<AdminCategoriesPage />} />
         <Route path="settings" element={<AdminSettingsPage />} />
       </Route>

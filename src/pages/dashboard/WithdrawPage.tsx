@@ -128,26 +128,36 @@ export function WithdrawPage() {
       setLoading(false);
       return;
     }
+    if (!accountNumber.trim()) {
+      setError('Please enter your account number.');
+      setLoading(false);
+      return;
+    }
 
-    const { error: insertError } = await supabase.from('withdrawal_requests').insert({
-      user_id: profile.id,
-      amount: amt,
-      method,
-      account_number: accountNumber,
-      status: 'pending',
+    // Atomic RPC: deducts earning_balance inside a DB transaction so two
+    // concurrent requests can never drain more than the available balance.
+    // The amount is held until admin approves (then counted as spent) or
+    // rejects (then refunded automatically).
+    const { error: rpcError } = await supabase.rpc('request_withdrawal', {
+      p_uid: profile.id,
+      p_amount: amt,
+      p_method: method,
+      p_account: accountNumber.trim(),
     });
 
-    if (insertError) {
-      setError(insertError.message);
-    } else {
-      setSuccess(true);
-      setAmount(''); setAccountNumber('');
-      const { data } = await supabase.from('withdrawal_requests')
-        .select('*').eq('user_id', profile.id)
-        .order('created_at', { ascending: false }).limit(10);
-      setHistory((data as WithdrawalRequest[]) ?? []);
-      await refreshProfile();
+    if (rpcError) {
+      setError(rpcError.message);
+      setLoading(false);
+      return;
     }
+
+    setSuccess(true);
+    setAmount(''); setAccountNumber('');
+    const { data } = await supabase.from('withdrawal_requests')
+      .select('*').eq('user_id', profile.id)
+      .order('created_at', { ascending: false }).limit(10);
+    setHistory((data as WithdrawalRequest[]) ?? []);
+    await refreshProfile();
     setLoading(false);
   };
 
@@ -247,7 +257,7 @@ export function WithdrawPage() {
 
       {success && (
         <Alert variant="success" title="Withdrawal Request Submitted!">
-          Your withdrawal request has been submitted and will be processed within 24-48 hours.
+          ৳ {parseFloat(amount || '0') || '0'} has been held from your balance. Your request is pending admin approval. Funds will be sent within 24-48 hours, or refunded if rejected.
         </Alert>
       )}
       {error && <Alert variant="error">{error}</Alert>}

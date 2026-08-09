@@ -21,9 +21,24 @@ export function AdminUsersPage() {
   const loadUsers = useCallback(async () => {
     setLoading(true);
     try {
+      // Use the admin search_users RPC when there is a search term so admins
+      // can find users by phone, email, UID, referral_code, username or name.
+      if (search.trim()) {
+        const { data, error } = await supabase.rpc('search_users', { p_term: search.trim() });
+        if (error) {
+          console.error('Search users error:', error);
+          setUsers([]);
+        } else {
+          let rows = (data as Profile[]) ?? [];
+          if (statusFilter !== 'all') rows = rows.filter((u) => u.status === statusFilter);
+          setUsers(rows);
+        }
+        setLoading(false);
+        return;
+      }
+
       let query = supabase.from('profiles').select('*').neq('status', 'admin');
       if (statusFilter !== 'all') query = query.eq('status', statusFilter);
-      if (search) query = query.or(`username.ilike.%${search}%,full_name.ilike.%${search}%`);
       const { data, error } = await query.order('created_at', { ascending: false }).limit(100);
       if (error) {
         console.error('Load users error:', error);
@@ -92,7 +107,7 @@ export function AdminUsersPage() {
       <Card className="p-4">
         <div className="flex flex-col gap-3 sm:flex-row">
           <div className="flex-1">
-            <Input placeholder="Search by username or name..." value={search} onChange={(e) => setSearch(e.target.value)} icon={<Search className="h-4 w-4" />} />
+            <Input placeholder="Search by phone, email, UID, referral code, name..." value={search} onChange={(e) => setSearch(e.target.value)} icon={<Search className="h-4 w-4" />} />
           </div>
           <div className="sm:w-48">
             <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
@@ -180,7 +195,9 @@ export function AdminUsersPage() {
                   {selectedUser.is_verified && <ShieldCheck className="h-5 w-5 text-success-600" />}
                   {selectedUser.is_premium && <Badge variant="accent" size="sm">PRO</Badge>}
                 </div>
-                <p className="text-sm text-gray-500">ID: {selectedUser.id.slice(0, 12)}</p>
+                <p className="text-sm text-gray-500">Phone: {selectedUser.phone || '—'}</p>
+                <p className="text-sm text-gray-500">Referral Code: {selectedUser.referral_code || '—'}</p>
+                <p className="break-all font-mono text-xs text-gray-400">UID: {selectedUser.id}</p>
                 <p className="text-sm text-gray-500">Joined: {new Date(selectedUser.created_at).toLocaleDateString()}</p>
               </div>
             </div>

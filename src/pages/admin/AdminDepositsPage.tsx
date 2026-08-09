@@ -21,9 +21,6 @@ export function AdminDepositsPage() {
   const [processing, setProcessing] = useState(false);
   const [settings, setSettings] = useState<AdminSetting[]>([]);
 
-  const referralEnabled = settings.find(s => s.key === 'referral_enabled')?.value === 'true';
-  const referralBonus = parseFloat(settings.find(s => s.key === 'referral_bonus')?.value || '10');
-
   useEffect(() => {
     supabase.from('admin_settings').select('*').then(({ data }) => {
       setSettings((data as AdminSetting[]) ?? []);
@@ -33,7 +30,9 @@ export function AdminDepositsPage() {
   const loadDeposits = useCallback(async () => {
     setLoading(true);
     try {
-      let query = supabase.from('deposit_requests').select('*, profiles(username)').order('created_at', { ascending: false });
+      let query = supabase.from('deposit_requests')
+        .select('*, profiles(username, phone, referral_code, status, earning_balance, deposit_balance, referred_by, total_deposit)')
+        .order('created_at', { ascending: false });
       if (tab === 'pending') query = query.eq('status', 'pending');
       else if (tab === 'approved') query = query.eq('status', 'approved');
       else if (tab === 'rejected') query = query.eq('status', 'rejected');
@@ -57,94 +56,22 @@ export function AdminDepositsPage() {
     if (!selected || !admin) return;
     setProcessing(true);
 
-    const { error: depError } = await supabase.from('deposit_requests').update({
-      status: 'approved',
-      admin_note: adminNote,
-      reviewed_by: admin.id,
-      reviewed_at: new Date().toISOString(),
-    }).eq('id', selected.id);
+    // Atomic RPC: credits deposit_balance + total_deposit, writes the ledger
+    // transaction, applies the referral bonus (first deposit only) and notifies
+    // the user — all inside one DB transaction. Re-approval is prevented by a
+    // status guard. Reads referral_enabled / referral_bonus from admin_settings
+    // server-side so it can't be tampered with from the client.
+    const { error } = await supabase.rpc('process_deposit', {
+      p_deposit_id: selected.id,
+      p_admin_uid: admin.id,
+      p_action: 'approve',
+      p_note: adminNote,
+    });
 
-    if (depError) { console.error(depError); setProcessing(false); return; }
-
-    const { data: userProfile } = await supabase.from('profiles').select('*').eq('id', selected.user_id).maybeSingle();
-    if (userProfile) {
-      const up = userProfile as Profile;
-      const newBalance = up.deposit_balance + selected.amount;
-      await supabase.from('profiles').update({
-        deposit_balance: newBalance,
-        total_deposit: up.total_deposit + selected.amount,
-        updated_at: new Date().toISOString(),
-      }).eq('id', selected.user_id);
-
-      await supabase.from('transactions').insert({
-        user_id: selected.user_id,
-        type: 'deposit',
-        amount: selected.amount,
-        balance_type: 'deposit',
-        description: `Deposit approved - ${selected.method}`,
-      });
-
-      await supabase.rpc('notify_user', {
-        target_uid: selected.user_id,
-        n_title: 'Deposit Approved!',
-        n_message: `Your deposit of ৳ ${selected.amount.toFixed(3)} has been approved and credited to your account.`,
-        n_type: 'success',
-      });
-
-      // Referral bonus: when a user's FIRST deposit is approved and they were
-      // referred by someone, credit the referrer once. Uses notify_user RPC
-      // because the referrer is a different user.
-      if (referralEnabled && up.referred_by && up.total_deposit === 0) {
-        const { data: referrer } = await supabase.from('profiles')
-          .select('id')
-          .eq('referral_code', up.referred_by)
-          .maybeSingle();
-
-        if (referrer) {
-          const ref = referrer as { id: string };
-
-          // Avoid double-crediting if a referral record already exists.
-          const { data: existing } = await supabase.from('referrals')
-            .select('id')
-            .eq('referred_id', selected.user_id)
-            .maybeSingle();
-
-          if (!existing) {
-            await supabase.from('referrals').insert({
-              referrer_id: ref.id,
-              referred_id: selected.user_id,
-              bonus_amount: referralBonus,
-              status: 'completed',
-            });
-
-            const { data: refProfile } = await supabase.from('profiles')
-              .select('deposit_balance')
-              .eq('id', ref.id)
-              .maybeSingle();
-            const refBal = (refProfile as { deposit_balance: number } | null)?.deposit_balance ?? 0;
-
-            await supabase.from('profiles').update({
-              deposit_balance: refBal + referralBonus,
-              updated_at: new Date().toISOString(),
-            }).eq('id', ref.id);
-
-            await supabase.from('transactions').insert({
-              user_id: ref.id,
-              type: 'referral_bonus',
-              amount: referralBonus,
-              balance_type: 'deposit',
-              description: `Referral bonus for ${up.username || 'a new user'}'s first deposit`,
-            });
-
-            await supabase.rpc('notify_user', {
-              target_uid: ref.id,
-              n_title: 'Referral Bonus Earned!',
-              n_message: `You earned ৳ ${referralBonus.toFixed(3)} referral bonus. Your referred user just made their first deposit.`,
-              n_type: 'success',
-            });
-          }
-        }
-      }
+    if (error) {
+      alert(error.message);
+      setProcessing(false);
+      return;
     }
 
     setProcessing(false);
@@ -157,19 +84,18 @@ export function AdminDepositsPage() {
     if (!selected || !admin) return;
     setProcessing(true);
 
-    await supabase.from('deposit_requests').update({
-      status: 'rejected',
-      admin_note: adminNote,
-      reviewed_by: admin.id,
-      reviewed_at: new Date().toISOString(),
-    }).eq('id', selected.id);
-
-    await supabase.from('notifications').insert({
-      user_id: selected.user_id,
-      title: 'Deposit Rejected',
-      message: `Your deposit request of ৳ ${selected.amount.toFixed(3)} was rejected. ${adminNote}`,
-      type: 'error',
+    const { error } = await supabase.rpc('process_deposit', {
+      p_deposit_id: selected.id,
+      p_admin_uid: admin.id,
+      p_action: 'reject',
+      p_note: adminNote,
     });
+
+    if (error) {
+      alert(error.message);
+      setProcessing(false);
+      return;
+    }
 
     setProcessing(false);
     setSelected(null);
@@ -203,6 +129,7 @@ export function AdminDepositsPage() {
               <thead className="border-b border-gray-100 bg-gray-50 text-left text-xs text-gray-500">
                 <tr>
                   <th className="px-5 py-3 font-medium">User</th>
+                  <th className="px-5 py-3 font-medium">UID</th>
                   <th className="px-5 py-3 font-medium">Amount</th>
                   <th className="px-5 py-3 font-medium">Method</th>
                   <th className="px-5 py-3 font-medium">Sender</th>
@@ -215,7 +142,11 @@ export function AdminDepositsPage() {
               <tbody className="divide-y divide-gray-50">
                 {deposits.map((dep) => (
                   <tr key={dep.id} className="hover:bg-gray-50">
-                    <td className="px-5 py-3 font-medium text-gray-900">{dep.profiles?.username ?? 'Unknown'}</td>
+                    <td className="px-5 py-3">
+                      <div className="font-medium text-gray-900">{dep.profiles?.username ?? 'Unknown'}</div>
+                      <div className="text-xs text-gray-400">{dep.profiles?.phone || '—'}</div>
+                    </td>
+                    <td className="px-5 py-3 font-mono text-xs text-gray-500">{dep.user_id.slice(0, 8)}</td>
                     <td className="px-5 py-3 font-bold text-gray-900">৳ {dep.amount.toFixed(3)}</td>
                     <td className="px-5 py-3 capitalize text-gray-600">{dep.method}</td>
                     <td className="px-5 py-3 text-gray-600">{dep.sender_number}</td>
@@ -250,6 +181,9 @@ export function AdminDepositsPage() {
           <div className="space-y-4">
             <div className="rounded-lg bg-gray-50 p-4 space-y-2 text-sm">
               <div className="flex justify-between"><span className="text-gray-500">User:</span><span className="font-semibold text-gray-900">{(selected as any).profiles?.username ?? 'Unknown'}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">UID:</span><span className="font-mono text-xs text-gray-700">{selected.user_id}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">Phone:</span><span className="text-gray-700">{(selected as any).profiles?.phone || '—'}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">Referral:</span><span className="text-gray-700">{(selected as any).profiles?.referral_code || '—'}</span></div>
               <div className="flex justify-between"><span className="text-gray-500">Amount:</span><span className="font-bold text-gray-900">৳ {selected.amount.toFixed(3)}</span></div>
               <div className="flex justify-between"><span className="text-gray-500">Method:</span><span className="capitalize text-gray-700">{selected.method}</span></div>
               <div className="flex justify-between"><span className="text-gray-500">Sender Number:</span><span className="text-gray-700">{selected.sender_number}</span></div>

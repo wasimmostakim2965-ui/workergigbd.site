@@ -23,7 +23,9 @@ export function AdminWithdrawalsPage() {
   const loadWithdrawals = useCallback(async () => {
     setLoading(true);
     try {
-      let query = supabase.from('withdrawal_requests').select('*, profiles(username)').order('created_at', { ascending: false });
+      let query = supabase.from('withdrawal_requests')
+        .select('*, profiles(username, phone, referral_code, status, earning_balance, deposit_balance)')
+        .order('created_at', { ascending: false });
       if (tab === 'pending') query = query.eq('status', 'pending');
       else if (tab === 'approved') query = query.eq('status', 'approved');
       else if (tab === 'rejected') query = query.eq('status', 'rejected');
@@ -47,43 +49,20 @@ export function AdminWithdrawalsPage() {
     if (!selected || !admin) return;
     setProcessing(true);
 
-    const { data: userProfile } = await supabase.from('profiles').select('*').eq('id', selected.user_id).maybeSingle();
-    if (userProfile) {
-      const p = userProfile as Profile;
-      if (p.earning_balance < selected.amount) {
-        setProcessing(false);
-        alert('User does not have enough earning balance!');
-        return;
-      }
-
-      await supabase.from('profiles').update({
-        earning_balance: p.earning_balance - selected.amount,
-        total_withdraw: p.total_withdraw + selected.amount,
-        updated_at: new Date().toISOString(),
-      }).eq('id', selected.user_id);
-
-      await supabase.from('transactions').insert({
-        user_id: selected.user_id,
-        type: 'withdrawal',
-        amount: selected.amount,
-        balance_type: 'earning',
-        description: `Withdrawal approved - ${selected.method}`,
-      });
-    }
-
-    await supabase.from('withdrawal_requests').update({
-      status: 'approved',
-      admin_note: adminNote,
-      reviewed_by: admin.id,
-      reviewed_at: new Date().toISOString(),
-    }).eq('id', selected.id);
-
-    await supabase.from('notifications').insert({
-      user_id: selected.user_id,
-      title: 'Withdrawal Approved!',
-      message: `Your withdrawal of ৳ ${selected.amount.toFixed(3)} has been approved and sent to your ${selected.method} account.`,
-      type: 'success',
+    // Atomic RPC: updates balances, total_withdraw, status + notification
+    // inside a single DB transaction. Re-approval is prevented by a status guard.
+    const { error } = await supabase.rpc('process_withdrawal_request', {
+      p_wd_id: selected.id,
+      p_admin_uid: admin.id,
+      p_action: 'approve',
+      p_note: adminNote,
     });
+
+    if (error) {
+      alert(error.message);
+      setProcessing(false);
+      return;
+    }
 
     setProcessing(false);
     setSelected(null);
@@ -95,19 +74,19 @@ export function AdminWithdrawalsPage() {
     if (!selected || !admin) return;
     setProcessing(true);
 
-    await supabase.from('withdrawal_requests').update({
-      status: 'rejected',
-      admin_note: adminNote,
-      reviewed_by: admin.id,
-      reviewed_at: new Date().toISOString(),
-    }).eq('id', selected.id);
-
-    await supabase.from('notifications').insert({
-      user_id: selected.user_id,
-      title: 'Withdrawal Rejected',
-      message: `Your withdrawal request of ৳ ${selected.amount.toFixed(3)} was rejected. ${adminNote}`,
-      type: 'error',
+    // Atomic RPC: refunds the held amount + sets rejected + notifies.
+    const { error } = await supabase.rpc('process_withdrawal_request', {
+      p_wd_id: selected.id,
+      p_admin_uid: admin.id,
+      p_action: 'reject',
+      p_note: adminNote,
     });
+
+    if (error) {
+      alert(error.message);
+      setProcessing(false);
+      return;
+    }
 
     setProcessing(false);
     setSelected(null);
@@ -141,9 +120,10 @@ export function AdminWithdrawalsPage() {
               <thead className="border-b border-gray-100 bg-gray-50 text-left text-xs text-gray-500">
                 <tr>
                   <th className="px-5 py-3 font-medium">User</th>
+                  <th className="px-5 py-3 font-medium">UID</th>
                   <th className="px-5 py-3 font-medium">Amount</th>
                   <th className="px-5 py-3 font-medium">Method</th>
-                  <th className="px-5 py-3 font-medium">Account</th>
+                  <th className="px-5 py-3 font-medium">Account/Phone</th>
                   <th className="px-5 py-3 font-medium">Status</th>
                   <th className="px-5 py-3 font-medium">Date</th>
                   <th className="px-5 py-3 font-medium">Action</th>
@@ -152,7 +132,11 @@ export function AdminWithdrawalsPage() {
               <tbody className="divide-y divide-gray-50">
                 {withdrawals.map((wd) => (
                   <tr key={wd.id} className="hover:bg-gray-50">
-                    <td className="px-5 py-3 font-medium text-gray-900">{wd.profiles?.username ?? 'Unknown'}</td>
+                    <td className="px-5 py-3">
+                      <div className="font-medium text-gray-900">{wd.profiles?.username ?? 'Unknown'}</div>
+                      <div className="text-xs text-gray-400">{wd.profiles?.phone || '—'}</div>
+                    </td>
+                    <td className="px-5 py-3 font-mono text-xs text-gray-500">{wd.user_id.slice(0, 8)}</td>
                     <td className="px-5 py-3 font-bold text-gray-900">৳ {wd.amount.toFixed(3)}</td>
                     <td className="px-5 py-3 capitalize text-gray-600">{wd.method}</td>
                     <td className="px-5 py-3 text-gray-600">{wd.account_number}</td>
@@ -186,6 +170,9 @@ export function AdminWithdrawalsPage() {
           <div className="space-y-4">
             <div className="rounded-lg bg-gray-50 p-4 space-y-2 text-sm">
               <div className="flex justify-between"><span className="text-gray-500">User:</span><span className="font-semibold text-gray-900">{(selected as any).profiles?.username ?? 'Unknown'}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">UID:</span><span className="font-mono text-xs text-gray-700">{selected.user_id}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">Phone:</span><span className="text-gray-700">{(selected as any).profiles?.phone || '—'}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">Referral:</span><span className="text-gray-700">{(selected as any).profiles?.referral_code || '—'}</span></div>
               <div className="flex justify-between"><span className="text-gray-500">Amount:</span><span className="font-bold text-gray-900">৳ {selected.amount.toFixed(3)}</span></div>
               <div className="flex justify-between"><span className="text-gray-500">Method:</span><span className="capitalize text-gray-700">{selected.method}</span></div>
               <div className="flex justify-between"><span className="text-gray-500">Account:</span><span className="text-gray-700">{selected.account_number}</span></div>

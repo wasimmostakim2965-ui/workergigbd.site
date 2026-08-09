@@ -35,6 +35,7 @@ const navItems = [
   { to: '/dashboard/premium', icon: Crown, label: 'Premium', badge: 'PRO' },
   { to: '/dashboard/notifications', icon: Bell, label: 'Notifications' },
   { to: '/dashboard/ticket', icon: Ticket, label: 'Support Ticket' },
+  { to: '/dashboard/live-chat', icon: MessageSquare, label: 'Live Chat' },
 ];
 
 export function DashboardLayout() {
@@ -299,6 +300,13 @@ export function DashboardLayout() {
                     <Settings className="h-4 w-4" /> Admin Settings
                   </Link>
                 )}
+                <Link
+                  to="/dashboard/live-chat"
+                  onClick={() => setProfileOpen(false)}
+                  className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+                >
+                  <MessageSquare className="h-4 w-4" /> Live Chat
+                </Link>
                 <Link
                   to="/dashboard/ticket"
                   onClick={() => setProfileOpen(false)}

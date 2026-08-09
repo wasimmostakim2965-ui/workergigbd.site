@@ -177,3 +177,28 @@ export interface VerificationRequest {
   reviewed_at: string | null;
   created_at: string;
 }
+
+// ---- Live Chat ----
+export interface ChatConversation {
+  id: string;
+  user_id: string;
+  status: 'open' | 'closed';
+  user_unread_count: number;
+  admin_unread_count: number;
+  last_message_at: string;
+  last_message: string;
+  last_sender_is_admin: boolean;
+  created_at: string;
+  updated_at: string;
+  profiles?: Profile;
+}
+
+export interface ChatMessage {
+  id: string;
+  conversation_id: string;
+  sender_id: string;
+  message: string;
+  is_admin_reply: boolean;
+  read_at: string | null;
+  created_at: string;
+}

@@ -19,7 +19,7 @@ export function ShareEarnPage() {
     });
     if (profile) {
       supabase.from('referrals')
-        .select('bonus_amount, status, created_at, referred:profiles!referrals_referred_id_fkey(username, created_at)')
+        .select('bonus_amount, status, created_at, referred:profiles!referrals_referred_profile(username, created_at)')
         .eq('referrer_id', profile.id)
         .order('created_at', { ascending: false })
         .then(({ data }) => {

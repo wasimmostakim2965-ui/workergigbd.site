@@ -15,6 +15,33 @@ export function ProfilePage() {
   const [phone, setPhone] = useState(profile?.phone ?? '');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState('');
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile) return;
+    setAvatarUploading(true);
+    setAvatarError('');
+    try {
+      const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+      const path = `${profile.id}/avatar.${ext}`;
+      const { error: upErr } = await supabase.storage.from('avatars')
+        .upload(path, file, { upsert: true });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from('avatars').getPublicUrl(path);
+      const { error: updErr } = await supabase.from('profiles')
+        .update({ avatar_url: pub.publicUrl, updated_at: new Date().toISOString() })
+        .eq('id', profile.id);
+      if (updErr) throw updErr;
+      await refreshProfile();
+    } catch (err: any) {
+      setAvatarError(err?.message || 'Avatar upload failed');
+    } finally {
+      setAvatarUploading(false);
+      if (e.target) e.target.value = '';
+    }
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,13 +85,20 @@ export function ProfilePage() {
         {/* Profile card */}
         <Card className="p-6 text-center">
           <div className="relative mx-auto mb-4 h-24 w-24">
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-primary-600 to-primary-800 text-4xl font-bold text-white uppercase">
-              {profile?.username?.charAt(0) ?? 'U'}
-            </div>
-            <button className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-white border border-gray-200 shadow-md hover:bg-gray-50">
-              <Camera className="h-4 w-4 text-gray-600" />
-            </button>
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt={profile?.username ?? 'avatar'}
+                   className="h-24 w-24 rounded-full object-cover border border-gray-200" />
+            ) : (
+              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-primary-600 to-primary-800 text-4xl font-bold text-white uppercase">
+                {profile?.username?.charAt(0) ?? 'U'}
+              </div>
+            )}
+            <label className="absolute bottom-0 right-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white border border-gray-200 shadow-md hover:bg-gray-50">
+              <Camera className={`h-4 w-4 text-gray-600 ${avatarUploading ? 'animate-pulse' : ''}`} />
+              <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} disabled={avatarUploading} />
+            </label>
           </div>
+          {avatarError && <p className="text-xs text-error-600">{avatarError}</p>}
           <h3 className="font-heading text-lg font-bold text-gray-900">{profile?.username ?? 'User'}</h3>
           <p className="text-sm text-gray-500">{user?.email ?? '—'}</p>
           <p className="text-xs text-gray-400 mt-0.5">ID: {profile?.id?.slice(0, 8) ?? '—'}</p>

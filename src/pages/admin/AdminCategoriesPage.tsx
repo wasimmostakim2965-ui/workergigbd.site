@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Input, Textarea } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
+import { Alert } from '@/components/ui/Alert';
 import { LoadingSpinner, EmptyState } from '@/components/ui/EmptyState';
 import { Category } from '@/types';
 
@@ -16,6 +17,7 @@ export function AdminCategoriesPage() {
   const [editing, setEditing] = useState<Category | null>(null);
   const [form, setForm] = useState({ name: '', icon: '', subcategories: '', display_order: '0' });
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   const loadCategories = useCallback(async () => {
     setLoading(true);
@@ -38,23 +40,26 @@ export function AdminCategoriesPage() {
 
   const handleSave = async () => {
     setSaving(true);
+    setError('');
     const subs = form.subcategories.split(',').map(s => s.trim()).filter(Boolean);
 
     if (editing) {
-      await supabase.from('categories').update({
+      const { error: e } = await supabase.from('categories').update({
         name: form.name,
         icon: form.icon,
         subcategories: subs,
         display_order: parseInt(form.display_order) || 0,
       }).eq('id', editing.id);
+      if (e) { setError(e.message); setSaving(false); return; }
     } else {
-      await supabase.from('categories').insert({
+      const { error: e } = await supabase.from('categories').insert({
         name: form.name,
         icon: form.icon,
         subcategories: subs,
         display_order: parseInt(form.display_order) || 0,
         is_active: true,
       });
+      if (e) { setError(e.message); setSaving(false); return; }
     }
 
     setSaving(false);
@@ -65,13 +70,15 @@ export function AdminCategoriesPage() {
   };
 
   const toggleActive = async (cat: Category) => {
-    await supabase.from('categories').update({ is_active: !cat.is_active }).eq('id', cat.id);
+    const { error: e } = await supabase.from('categories').update({ is_active: !cat.is_active }).eq('id', cat.id);
+    if (e) setError(e.message);
     loadCategories();
   };
 
   const deleteCategory = async (id: string) => {
     if (!confirm('Delete this category?')) return;
-    await supabase.from('categories').delete().eq('id', id);
+    const { error: e } = await supabase.from('categories').delete().eq('id', id);
+    if (e) setError(e.message);
     loadCategories();
   };
 
@@ -99,6 +106,8 @@ export function AdminCategoriesPage() {
           <Plus className="h-4 w-4" /> Add Category
         </Button>
       </div>
+
+      {error && <Alert variant="error" title="Action failed">{error}</Alert>}
 
       {categories.length === 0 ? (
         <Card><EmptyState icon={<FolderTree className="h-8 w-8" />} title="No categories yet" /></Card>

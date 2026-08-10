@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Input, Select } from '@/components/ui/Input';
+import { Alert } from '@/components/ui/Alert';
 import { LoadingSpinner, EmptyState } from '@/components/ui/EmptyState';
 import { Job, Profile } from '@/types';
 
@@ -13,6 +14,7 @@ export function AdminJobsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [error, setError] = useState('');
 
   const loadJobs = useCallback(async () => {
     setLoading(true);
@@ -38,13 +40,15 @@ export function AdminJobsPage() {
 
   const toggleStatus = async (job: Job) => {
     const newStatus = job.status === 'active' ? 'paused' : 'active';
-    await supabase.from('jobs').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', job.id);
+    const { error: e } = await supabase.from('jobs').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', job.id);
+    if (e) setError(e.message);
     loadJobs();
   };
 
   const deleteJob = async (id: string) => {
     if (!confirm('Delete this job permanently?')) return;
-    await supabase.from('jobs').delete().eq('id', id);
+    const { error: e } = await supabase.from('jobs').delete().eq('id', id);
+    if (e) setError(e.message);
     loadJobs();
   };
 
@@ -54,6 +58,8 @@ export function AdminJobsPage() {
         <h1 className="font-heading text-2xl font-bold text-gray-900">Job Management</h1>
         <p className="mt-1 text-sm text-gray-600">Monitor and manage all posted jobs</p>
       </div>
+
+      {error && <Alert variant="error" title="Action failed">{error}</Alert>}
 
       <Card className="p-4">
         <div className="flex flex-col gap-3 sm:flex-row">

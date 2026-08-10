@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Input, Select } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
+import { Alert } from '@/components/ui/Alert';
 import { LoadingSpinner, EmptyState } from '@/components/ui/EmptyState';
 import { Profile } from '@/types';
 
@@ -17,6 +18,10 @@ export function AdminUsersPage() {
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
   const [editForm, setEditForm] = useState<Profile | null>(null);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const flash = (msg: string) => { setSuccess(msg); setError(''); setTimeout(() => setSuccess(''), 2500); };
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
@@ -56,13 +61,17 @@ export function AdminUsersPage() {
   useEffect(() => { loadUsers(); }, [loadUsers]);
 
   const updateStatus = async (user: Profile, status: string) => {
-    await supabase.from('profiles').update({ status, updated_at: new Date().toISOString() }).eq('id', user.id);
+    const { error: e } = await supabase.from('profiles').update({ status, updated_at: new Date().toISOString() }).eq('id', user.id);
+    if (e) { setError(e.message); return; }
+    flash(`${user.username} marked ${status}.`);
     loadUsers();
     setSelectedUser(null);
   };
 
   const toggleVerified = async (user: Profile) => {
-    await supabase.from('profiles').update({ is_verified: !user.is_verified, updated_at: new Date().toISOString() }).eq('id', user.id);
+    const { error: e } = await supabase.from('profiles').update({ is_verified: !user.is_verified, updated_at: new Date().toISOString() }).eq('id', user.id);
+    if (e) { setError(e.message); return; }
+    flash(`${user.username} ${user.is_verified ? 'unverified' : 'verified'}.`);
     loadUsers();
     setSelectedUser(null);
   };
@@ -75,7 +84,9 @@ export function AdminUsersPage() {
     } else {
       updates.premium_expires_at = null;
     }
-    await supabase.from('profiles').update(updates).eq('id', user.id);
+    const { error: e } = await supabase.from('profiles').update(updates).eq('id', user.id);
+    if (e) { setError(e.message); return; }
+    flash(`${user.username} premium ${user.is_premium ? 'removed' : 'granted'}.`);
     loadUsers();
     setSelectedUser(null);
   };
@@ -83,16 +94,50 @@ export function AdminUsersPage() {
   const handleSaveEdit = async () => {
     if (!editForm) return;
     setSaving(true);
-    await supabase.from('profiles').update({
+    setError('');
+    const now = new Date().toISOString();
+
+    // When an admin changes a balance, record the delta in the transactions
+    // ledger so the audit trail stays intact (no silent balance overwrites).
+    const ledger: { user_id: string; type: any; amount: number; balance_type: any; description: string; reference_id: string | null }[] = [];
+    const earningDelta = (editForm.earning_balance ?? 0) - (selectedUser?.earning_balance ?? 0);
+    const depositDelta = (editForm.deposit_balance ?? 0) - (selectedUser?.deposit_balance ?? 0);
+    if (Math.abs(earningDelta) > 0.0001) {
+      ledger.push({
+        user_id: editForm.id, type: 'earning', amount: earningDelta, balance_type: 'earning',
+        description: `Admin balance adjustment by ${selectedUser?.username ?? 'admin'}`, reference_id: null,
+      });
+    }
+    if (Math.abs(depositDelta) > 0.0001) {
+      ledger.push({
+        user_id: editForm.id, type: 'deposit', amount: depositDelta, balance_type: 'deposit',
+        description: `Admin balance adjustment by ${selectedUser?.username ?? 'admin'}`, reference_id: null,
+      });
+    }
+
+    const { error: updError } = await supabase.from('profiles').update({
       username: editForm.username,
       full_name: editForm.full_name,
       phone: editForm.phone,
       earning_balance: editForm.earning_balance,
       deposit_balance: editForm.deposit_balance,
-      updated_at: new Date().toISOString(),
+      updated_at: now,
     }).eq('id', editForm.id);
+
+    if (updError) {
+      setError(updError.message);
+      setSaving(false);
+      return;
+    }
+
+    if (ledger.length) {
+      const { error: txError } = await supabase.from('transactions').insert(ledger);
+      if (txError) setError(`Profile saved, but ledger insert failed: ${txError.message}`);
+    }
+
     setSaving(false);
     setEditForm(null);
+    flash(`${editForm.username} updated.`);
     loadUsers();
   };
 
@@ -102,6 +147,9 @@ export function AdminUsersPage() {
         <h1 className="font-heading text-2xl font-bold text-gray-900">User Management</h1>
         <p className="mt-1 text-sm text-gray-600">Manage all platform users</p>
       </div>
+
+      {error && <Alert variant="error" title="Action failed">{error}</Alert>}
+      {success && <Alert variant="success">{success}</Alert>}
 
       {/* Filters */}
       <Card className="p-4">

@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { LoadingSpinner } from '@/components/ui/EmptyState';
+import { Alert } from '@/components/ui/Alert';
 import { AdminSetting } from '@/types';
 
 export function AdminSettingsPage() {
@@ -13,6 +14,7 @@ export function AdminSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savedKey, setSavedKey] = useState('');
+  const [error, setError] = useState('');
 
   const loadSettings = useCallback(async () => {
     setLoading(true);
@@ -35,13 +37,18 @@ export function AdminSettingsPage() {
 
   const updateSetting = async (setting: AdminSetting, newValue: string) => {
     setSaving(true);
-    await supabase.from('admin_settings').update({
+    setError('');
+    const { error: updError } = await supabase.from('admin_settings').update({
       value: newValue,
       updated_at: new Date().toISOString(),
     }).eq('id', setting.id);
-    setSavedKey(setting.key);
-    setTimeout(() => setSavedKey(''), 2000);
-    loadSettings();
+    if (updError) {
+      setError(`Failed to save "${setting.key}": ${updError.message}`);
+    } else {
+      setSavedKey(setting.key);
+      setTimeout(() => setSavedKey(''), 2000);
+    }
+    await loadSettings();
     setSaving(false);
   };
 
@@ -65,6 +72,8 @@ export function AdminSettingsPage() {
         <h1 className="font-heading text-2xl font-bold text-gray-900">Platform Settings</h1>
         <p className="mt-1 text-sm text-gray-600">Control features, limits, and platform configuration</p>
       </div>
+
+      {error && <Alert variant="error" title="Save failed">{error}</Alert>}
 
       {/* Dashboard Banner */}
       <Card>

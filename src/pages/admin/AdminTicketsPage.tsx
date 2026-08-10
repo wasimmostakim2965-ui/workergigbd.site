@@ -63,16 +63,13 @@ export function AdminTicketsPage() {
 
     if (error) { console.error(error); setSending(false); return; }
 
-    await supabase.from('tickets').update({
-      status: 'answered',
-      updated_at: new Date().toISOString(),
-    }).eq('id', selected.id);
-
-    await supabase.from('notifications').insert({
-      user_id: selected.user_id,
-      title: 'Support Ticket Updated',
-      message: `Admin has replied to your ticket: ${selected.subject}`,
-      type: 'info',
+    // The trg_ticket_msg_insert trigger sets status='answered' + updates updated_at.
+    // Notify the ticket owner via the cross-user RPC (admin != owner).
+    await supabase.rpc('notify_user', {
+      target_uid: selected.user_id,
+      n_title: 'Support Ticket Updated',
+      n_message: `Admin has replied to your ticket: ${selected.subject}`,
+      n_type: 'info',
     });
 
     setReply('');
@@ -83,10 +80,11 @@ export function AdminTicketsPage() {
 
   const closeTicket = async () => {
     if (!selected) return;
-    await supabase.from('tickets').update({
+    const { error: e } = await supabase.from('tickets').update({
       status: 'closed',
       updated_at: new Date().toISOString(),
     }).eq('id', selected.id);
+    if (e) console.error(e);
     setSelected(null);
     loadTickets();
   };

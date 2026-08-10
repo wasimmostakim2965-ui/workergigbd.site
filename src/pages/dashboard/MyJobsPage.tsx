@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { Alert } from '@/components/ui/Alert';
 import { EmptyState, LoadingSpinner } from '@/components/ui/EmptyState';
 import { Job } from '@/types';
 
@@ -12,6 +13,7 @@ export function MyJobsPage() {
   const { profile } = useAuth();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   const loadJobs = useCallback(async () => {
     if (!profile) { setLoading(false); return; }
@@ -37,13 +39,15 @@ export function MyJobsPage() {
 
   const toggleStatus = async (job: Job) => {
     const newStatus = job.status === 'active' ? 'paused' : 'active';
-    await supabase.from('jobs').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', job.id);
+    const { error: e } = await supabase.from('jobs').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', job.id);
+    if (e) setError(e.message);
     loadJobs();
   };
 
   const deleteJob = async (id: string) => {
     if (!confirm('Are you sure you want to delete this job?')) return;
-    await supabase.from('jobs').delete().eq('id', id);
+    const { error: e } = await supabase.from('jobs').delete().eq('id', id);
+    if (e) setError(e.message);
     loadJobs();
   };
 
@@ -55,6 +59,8 @@ export function MyJobsPage() {
         <h1 className="font-heading text-2xl font-bold text-gray-900">My Jobs</h1>
         <p className="mt-1 text-sm text-gray-600">Manage jobs you have posted</p>
       </div>
+
+      {error && <Alert variant="error" title="Action failed">{error}</Alert>}
 
       {jobs.length === 0 ? (
         <Card>

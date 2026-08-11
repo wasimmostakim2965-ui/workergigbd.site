@@ -67,7 +67,7 @@ export function DepositHistoryPage() {
               <tbody className="divide-y divide-gray-50">
                 {deposits.map((dep) => (
                   <tr key={dep.id} className="hover:bg-gray-50">
-                    <td className="px-5 py-3 font-semibold text-gray-900">$ {dep.amount.toFixed(3)}</td>
+                    <td className="px-5 py-3 font-semibold text-gray-900">৳ {dep.amount.toFixed(3)}</td>
                     <td className="px-5 py-3 text-gray-600 capitalize">{dep.method}</td>
                     <td className="px-5 py-3 text-gray-600 font-mono text-xs">{dep.transaction_id}</td>
                     <td className="px-5 py-3">

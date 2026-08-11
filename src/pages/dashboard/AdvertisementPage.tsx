@@ -63,7 +63,7 @@ export function AdvertisementPage() {
       return;
     }
     if (profile.deposit_balance < budget) {
-      setError(`Insufficient deposit balance. You need $ ${budget.toFixed(3)} but have $ ${profile.deposit_balance.toFixed(3)}.`);
+      setError(`Insufficient deposit balance. You need ৳ ${budget.toFixed(3)} but have ৳ ${profile.deposit_balance.toFixed(3)}.`);
       setCreating(false);
       return;
     }
@@ -149,14 +149,14 @@ export function AdvertisementPage() {
                   </div>
                   <div>
                     <div className="text-xs text-gray-500">Budget</div>
-                    <div className="text-sm font-semibold text-gray-900">${ad.budget}</div>
+                    <div className="text-sm font-semibold text-gray-900">৳{ad.budget}</div>
                   </div>
                 </div>
 
                 <div className="mt-3">
                   <div className="flex justify-between text-xs text-gray-500">
                     <span>Spent</span>
-                    <span>$ {ad.spent.toFixed(2)} / $ {ad.budget.toFixed(2)}</span>
+                    <span>৳ {ad.spent.toFixed(2)} / ৳ {ad.budget.toFixed(2)}</span>
                   </div>
                   <div className="mt-1 h-1.5 rounded-full bg-gray-100">
                     <div className="h-full rounded-full bg-primary-500" style={{ width: `${ad.budget > 0 ? (ad.spent / ad.budget) * 100 : 0}%` }} />
@@ -193,7 +193,7 @@ export function AdvertisementPage() {
             hint="Provide a square image URL for best results"
           />
           <Input
-            label="Budget ($)"
+            label="Budget (৳)"
             type="number"
             step="0.01"
             min="10"
@@ -201,7 +201,7 @@ export function AdvertisementPage() {
             value={form.budget}
             onChange={(e) => setForm({ ...form, budget: e.target.value })}
             required
-            hint={`Your deposit balance: $ ${profile?.deposit_balance?.toFixed(3) ?? '0.000'}`}
+            hint={`Your deposit balance: ৳ ${profile?.deposit_balance?.toFixed(3) ?? '0.000'}`}
           />
           <div className="flex gap-3">
             <Button variant="secondary" fullWidth onClick={() => setShowNew(false)}>Cancel</Button>

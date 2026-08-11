@@ -141,7 +141,7 @@ export function AdminWithdrawalsPage() {
                       <div className="text-xs text-gray-400">{wd.profiles?.phone || '—'}</div>
                     </td>
                     <td className="px-5 py-3 font-mono text-xs text-gray-500">{wd.user_id.slice(0, 8)}</td>
-                    <td className="px-5 py-3 font-bold text-gray-900">$ {wd.amount.toFixed(3)}</td>
+                    <td className="px-5 py-3 font-bold text-gray-900">৳ {wd.amount.toFixed(3)}</td>
                     <td className="px-5 py-3 capitalize text-gray-600">{wd.method}</td>
                     <td className="px-5 py-3 text-gray-600">{wd.account_number}</td>
                     <td className="px-5 py-3">
@@ -177,7 +177,7 @@ export function AdminWithdrawalsPage() {
               <div className="flex justify-between"><span className="text-gray-500">UID:</span><span className="font-mono text-xs text-gray-700">{selected.user_id}</span></div>
               <div className="flex justify-between"><span className="text-gray-500">Phone:</span><span className="text-gray-700">{(selected as any).profiles?.phone || '—'}</span></div>
               <div className="flex justify-between"><span className="text-gray-500">Referral:</span><span className="text-gray-700">{(selected as any).profiles?.referral_code || '—'}</span></div>
-              <div className="flex justify-between"><span className="text-gray-500">Amount:</span><span className="font-bold text-gray-900">$ {selected.amount.toFixed(3)}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">Amount:</span><span className="font-bold text-gray-900">৳ {selected.amount.toFixed(3)}</span></div>
               <div className="flex justify-between"><span className="text-gray-500">Method:</span><span className="capitalize text-gray-700">{selected.method}</span></div>
               <div className="flex justify-between"><span className="text-gray-500">Account:</span><span className="text-gray-700">{selected.account_number}</span></div>
               <div className="flex justify-between"><span className="text-gray-500">Date:</span><span className="text-gray-700">{new Date(selected.created_at).toLocaleString()}</span></div>

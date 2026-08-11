@@ -128,12 +128,12 @@ export function WithdrawPage() {
 
     const amt = parseFloat(amount);
     if (amt < minWithdraw) {
-      setError(`Minimum withdrawal is $${minWithdraw} (= ৳${(minWithdraw * 90).toFixed(0)} after commission).`);
+      setError(`Minimum withdrawal is ৳${minWithdraw} (= ${(minWithdraw * 90).toFixed(0)} টাকা, কমিশনের পরে).`);
       setLoading(false);
       return;
     }
     if (amt > profile.earning_balance) {
-      setError(`Insufficient earning balance. You have $${profile.earning_balance.toFixed(3)}.`);
+      setError(`Insufficient earning balance. You have ৳${profile.earning_balance.toFixed(3)}.`);
       setLoading(false);
       return;
     }
@@ -266,7 +266,7 @@ export function WithdrawPage() {
 
       {success && (
         <Alert variant="success" title="Withdrawal Request Submitted!">
-          $ {parseFloat(amount || '0') || '0'} has been held from your balance. After {commissionPct}% commission you will receive $ {(parseFloat(amount || '0') * (1 - (commissionRate || 0.10))).toFixed(3)} (= ৳ {(parseFloat(amount || '0') * (1 - (commissionRate || 0.10)) * 90).toFixed(0)}). Your request is pending admin approval.
+          ৳ {parseFloat(amount || '0') || '0'} has been held from your balance. {commissionPct}% কমিশনের পরে পাবেন ৳ {(parseFloat(amount || '0') * (1 - (commissionRate || 0.10))).toFixed(3)} (= {(parseFloat(amount || '0') * (1 - (commissionRate || 0.10)) * 90).toFixed(0)} টাকা). Your request is pending admin approval.
         </Alert>
       )}
       {error && <Alert variant="error">{error}</Alert>}
@@ -275,9 +275,9 @@ export function WithdrawPage() {
         <Card className="p-6">
           <div className="mb-4 rounded-lg bg-gradient-to-br from-primary-600 to-primary-800 p-4 text-white">
             <div className="text-xs text-primary-100">Available Earning Balance</div>
-            <div className="mt-1 text-3xl font-bold">$ {profile?.earning_balance?.toFixed(3) ?? '0.000'}</div>
+            <div className="mt-1 text-3xl font-bold">৳ {profile?.earning_balance?.toFixed(3) ?? '0.000'}</div>
             <div className="mt-2 text-xs text-primary-200">
-              Minimum withdrawal: $ {minWithdraw} • {commissionPct}% commission applies (you receive {100 - commissionPct}%)
+              Minimum withdrawal: ৳ {minWithdraw} • {commissionPct}% কমিশন (পাবেন {100 - commissionPct}%)
             </div>
           </div>
 
@@ -300,16 +300,16 @@ export function WithdrawPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="Amount ($)"
+              label="Amount (৳)"
               type="number"
               step="0.001"
               min={minWithdraw}
-              placeholder={`Min $${minWithdraw}`}
+              placeholder={`Min ৳${minWithdraw}`}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required
               icon={<ArrowUpFromLine className="h-4 w-4" />}
-              hint={amount ? `After ${commissionPct}% commission you receive $ ${(parseFloat(amount || '0') * (1 - (commissionRate || 0.10))).toFixed(3)} (= ৳ ${(parseFloat(amount || '0') * (1 - (commissionRate || 0.10)) * 90).toFixed(0)})` : undefined}
+              hint={amount ? `${commissionPct}% কমিশনের পরে পাবেন ৳ ${(parseFloat(amount || '0') * (1 - (commissionRate || 0.10))).toFixed(3)} (= ${(parseFloat(amount || '0') * (1 - (commissionRate || 0.10)) * 90).toFixed(0)} টাকা)` : undefined}
             />
             <Input
               label="Your Account Number"
@@ -339,7 +339,7 @@ export function WithdrawPage() {
               {history.map((wd) => (
                 <div key={wd.id} className="flex items-center justify-between p-4">
                   <div>
-                    <div className="text-sm font-semibold text-gray-900">$ {wd.amount.toFixed(3)}</div>
+                    <div className="text-sm font-semibold text-gray-900">৳ {wd.amount.toFixed(3)}</div>
                     <div className="text-xs text-gray-500">
                       {wd.method} • {new Date(wd.created_at).toLocaleDateString()}
                     </div>

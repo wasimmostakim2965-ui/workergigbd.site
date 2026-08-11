@@ -98,13 +98,13 @@ export function PostJobPage() {
     }
 
     if (reward < 0.02) {
-      setError('Minimum reward per worker is $0.02 (2 cents).');
+      setError('Minimum reward per worker is ৳0.02 (2 cents).');
       setLoading(false);
       return;
     }
 
     if (profile.deposit_balance < totalCost) {
-      setError(`Insufficient deposit balance. You need $${totalCost.toFixed(3)} but have $${profile.deposit_balance.toFixed(3)}. Please deposit first.`);
+      setError(`Insufficient deposit balance. You need ৳${totalCost.toFixed(3)} but have ৳${profile.deposit_balance.toFixed(3)}. Please deposit first.`);
       setLoading(false);
       return;
     }
@@ -162,7 +162,7 @@ export function PostJobPage() {
 
       {success && (
         <Alert variant="success" title="Job Posted Successfully!">
-          Your job has been posted and is now visible to workers. ${totalCost.toFixed(3)} has been deducted from your deposit balance.
+          Your job has been posted and is now visible to workers. ৳{totalCost.toFixed(3)} has been deducted from your deposit balance.
         </Alert>
       )}
       {error && <Alert variant="error">{error}</Alert>}
@@ -250,7 +250,7 @@ export function PostJobPage() {
                 </button>
               ))}
             </div>
-            <p className="mt-1.5 text-xs text-gray-500">Max 4 screenshots. Each screenshot costs $0.05 per worker.</p>
+            <p className="mt-1.5 text-xs text-gray-500">Max 4 screenshots. Each screenshot costs ৳0.05 per worker.</p>
           </div>
 
           {/* 7. Screenshot instructions (optional) */}
@@ -289,7 +289,7 @@ export function PostJobPage() {
 
           {/* 9. Reward per worker */}
           <Input
-            label="Reward per Worker ($)"
+            label="Reward per Worker (৳)"
             type="number"
             step="0.01"
             min="0.02"
@@ -297,7 +297,7 @@ export function PostJobPage() {
             value={form.reward_per_worker}
             onChange={(e) => setForm({ ...form, reward_per_worker: e.target.value })}
             required
-            hint="Minimum $0.02 per worker"
+            hint="Minimum ৳0.02 per worker"
           />
 
           {/* 10. Total slots */}
@@ -326,23 +326,23 @@ export function PostJobPage() {
           {(reward > 0 || slots > 0) && (
             <div className="rounded-lg bg-gray-50 p-4 space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Worker rewards ({slots} × ${reward.toFixed(3)})</span>
-                <span className="font-medium text-gray-900">${baseCost.toFixed(3)}</span>
+                <span className="text-gray-600">Worker rewards ({slots} × ৳{reward.toFixed(3)})</span>
+                <span className="font-medium text-gray-900">৳{baseCost.toFixed(3)}</span>
               </div>
               {screenshotFee > 0 && (
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Screenshot fees ({screenshots} × $0.05 × {slots})</span>
-                  <span className="font-medium text-gray-900">${screenshotFee.toFixed(3)}</span>
+                  <span className="text-gray-600">Screenshot fees ({screenshots} × ৳0.05 × {slots})</span>
+                  <span className="font-medium text-gray-900">৳{screenshotFee.toFixed(3)}</span>
                 </div>
               )}
               <div className="border-t border-gray-200 pt-2 flex items-center justify-between">
                 <span className="text-sm font-semibold text-gray-700">Total Cost</span>
-                <span className="text-lg font-bold text-primary-700">${totalCost.toFixed(3)}</span>
+                <span className="text-lg font-bold text-primary-700">৳{totalCost.toFixed(3)}</span>
               </div>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-gray-500">Your deposit balance</span>
                 <span className={`font-medium ${profile && profile.deposit_balance >= totalCost ? 'text-success-600' : 'text-error-600'}`}>
-                  $ {profile?.deposit_balance?.toFixed(3) ?? '0.000'}
+                  ৳ {profile?.deposit_balance?.toFixed(3) ?? '0.000'}
                 </span>
               </div>
             </div>

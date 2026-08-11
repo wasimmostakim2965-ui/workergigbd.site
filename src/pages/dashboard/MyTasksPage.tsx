@@ -90,7 +90,7 @@ export function MyTasksPage() {
 
                 <div className="flex items-center gap-4">
                   <div className="text-right">
-                    <div className="text-sm font-bold text-gray-900">$ {task.jobs?.reward_per_worker.toFixed(3) ?? '0.000'}</div>
+                    <div className="text-sm font-bold text-gray-900">৳ {task.jobs?.reward_per_worker.toFixed(3) ?? '0.000'}</div>
                     <div className="text-xs text-gray-500">Reward</div>
                   </div>
                   <Badge

@@ -97,11 +97,11 @@ export function DashboardHome() {
         <div className="flex items-center justify-between">
           <div>
             <div className="text-xs font-medium text-white/80">Earning Balance</div>
-            <div className="mt-0.5 text-2xl font-extrabold">$ {profile?.earning_balance?.toFixed(3) ?? '0.000'}</div>
+            <div className="mt-0.5 text-2xl font-extrabold">৳ {profile?.earning_balance?.toFixed(3) ?? '0.000'}</div>
           </div>
           <div className="text-right">
             <div className="text-xs font-medium text-white/80">Deposit Balance</div>
-            <div className="mt-0.5 text-2xl font-extrabold">$ {profile?.deposit_balance?.toFixed(3) ?? '0.000'}</div>
+            <div className="mt-0.5 text-2xl font-extrabold">৳ {profile?.deposit_balance?.toFixed(3) ?? '0.000'}</div>
           </div>
         </div>
       </div>
@@ -187,7 +187,7 @@ export function DashboardHome() {
                     className="text-xl font-extrabold"
                     style={{ color: COLORS.primaryGreen }}
                   >
-                    $ {totalReward.toFixed(3)}
+                    ৳ {totalReward.toFixed(3)}
                   </div>
                 </div>
               </Link>

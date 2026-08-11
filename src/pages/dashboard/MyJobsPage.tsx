@@ -99,7 +99,7 @@ export function MyJobsPage() {
                   <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
                     <div className="flex items-center gap-1.5">
                       <span className="text-gray-500">Reward:</span>
-                      <span className="font-semibold text-success-600">$ {job.reward_per_worker.toFixed(3)}</span>
+                      <span className="font-semibold text-success-600">৳ {job.reward_per_worker.toFixed(3)}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <span className="text-gray-500">Slots:</span>

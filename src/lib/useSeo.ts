@@ -9,7 +9,7 @@ type SeoConfig = {
 };
 
 const SITE_URL = 'https://workergigbd.site';
-const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
+const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.svg`;
 
 function setMeta(attr: 'name' | 'property', key: string, content: string) {
   const selector = attr === 'property' ? `meta[property="${key}"]` : `meta[name="${key}"]`;

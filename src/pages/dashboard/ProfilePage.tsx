@@ -71,8 +71,8 @@ export function ProfilePage() {
   };
 
   const stats = [
-    { label: 'Total Earned', value: `৳ ${profile?.total_earned?.toFixed(2) ?? '0.00'}`, icon: TrendingUp, color: 'text-success-600' },
-    { label: 'Total Deposited', value: `৳ ${profile?.total_deposit?.toFixed(2) ?? '0.00'}`, icon: Calendar, color: 'text-primary-600' },
+    { label: 'Total Earned', value: `$ ${profile?.total_earned?.toFixed(2) ?? '0.00'}`, icon: TrendingUp, color: 'text-success-600' },
+    { label: 'Total Deposited', value: `$ ${profile?.total_deposit?.toFixed(2) ?? '0.00'}`, icon: Calendar, color: 'text-primary-600' },
     { label: 'Tasks Completed', value: profile?.tasks_completed ?? 0, icon: Briefcase, color: 'text-accent-600' },
     { label: 'Jobs Posted', value: profile?.jobs_posted ?? 0, icon: Briefcase, color: 'text-primary-600' },
   ];

@@ -139,15 +139,15 @@ export function AdminDashboard() {
         <StatCard label="Active Jobs" value={stats.activeJobs} icon={<Briefcase className="h-6 w-6" />} color="accent" />
         <StatCard label="Pending Deposits" value={stats.pendingDeposits} icon={<ArrowDownToLine className="h-6 w-6" />} color="warning" />
         <StatCard label="Pending Withdrawals" value={stats.pendingWithdrawals} icon={<ArrowUpFromLine className="h-6 w-6" />} color="error" />
-        <StatCard label="This Month Earnings" value={`৳ ${stats.monthEarnings.toFixed(2)}`} icon={<TrendingUp className="h-6 w-6" />} color="success" />
+        <StatCard label="This Month Earnings" value={`$ ${stats.monthEarnings.toFixed(2)}`} icon={<TrendingUp className="h-6 w-6" />} color="success" />
       </div>
 
       {/* Financial stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Total Deposits" value={`৳ ${stats.totalDeposits.toFixed(2)}`} icon={<DollarSign className="h-6 w-6" />} color="success" />
-        <StatCard label="Year Deposits" value={`৳ ${stats.yearDeposits.toFixed(2)}`} icon={<ArrowDownToLine className="h-6 w-6" />} color="success" />
-        <StatCard label="Total Withdrawals" value={`৳ ${stats.totalWithdrawals.toFixed(2)}`} icon={<Wallet className="h-6 w-6" />} color="primary" />
-        <StatCard label="Today's Deposits" value={`৳ ${stats.todayDeposits.toFixed(2)}`} icon={<TrendingUp className="h-6 w-6" />} color="success" />
+        <StatCard label="Total Deposits" value={`$ ${stats.totalDeposits.toFixed(2)}`} icon={<DollarSign className="h-6 w-6" />} color="success" />
+        <StatCard label="Year Deposits" value={`$ ${stats.yearDeposits.toFixed(2)}`} icon={<ArrowDownToLine className="h-6 w-6" />} color="success" />
+        <StatCard label="Total Withdrawals" value={`$ ${stats.totalWithdrawals.toFixed(2)}`} icon={<Wallet className="h-6 w-6" />} color="primary" />
+        <StatCard label="Today's Deposits" value={`$ ${stats.todayDeposits.toFixed(2)}`} icon={<TrendingUp className="h-6 w-6" />} color="success" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -169,7 +169,7 @@ export function AdminDashboard() {
                       </div>
                       <div>
                         <div className="text-sm font-semibold text-gray-900">{dep.profiles?.username ?? 'Unknown'}</div>
-                        <div className="text-xs text-gray-500">৳ {dep.amount.toFixed(3)} • {dep.method}</div>
+                        <div className="text-xs text-gray-500">$ {dep.amount.toFixed(3)} • {dep.method}</div>
                       </div>
                     </div>
                     <Badge variant={dep.status === 'approved' ? 'success' : dep.status === 'rejected' ? 'error' : 'warning'} dot>
@@ -200,7 +200,7 @@ export function AdminDashboard() {
                       </div>
                       <div>
                         <div className="text-sm font-semibold text-gray-900">{wd.profiles?.username ?? 'Unknown'}</div>
-                        <div className="text-xs text-gray-500">৳ {wd.amount.toFixed(3)} • {wd.method}</div>
+                        <div className="text-xs text-gray-500">$ {wd.amount.toFixed(3)} • {wd.method}</div>
                       </div>
                     </div>
                     <Badge variant={wd.status === 'approved' ? 'success' : wd.status === 'rejected' ? 'error' : 'warning'} dot>

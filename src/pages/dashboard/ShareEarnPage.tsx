@@ -67,7 +67,7 @@ export function ShareEarnPage() {
         />
         <StatCard
           label="Bonus per Referral"
-          value={`৳ ${referralBonus}`}
+          value={`$ ${referralBonus}`}
           icon={<Share2 className="h-6 w-6" />}
           color="success"
         />
@@ -95,7 +95,7 @@ export function ShareEarnPage() {
         </div>
 
         <Alert variant="info" className="mt-4">
-          Share your link with friends. When they sign up using your code, you'll earn ৳ {referralBonus} bonus after their first deposit.
+          Share your link with friends. When they sign up using your code, you'll earn $ {referralBonus} bonus after their first deposit.
         </Alert>
       </Card>
 
@@ -125,7 +125,7 @@ export function ShareEarnPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-bold text-success-600">+৳ {ref.bonus_amount.toFixed(2)}</span>
+                  <span className="text-sm font-bold text-success-600">+$ {ref.bonus_amount.toFixed(2)}</span>
                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                     ref.status === 'completed' ? 'bg-success-50 text-success-700' : 'bg-warning-50 text-warning-700'
                   }`}>

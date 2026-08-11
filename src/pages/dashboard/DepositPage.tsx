@@ -54,7 +54,7 @@ export function DepositPage() {
   }, [profile]);
 
   const depositEnabled = settings.find(s => s.key === 'deposit_enabled')?.value === 'true';
-  const minDeposit = parseFloat(settings.find(s => s.key === 'min_deposit')?.value || '100');
+  const minDeposit = parseFloat(settings.find(s => s.key === 'min_deposit')?.value || '1');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +71,7 @@ export function DepositPage() {
 
     const amt = parseFloat(amount);
     if (amt < minDeposit) {
-      setError(`Minimum deposit amount is ৳ ${minDeposit}.`);
+      setError(`Minimum deposit is $${minDeposit} (= ৳${(minDeposit * 100).toFixed(0)}).`);
       setLoading(false);
       return;
     }
@@ -154,22 +154,24 @@ export function DepositPage() {
             <div className="mt-1 text-lg font-bold text-gray-900">
               {paymentMethods.find(pm => pm.id === method)?.name}: {paymentMethods.find(pm => pm.id === method)?.number || 'Contact support'}
             </div>
-            <div className="mt-1 text-xs text-gray-500">
-              After sending, fill out the form below with your transaction details.
+            <div className="mt-2 flex items-center gap-1.5 text-xs text-gray-500">
+              <span className="rounded bg-primary-50 px-1.5 py-0.5 font-semibold text-primary-700">Rate: $1 = ৳100</span>
+              <span>Enter the amount in $. You send ৳100 per $1.</span>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="Amount (৳)"
+              label="Amount ($)"
               type="number"
               step="0.001"
               min={minDeposit}
-              placeholder={`Min ৳ ${minDeposit}`}
+              placeholder={`Min $${minDeposit} (= ৳${(minDeposit * 100).toFixed(0)})`}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required
               icon={<Wallet className="h-4 w-4" />}
+              hint={amount ? `You send ৳${(parseFloat(amount || '0') * 100).toFixed(0)} to get $${parseFloat(amount || '0')}` : undefined}
             />
             <Input
               label="Your Sender Number"
@@ -207,7 +209,7 @@ export function DepositPage() {
               {history.map((dep) => (
                 <div key={dep.id} className="flex items-center justify-between p-4">
                   <div>
-                    <div className="text-sm font-semibold text-gray-900">৳ {dep.amount.toFixed(3)}</div>
+                    <div className="text-sm font-semibold text-gray-900">$ {dep.amount.toFixed(3)}</div>
                     <div className="text-xs text-gray-500">
                       {dep.method} • {new Date(dep.created_at).toLocaleDateString()}
                     </div>

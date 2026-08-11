@@ -56,7 +56,7 @@ export function PremiumPage() {
     }
 
     if (profile.deposit_balance < premiumPrice) {
-      setError(`Insufficient deposit balance. You need at least ৳ ${premiumPrice}. Please deposit first.`);
+      setError(`Insufficient deposit balance. You need at least $ ${premiumPrice}. Please deposit first.`);
       setLoading(false);
       return;
     }
@@ -126,7 +126,7 @@ export function PremiumPage() {
           <Crown className="mx-auto h-12 w-12 text-accent-400" />
           <h2 className="mt-4 font-heading text-2xl font-bold">Premium Plan</h2>
           <div className="mt-4">
-            <span className="text-4xl font-extrabold">৳ {premiumPrice}</span>
+            <span className="text-4xl font-extrabold">$ {premiumPrice}</span>
             <span className="text-primary-200"> / {premiumDays} days</span>
           </div>
           <p className="mt-2 text-sm text-primary-200">One-time payment from your deposit balance</p>
@@ -158,15 +158,15 @@ export function PremiumPage() {
           <div className="rounded-lg bg-primary-50 p-4">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Premium Plan ({premiumDays} days)</span>
-              <span className="font-bold text-gray-900">৳ {premiumPrice}</span>
+              <span className="font-bold text-gray-900">$ {premiumPrice}</span>
             </div>
             <div className="mt-2 flex items-center justify-between border-t border-primary-100 pt-2">
               <span className="text-sm text-gray-600">Your Deposit Balance</span>
-              <span className="font-bold text-gray-900">৳ {profile?.deposit_balance?.toFixed(3) ?? '0.000'}</span>
+              <span className="font-bold text-gray-900">$ {profile?.deposit_balance?.toFixed(3) ?? '0.000'}</span>
             </div>
             <div className="mt-2 flex items-center justify-between border-t border-primary-100 pt-2">
               <span className="text-sm font-semibold text-gray-700">Balance After</span>
-              <span className="font-bold text-primary-700">৳ {((profile?.deposit_balance ?? 0) - premiumPrice).toFixed(3)}</span>
+              <span className="font-bold text-primary-700">$ {((profile?.deposit_balance ?? 0) - premiumPrice).toFixed(3)}</span>
             </div>
           </div>
           <div className="flex gap-3">

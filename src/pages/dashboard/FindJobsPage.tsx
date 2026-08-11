@@ -256,10 +256,7 @@ export function FindJobsPage() {
               {selectedJob.title}
             </h2>
 
-            {selectedJob.image_url && (
-              <img src={selectedJob.image_url} alt="Job" className="w-full rounded-lg border border-gray-200" />
-            )}
-
+            {/* 1. Description */}
             <p className="text-sm text-gray-600">{selectedJob.description}</p>
 
             {selectedJob.url && (
@@ -273,6 +270,7 @@ export function FindJobsPage() {
               </a>
             )}
 
+            {/* 2. Requirements / what workers must submit */}
             {selectedJob.proof_instructions && (
               <div className="rounded-lg bg-gray-50 p-4">
                 <div className="text-sm font-semibold text-gray-700">Requirements / Proof Instructions</div>
@@ -294,7 +292,7 @@ export function FindJobsPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="rounded-lg border border-gray-200 p-3">
                 <div className="text-xs text-gray-500">Reward</div>
-                <div className="text-lg font-bold text-success-600">{totalReward.toFixed(3)} S</div>
+                <div className="text-lg font-bold text-success-600">$ {totalReward.toFixed(3)}</div>
               </div>
               <div className="rounded-lg border border-gray-200 p-3">
                 <div className="text-xs text-gray-500">Available Slots</div>
@@ -304,9 +302,23 @@ export function FindJobsPage() {
 
             {submitError && <Alert variant="error">{submitError}</Alert>}
 
-            {/* Proof submission */}
+            {/* Proof submission: text proof → screenshot upload (the order workers fill in) */}
             <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-4">
               <div className="text-sm font-semibold text-gray-700">Submit Your Proof</div>
+
+              <Textarea
+                label="Proof Details"
+                placeholder="Describe or paste your proof..."
+                rows={3}
+                value={proofText}
+                onChange={(e) => setProofText(e.target.value)}
+              />
+              <Input
+                label="Proof URL (if applicable)"
+                placeholder="https://..."
+                value={proofUrl}
+                onChange={(e) => setProofUrl(e.target.value)}
+              />
 
               {/* Screenshot uploader (shown when the job requires screenshots) */}
               {(selectedJob.screenshot_count ?? 0) > 0 && (
@@ -340,21 +352,15 @@ export function FindJobsPage() {
                   )}
                 </div>
               )}
-
-              <Input
-                label="Proof URL (if applicable)"
-                placeholder="https://..."
-                value={proofUrl}
-                onChange={(e) => setProofUrl(e.target.value)}
-              />
-              <Textarea
-                label="Proof Details"
-                placeholder="Describe or paste your proof..."
-                rows={3}
-                value={proofText}
-                onChange={(e) => setProofText(e.target.value)}
-              />
             </div>
+
+            {/* Job image (the image the poster attached) — shown last as reference */}
+            {selectedJob.image_url && (
+              <div>
+                <div className="text-xs font-semibold text-gray-500 mb-1">Job Image</div>
+                <img src={selectedJob.image_url} alt="Job" className="w-full rounded-lg border border-gray-200" />
+              </div>
+            )}
 
             <div className="flex gap-3">
               <Button variant="secondary" fullWidth onClick={closeJobDetail}>

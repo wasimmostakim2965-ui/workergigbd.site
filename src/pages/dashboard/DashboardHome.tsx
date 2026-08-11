@@ -15,11 +15,13 @@ const flagEmojis: Record<string, string> = {
 
 // Color constants matching the spec
 const COLORS = {
-  bodyBg: '#E8F4F8',
+  bodyBg: '#F1F5F9',
   cardBg: '#FFFFFF',
   primaryGreen: '#058824',
   filterBlue: '#1EA3EE',
   badgePurple: '#5865F2',
+  ink: '#0F172A',
+  muted: '#64748B',
 };
 
 export function DashboardHome() {
@@ -85,6 +87,23 @@ export function DashboardHome() {
             {cat.name}
           </button>
         ))}
+      </div>
+
+      {/* Balance hero */}
+      <div
+        className="rounded-2xl p-5 text-white shadow-sm"
+        style={{ background: 'linear-gradient(135deg, #058824 0%, #046a1c 100%)' }}
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-xs font-medium text-white/80">Earning Balance</div>
+            <div className="mt-0.5 text-2xl font-extrabold">$ {profile?.earning_balance?.toFixed(3) ?? '0.000'}</div>
+          </div>
+          <div className="text-right">
+            <div className="text-xs font-medium text-white/80">Deposit Balance</div>
+            <div className="mt-0.5 text-2xl font-extrabold">$ {profile?.deposit_balance?.toFixed(3) ?? '0.000'}</div>
+          </div>
+        </div>
       </div>
 
       {/* Jobs feed - WorkUpJob style cards */}
@@ -168,7 +187,7 @@ export function DashboardHome() {
                     className="text-xl font-extrabold"
                     style={{ color: COLORS.primaryGreen }}
                   >
-                    {totalReward.toFixed(3)} S
+                    $ {totalReward.toFixed(3)}
                   </div>
                 </div>
               </Link>

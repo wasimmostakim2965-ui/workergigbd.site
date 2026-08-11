@@ -6,8 +6,14 @@ import { Card, StatCard } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
 import { AdminSetting, Profile } from '@/types';
+import { useSeo } from '@/lib/useSeo';
 
 export function ShareEarnPage() {
+  useSeo({
+    title: 'শেয়ার ও আয় — Worker Gig BD | রেফার করে বোনাস পান',
+    description: 'Worker Gig BD-তে আপনার রেফার লিংক শেয়ার করে বোনাস আয় করুন। প্রতিটি রেফারেল থেকে আয় পান এবং বন্ধুদের সাথে মাইক্রো-টাস্ক প্ল্যাটফর্ম পরিচয় করিয়ে দিন।',
+    path: '/dashboard/share-earn',
+  });
   const { profile } = useAuth();
   const [settings, setSettings] = useState<AdminSetting[]>([]);
   const [referrals, setReferrals] = useState<{ referred: Profile | null; bonus_amount: number; status: string; created_at: string }[]>([]);

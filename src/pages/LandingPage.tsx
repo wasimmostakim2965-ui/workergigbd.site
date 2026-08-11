@@ -6,6 +6,7 @@ import {
   Hash, UserPlus, Zap, BarChart3, Lock, Globe, Music2,
 } from 'lucide-react';
 import { Logo } from '@/components/Logo';
+import { useSeo } from '@/lib/useSeo';
 
 const categoryIcons: Record<string, typeof Facebook> = {
   Facebook, Twitter, Instagram, 'YouTube/Toffe': Youtube, TikTok: Music2,
@@ -36,6 +37,11 @@ const steps = [
 ];
 
 export function LandingPage() {
+  useSeo({
+    title: 'Worker Gig BD — বাংলাদেশের সেরা মাইক্রো-টাস্ক প্ল্যাটফর্ম | অনলাইনে আয় করুন',
+    description: 'Worker Gig BD (workergigbd.site) বাংলাদেশের শীর্ষ মাইক্রো-টাস্ক ও ফ্রিল্যান্স প্ল্যাটফর্ম। সহজ অনলাইন টাস্ক সম্পন্ন করে ঘরে বসে আয় করুন। সাইন আপ করুন, কাজ করুন, বিকাশ/নগদে টাকা তুলুন। ১ ডলার = ১০০ টাকা।',
+    path: '/',
+  });
   return (
     <div className="min-h-screen bg-white">
       {/* Navbar */}

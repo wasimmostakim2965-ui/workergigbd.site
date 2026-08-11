@@ -1,0 +1,21 @@
+# robots.txt for Worker Gig BD (workergigbd.site)
+User-agent: *
+Allow: /
+Disallow: /dashboard/deposit
+Disallow: /dashboard/withdraw
+Disallow: /dashboard/deposit-history
+Disallow: /dashboard/notifications
+Disallow: /dashboard/profile
+Disallow: /dashboard/verify
+Disallow: /dashboard/ticket
+Disallow: /dashboard/live-chat
+Disallow: /dashboard/premium
+Disallow: /admin
+Allow: /dashboard/find-jobs
+Allow: /dashboard/post-job
+Allow: /dashboard/share-earn
+Allow: /login
+Allow: /signup
+
+# Sitemap
+Sitemap: https://workergigbd.site/sitemap.xml

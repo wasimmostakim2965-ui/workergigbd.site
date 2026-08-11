@@ -5,8 +5,14 @@ import { useAuth } from '@/context/AuthContext';
 import { Logo } from '@/components/Logo';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { useSeo } from '@/lib/useSeo';
 
 export function SignupPage() {
+  useSeo({
+    title: 'সাইন আপ — Worker Gig BD | ফ্রি রেজিস্ট্রেশন করুন ও আয় শুরু করুন',
+    description: 'Worker Gig BD-তে বিনামূল্যে সাইন আপ করুন। রেফার করে বোনাস পান, অনলাইন মাইক্রো-টাস্ক করে ঘরে বসে আয় করুন। বাংলাদেশের শীর্ষ মাইক্রো-টাস্ক প্ল্যাটফর্ম।',
+    path: '/signup',
+  });
   const navigate = useNavigate();
   const { signUp } = useAuth();
   const [searchParams] = useSearchParams();

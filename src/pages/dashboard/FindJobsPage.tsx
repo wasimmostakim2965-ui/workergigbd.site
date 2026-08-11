@@ -8,6 +8,7 @@ import { Input, Select, Textarea } from '@/components/ui/Input';
 import { EmptyState, LoadingSpinner } from '@/components/ui/EmptyState';
 import { Alert } from '@/components/ui/Alert';
 import { Job, Category } from '@/types';
+import { useSeo } from '@/lib/useSeo';
 
 const flagEmojis: Record<string, string> = {
   Facebook: '📘', Twitter: '🐦', Instagram: '📸', 'YouTube/Toffe': '📺',
@@ -24,6 +25,11 @@ const sortOptions = [
 ];
 
 export function FindJobsPage() {
+  useSeo({
+    title: 'কাজ খুঁজুন — Worker Gig BD | অনলাইন মাইক্রো-টাস্ক ও ফ্রিল্যান্স কাজ',
+    description: 'Worker Gig BD-তে পাওয়া সহজ অনলাইন মাইক্রো-টাস্ক ও ফ্রিল্যান্স কাজ ব্রাউজ করুন। ফেসবুক, ইউটিউব, সাইন আপ, সার্ভে, কমেন্ট ইত্যাদি কাজ করে আয় করুন।',
+    path: '/dashboard/find-jobs',
+  });
   const { profile } = useAuth();
   const { jobId } = useParams();
   const navigate = useNavigate();

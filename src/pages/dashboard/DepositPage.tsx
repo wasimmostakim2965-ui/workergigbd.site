@@ -9,8 +9,15 @@ import { Input, Select } from '@/components/ui/Input';
 import { Alert } from '@/components/ui/Alert';
 import { EmptyState, LoadingSpinner } from '@/components/ui/EmptyState';
 import { DepositRequest, AdminSetting } from '@/types';
+import { useSeo } from '@/lib/useSeo';
 
 export function DepositPage() {
+  useSeo({
+    title: 'ডিপোজিট — Worker Gig BD',
+    description: 'Worker Gig BD অ্যাকাউন্টে টাকা ডিপোজিট করুন। ১ ডলার = ১১০ টাকা।',
+    path: '/dashboard/deposit',
+    noindex: true,
+  });
   const { profile, refreshProfile } = useAuth();
   const [amount, setAmount] = useState('');
   const [method, setMethod] = useState('bkash');

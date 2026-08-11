@@ -9,8 +9,15 @@ import { Input } from '@/components/ui/Input';
 import { Alert } from '@/components/ui/Alert';
 import { EmptyState, LoadingSpinner } from '@/components/ui/EmptyState';
 import { WithdrawalRequest, AdminSetting } from '@/types';
+import { useSeo } from '@/lib/useSeo';
 
 export function WithdrawPage() {
+  useSeo({
+    title: 'উইথড্র — Worker Gig BD',
+    description: 'Worker Gig BD থেকে আয়কৃত টাকা উইথড্র করুন। ১ ডলার = ১০০ টাকা।',
+    path: '/dashboard/withdraw',
+    noindex: true,
+  });
   const { profile, user, refreshProfile } = useAuth();
   const [amount, setAmount] = useState('');
   const [method, setMethod] = useState('bkash');

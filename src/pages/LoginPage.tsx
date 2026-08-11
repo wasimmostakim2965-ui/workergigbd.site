@@ -5,8 +5,14 @@ import { useAuth } from '@/context/AuthContext';
 import { Logo } from '@/components/Logo';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { useSeo } from '@/lib/useSeo';
 
 export function LoginPage() {
+  useSeo({
+    title: 'লগইন — Worker Gig BD | অনলাইন মাইক্রো-টাস্ক প্ল্যাটফর্ম',
+    description: 'Worker Gig BD-তে লগইন করুন এবং অনলাইন মাইক্রো-টাস্ক সম্পন্ন করে আয় করা শুরু করুন। বাংলাদেশের শীর্ষ মাইক্রো-টাস্ক প্ল্যাটফর্ম।',
+    path: '/login',
+  });
   const navigate = useNavigate();
   const { signIn } = useAuth();
   const [email, setEmail] = useState('');

@@ -7,8 +7,14 @@ import { Button } from '@/components/ui/Button';
 import { Input, Select, Textarea } from '@/components/ui/Input';
 import { Alert } from '@/components/ui/Alert';
 import { Category, AdminSetting } from '@/types';
+import { useSeo } from '@/lib/useSeo';
 
 export function PostJobPage() {
+  useSeo({
+    title: 'কাজ পোস্ট করুন — Worker Gig BD | অনলাইন কাজ পোস্ট ও ওয়ার্কার নিয়োগ',
+    description: 'Worker Gig BD-তে কাজ পোস্ট করুন এবং সারা বাংলাদেশের ওয়ার্কারদের কাছ থেকে সহজে আপনার মাইক্রো-টাস্ক সম্পন্ন করান। ফেসবুক লাইক, সাইন আপ, সার্ভে ইত্যাদি কাজ পোস্ট করুন।',
+    path: '/dashboard/post-job',
+  });
   const { profile, refreshProfile } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<string[]>([]);

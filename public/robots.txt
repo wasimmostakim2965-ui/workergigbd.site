@@ -1,4 +1,4 @@
-# robots.txt for Worker Gig BD (workergigbd.site)
+# robots.txt for WORKER GIG BD (workergigbd.site)
 User-agent: *
 Allow: /
 Disallow: /dashboard/deposit

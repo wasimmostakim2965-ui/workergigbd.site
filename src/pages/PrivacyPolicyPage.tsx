@@ -4,12 +4,12 @@ export function PrivacyPolicyPage() {
   return (
     <LegalPage
       title="প্রাইভেসি পলিসি"
-      description="Worker Gig BD প্রাইভেসি পলিসি — আমরা আপনার ব্যক্তিগত তথ্য কীভাবে সংগ্রহ, ব্যবহার ও সুরক্ষিত রাখি।"
+      description="WORKER GIG BD প্রাইভেসি পলিসি — আমরা আপনার ব্যক্তিগত তথ্য কীভাবে সংগ্রহ, ব্যবহার ও সুরক্ষিত রাখি।"
       path="/privacy-policy"
       updated="১১ আগস্ট, ২০২৬"
     >
       <p>
-        Worker Gig BD (workergigbd.site) আপনার প্রাইভেসি সম্পর্কে গুরুত্বের সাথে আছে। এই
+        WORKER GIG BD (workergigbd.site) আপনার প্রাইভেসি সম্পর্কে গুরুত্বের সাথে আছে। এই
         পলিসি ব্যাখ্যা করে আমরা কী তথ্য সংগ্রহ করি, কীভাবে তা ব্যবহার করি এবং কীভাবে
         সুরক্ষিত রাখি।
       </p>

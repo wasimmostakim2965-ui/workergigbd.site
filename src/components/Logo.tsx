@@ -46,7 +46,7 @@ export function Logo({ size = 40, showText = true, textColor = 'text-primary-700
       {showText && (
         <div className="flex flex-col leading-none">
           <span className={`font-heading text-base font-extrabold tracking-tight ${textColor}`}>
-            Worker Gig
+            WORKER GIG
           </span>
           <span className="text-[10px] font-bold tracking-widest text-accent-500">
             BD

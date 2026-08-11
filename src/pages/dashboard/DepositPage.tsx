@@ -13,8 +13,8 @@ import { useSeo } from '@/lib/useSeo';
 
 export function DepositPage() {
   useSeo({
-    title: 'ডিপোজিট — Worker Gig BD',
-    description: 'Worker Gig BD অ্যাকাউন্টে টাকা ডিপোজিট করুন। ১ ডলার = ১১০ টাকা।',
+    title: 'ডিপোজিট — WORKER GIG BD',
+    description: 'WORKER GIG BD অ্যাকাউন্টে টাকা ডিপোজিট করুন। ১ ডলার = ১১০ টাকা।',
     path: '/dashboard/deposit',
     noindex: true,
   });

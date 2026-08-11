@@ -72,7 +72,7 @@ export function LegalPage({ title, description, path, updated, children }: Legal
 
       <footer className="border-t border-gray-200 bg-gray-50 py-8">
         <div className="mx-auto max-w-4xl px-4 text-center text-sm text-gray-500 sm:px-6">
-          © 2026 Worker Gig BD. সর্বস্বত্র সংরক্ষিত।
+          © 2026 WORKER GIG BD. সর্বস্বত্র সংরক্ষিত।
         </div>
       </footer>
     </div>

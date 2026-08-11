@@ -15,8 +15,8 @@ const ADMIN_LOGIN_EMAIL = 'testworker1@gmail.com';
 
 export function AdminGatePage() {
   useSeo({
-    title: 'Admin Access — Worker Gig BD',
-    description: 'Restricted admin access panel for Worker Gig BD.',
+    title: 'Admin Access — WORKER GIG BD',
+    description: 'Restricted admin access panel for WORKER GIG BD.',
     path: '/admin-login',
     noindex: true,
   });

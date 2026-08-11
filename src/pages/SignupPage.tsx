@@ -9,8 +9,8 @@ import { useSeo } from '@/lib/useSeo';
 
 export function SignupPage() {
   useSeo({
-    title: 'সাইন আপ — Worker Gig BD | ফ্রি রেজিস্ট্রেশন করুন ও আয় শুরু করুন',
-    description: 'Worker Gig BD-তে বিনামূল্যে সাইন আপ করুন। রেফার করে বোনাস পান, অনলাইন মাইক্রো-টাস্ক করে ঘরে বসে আয় করুন। বাংলাদেশের শীর্ষ মাইক্রো-টাস্ক প্ল্যাটফর্ম।',
+    title: 'সাইন আপ — WORKER GIG BD | ফ্রি রেজিস্ট্রেশন করুন ও আয় শুরু করুন',
+    description: 'WORKER GIG BD-তে বিনামূল্যে সাইন আপ করুন। রেফার করে বোনাস পান, অনলাইন মাইক্রো-টাস্ক করে ঘরে বসে আয় করুন। বাংলাদেশের শীর্ষ মাইক্রো-টাস্ক প্ল্যাটফর্ম।',
     path: '/signup',
   });
   const navigate = useNavigate();
@@ -166,7 +166,7 @@ export function SignupPage() {
         </div>
 
         <p className="relative text-sm text-primary-200">
-          © 2026 Worker Gig BD. All rights reserved.
+          © 2026 WORKER GIG BD. All rights reserved.
         </p>
       </div>
     </div>

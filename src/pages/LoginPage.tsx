@@ -9,8 +9,8 @@ import { useSeo } from '@/lib/useSeo';
 
 export function LoginPage() {
   useSeo({
-    title: 'লগইন — Worker Gig BD | অনলাইন মাইক্রো-টাস্ক প্ল্যাটফর্ম',
-    description: 'Worker Gig BD-তে লগইন করুন এবং অনলাইন মাইক্রো-টাস্ক সম্পন্ন করে আয় করা শুরু করুন। বাংলাদেশের শীর্ষ মাইক্রো-টাস্ক প্ল্যাটফর্ম।',
+    title: 'লগইন — WORKER GIG BD | অনলাইন মাইক্রো-টাস্ক প্ল্যাটফর্ম',
+    description: 'WORKER GIG BD-তে লগইন করুন এবং অনলাইন মাইক্রো-টাস্ক সম্পন্ন করে আয় করা শুরু করুন। বাংলাদেশের শীর্ষ মাইক্রো-টাস্ক প্ল্যাটফর্ম।',
     path: '/login',
   });
   const navigate = useNavigate();
@@ -65,7 +65,7 @@ export function LoginPage() {
         </div>
 
         <p className="relative text-sm text-primary-200">
-          © 2026 Worker Gig BD. All rights reserved.
+          © 2026 WORKER GIG BD. All rights reserved.
         </p>
       </div>
 

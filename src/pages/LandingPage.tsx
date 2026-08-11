@@ -38,8 +38,8 @@ const steps = [
 
 export function LandingPage() {
   useSeo({
-    title: 'Worker Gig BD — বাংলাদেশের সেরা মাইক্রো-টাস্ক প্ল্যাটফর্ম | অনলাইনে আয় করুন',
-    description: 'Worker Gig BD (workergigbd.site) বাংলাদেশের শীর্ষ মাইক্রো-টাস্ক ও ফ্রিল্যান্স প্ল্যাটফর্ম। সহজ অনলাইন টাস্ক সম্পন্ন করে ঘরে বসে আয় করুন। সাইন আপ করুন, কাজ করুন, বিকাশ/নগদে টাকা তুলুন। ১ ডলার = ১০০ টাকা।',
+    title: 'WORKER GIG BD: Best Micro Job Site for Earning',
+    description: 'WORKER GIG BD (workergigbd.site) বাংলাদেশের শীর্ষ মাইক্রো-টাস্ক ও ফ্রিল্যান্স প্ল্যাটফর্ম। সহজ অনলাইন টাস্ক সম্পন্ন করে ঘরে বসে আয় করুন। সাইন আপ করুন, কাজ করুন, বিকাশ/নগদে টাকা তুলুন। ১ ডলার = ১০০ টাকা।',
     path: '/',
   });
   return (
@@ -196,7 +196,7 @@ export function LandingPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="font-heading text-3xl font-bold text-gray-900 sm:text-4xl">
-              Why Choose Worker Gig BD?
+              Why Choose WORKER GIG BD?
             </h2>
             <p className="mt-3 text-lg text-gray-600">
               Everything you need to earn money online — in one platform
@@ -227,17 +227,17 @@ export function LandingPage() {
               সাধারণ জিজ্ঞাসা
             </h2>
             <p className="mt-3 text-lg text-gray-600">
-              Worker Gig BD সম্পর্কে যে প্রশ্নগুলো সবচেয়ে বেশি করা হয়
+              WORKER GIG BD সম্পর্কে যে প্রশ্নগুলো সবচেয়ে বেশি করা হয়
             </p>
           </div>
           <div className="space-y-4">
             <details className="group rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
               <summary className="flex cursor-pointer items-center justify-between font-semibold text-gray-900">
-                Worker Gig BD কী?
+                WORKER GIG BD কী?
                 <span className="text-primary-600 transition-transform group-open:rotate-45">+</span>
               </summary>
               <p className="mt-3 text-sm leading-relaxed text-gray-600">
-                Worker Gig BD বাংলাদেশের একটি মাইক্রো-টাস্ক ও ফ্রিল্যান্স প্ল্যাটফর্ম, যেখানে আপনি সহজ অনলাইন টাস্ক (ফেসবুক লাইক, সাইন আপ, সার্ভে ইত্যাদি) সম্পন্ন করে ঘরে বসে আয় করতে পারেন।
+                WORKER GIG BD বাংলাদেশের একটি মাইক্রো-টাস্ক ও ফ্রিল্যান্স প্ল্যাটফর্ম, যেখানে আপনি সহজ অনলাইন টাস্ক (ফেসবুক লাইক, সাইন আপ, সার্ভে ইত্যাদি) সম্পন্ন করে ঘরে বসে আয় করতে পারেন।
               </p>
             </details>
             <details className="group rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
@@ -278,7 +278,7 @@ export function LandingPage() {
             Ready to Start Earning?
           </h2>
           <p className="mt-4 text-lg text-gray-600">
-            Join Worker Gig BD today and turn your free time into income.
+            Join WORKER GIG BD today and turn your free time into income.
             It's free to sign up and start working immediately.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
@@ -340,7 +340,7 @@ export function LandingPage() {
             </div>
           </div>
           <div className="mt-10 border-t border-gray-200 pt-6 text-center text-sm text-gray-500">
-            © 2026 Worker Gig BD. All rights reserved.
+            © 2026 WORKER GIG BD. All rights reserved.
           </div>
         </div>
       </footer>

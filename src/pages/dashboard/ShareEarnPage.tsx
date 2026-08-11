@@ -10,8 +10,8 @@ import { useSeo } from '@/lib/useSeo';
 
 export function ShareEarnPage() {
   useSeo({
-    title: 'শেয়ার ও আয় — Worker Gig BD | রেফার করে বোনাস পান',
-    description: 'Worker Gig BD-তে আপনার রেফার লিংক শেয়ার করে বোনাস আয় করুন। প্রতিটি রেফারেল থেকে আয় পান এবং বন্ধুদের সাথে মাইক্রো-টাস্ক প্ল্যাটফর্ম পরিচয় করিয়ে দিন।',
+    title: 'শেয়ার ও আয় — WORKER GIG BD | রেফার করে বোনাস পান',
+    description: 'WORKER GIG BD-তে আপনার রেফার লিংক শেয়ার করে বোনাস আয় করুন। প্রতিটি রেফারেল থেকে আয় পান এবং বন্ধুদের সাথে মাইক্রো-টাস্ক প্ল্যাটফর্ম পরিচয় করিয়ে দিন।',
     path: '/dashboard/share-earn',
   });
   const { profile } = useAuth();

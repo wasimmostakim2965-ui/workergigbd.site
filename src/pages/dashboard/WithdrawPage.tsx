@@ -13,8 +13,8 @@ import { useSeo } from '@/lib/useSeo';
 
 export function WithdrawPage() {
   useSeo({
-    title: 'উইথড্র — Worker Gig BD',
-    description: 'Worker Gig BD থেকে আয়কৃত টাকা উইথড্র করুন। ১ ডলার = ১০০ টাকা।',
+    title: 'উইথড্র — WORKER GIG BD',
+    description: 'WORKER GIG BD থেকে আয়কৃত টাকা উইথড্র করুন। ১ ডলার = ১০০ টাকা।',
     path: '/dashboard/withdraw',
     noindex: true,
   });

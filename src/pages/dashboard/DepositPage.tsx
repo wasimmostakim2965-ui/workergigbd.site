@@ -71,7 +71,7 @@ export function DepositPage() {
 
     const amt = parseFloat(amount);
     if (amt < minDeposit) {
-      setError(`Minimum deposit is ৳${minDeposit} (= ${(minDeposit * 100).toFixed(0)} টাকা).`);
+      setError(`Minimum deposit is ৳${minDeposit}.`);
       setLoading(false);
       return;
     }
@@ -154,8 +154,8 @@ export function DepositPage() {
             <div className="mt-1 text-lg font-bold text-gray-900">
               {paymentMethods.find(pm => pm.id === method)?.name}: {paymentMethods.find(pm => pm.id === method)?.number || 'Contact support'}
             </div>
-            <div className="mt-2 text-xs text-gray-500">
-              Rate: ৳1 = 100 টাকা. অর্থাৎ ৳1 ক্রেডিট পেতে 100 টাকা পাঠান।
+            <div className="mt-1 text-xs text-gray-500">
+              After sending, fill out the form below with your transaction details.
             </div>
           </div>
 
@@ -165,13 +165,13 @@ export function DepositPage() {
               type="number"
               step="0.001"
               min={minDeposit}
-              placeholder={`Min ৳${minDeposit} (= ${(minDeposit * 100).toFixed(0)} টাকা)`}
+              placeholder={`Min ৳${minDeposit}`}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required
               icon={<Wallet className="h-4 w-4" />}
-              hint={amount ? `পাঠাতে হবে ${(parseFloat(amount || '0') * 100).toFixed(0)} টাকা → ক্রেডিট হবে ৳${parseFloat(amount || '0')}` : undefined}
             />
+            <p className="text-xs text-gray-500">১ ডলার = ১১০ টাকা</p>
             <Input
               label="Your Sender Number"
               placeholder="01XXXXXXXXX"

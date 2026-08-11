@@ -58,9 +58,6 @@ export function WithdrawPage() {
 
   const withdrawEnabled = settings.find(s => s.key === 'withdrawal_enabled')?.value === 'true';
   const minWithdraw = parseFloat(settings.find(s => s.key === 'min_withdrawal')?.value || '1');
-  // Platform commission on withdrawals (default 10%): the user receives the rest.
-  const commissionRate = parseFloat(settings.find(s => s.key === 'withdrawal_commission_rate')?.value || '0.10');
-  const commissionPct = Math.round((commissionRate || 0.10) * 100);
 
   const sendOtp = async () => {
     if (!profile || !user?.email) return;
@@ -128,7 +125,7 @@ export function WithdrawPage() {
 
     const amt = parseFloat(amount);
     if (amt < minWithdraw) {
-      setError(`Minimum withdrawal is ৳${minWithdraw} (= ${(minWithdraw * 90).toFixed(0)} টাকা, কমিশনের পরে).`);
+      setError(`Minimum withdrawal is ৳${minWithdraw}.`);
       setLoading(false);
       return;
     }
@@ -266,7 +263,7 @@ export function WithdrawPage() {
 
       {success && (
         <Alert variant="success" title="Withdrawal Request Submitted!">
-          ৳ {parseFloat(amount || '0') || '0'} has been held from your balance. {commissionPct}% কমিশনের পরে পাবেন ৳ {(parseFloat(amount || '0') * (1 - (commissionRate || 0.10))).toFixed(3)} (= {(parseFloat(amount || '0') * (1 - (commissionRate || 0.10)) * 90).toFixed(0)} টাকা). Your request is pending admin approval.
+          ৳ {parseFloat(amount || '0') || '0'} has been held from your balance. Your request is pending admin approval. Funds will be sent within 24-48 hours, or refunded if rejected.
         </Alert>
       )}
       {error && <Alert variant="error">{error}</Alert>}
@@ -276,9 +273,7 @@ export function WithdrawPage() {
           <div className="mb-4 rounded-lg bg-gradient-to-br from-primary-600 to-primary-800 p-4 text-white">
             <div className="text-xs text-primary-100">Available Earning Balance</div>
             <div className="mt-1 text-3xl font-bold">৳ {profile?.earning_balance?.toFixed(3) ?? '0.000'}</div>
-            <div className="mt-2 text-xs text-primary-200">
-              Minimum withdrawal: ৳ {minWithdraw} • {commissionPct}% কমিশন (পাবেন {100 - commissionPct}%)
-            </div>
+            <div className="mt-2 text-xs text-primary-200">Minimum withdrawal: ৳ {minWithdraw}</div>
           </div>
 
           <div className="grid grid-cols-3 gap-3 mb-5">
@@ -309,8 +304,8 @@ export function WithdrawPage() {
               onChange={(e) => setAmount(e.target.value)}
               required
               icon={<ArrowUpFromLine className="h-4 w-4" />}
-              hint={amount ? `${commissionPct}% কমিশনের পরে পাবেন ৳ ${(parseFloat(amount || '0') * (1 - (commissionRate || 0.10))).toFixed(3)} (= ${(parseFloat(amount || '0') * (1 - (commissionRate || 0.10)) * 90).toFixed(0)} টাকা)` : undefined}
             />
+            <p className="text-xs text-gray-500">১ ডলার = ১০০ টাকা</p>
             <Input
               label="Your Account Number"
               placeholder="01XXXXXXXXX"

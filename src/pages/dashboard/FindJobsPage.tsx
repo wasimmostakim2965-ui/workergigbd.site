@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, Briefcase, ExternalLink, X, Pin, Star, Camera, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
@@ -33,10 +33,11 @@ export function FindJobsPage() {
   const { profile } = useAuth();
   const { jobId } = useParams();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(searchParams.get('q') ?? '');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [sortBy, setSortBy] = useState('latest');
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
@@ -92,6 +93,16 @@ export function FindJobsPage() {
   }, [jobId, navigate]);
 
   useEffect(() => { loadJobs(); }, [loadJobs]);
+
+  // Keep the URL ?q= param in sync with the search box so the schema.org
+  // SearchAction target (/dashboard/find-jobs?q={search_term_string}) resolves.
+  const onSearchChange = (value: string) => {
+    setSearch(value);
+    const next = new URLSearchParams(searchParams);
+    if (value) next.set('q', value);
+    else next.delete('q');
+    setSearchParams(next, { replace: true });
+  };
 
   const handleScreenshotUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!selectedJob || !profile) return;
@@ -414,12 +425,12 @@ export function FindJobsPage() {
             type="text"
             placeholder="Search jobs..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => onSearchChange(e.target.value)}
             className="w-full rounded-lg border border-gray-200 bg-white pl-9 pr-9 py-2.5 text-sm text-gray-700 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
           />
           {(search || categoryFilter !== 'all') && (
             <button
-              onClick={() => { setSearch(''); setCategoryFilter('all'); }}
+              onClick={() => { onSearchChange(''); setCategoryFilter('all'); }}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             >
               <X className="h-4 w-4" />

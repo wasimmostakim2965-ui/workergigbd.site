@@ -10,6 +10,10 @@ Disallow: /dashboard/verify
 Disallow: /dashboard/ticket
 Disallow: /dashboard/live-chat
 Disallow: /dashboard/premium
+Disallow: /dashboard/my-tasks
+Disallow: /dashboard/my-jobs
+Disallow: /dashboard/advertisement
+Disallow: /dashboard$
 Disallow: /admin
 Disallow: /admin-login
 Allow: /dashboard/find-jobs

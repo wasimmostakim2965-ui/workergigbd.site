@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { Tabs } from '@/components/ui/Tabs';
+import { Alert } from '@/components/ui/Alert';
 import { LoadingSpinner, EmptyState } from '@/components/ui/EmptyState';
 import { VerificationRequest, Profile } from '@/types';
 
@@ -21,6 +22,7 @@ export function AdminVerificationsPage() {
   const [selected, setSelected] = useState<Row | null>(null);
   const [adminNote, setAdminNote] = useState('');
   const [processing, setProcessing] = useState(false);
+  const [actionError, setActionError] = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -51,6 +53,7 @@ export function AdminVerificationsPage() {
   const decide = async (action: 'approved' | 'rejected') => {
     if (!selected || !admin) return;
     setProcessing(true);
+    setActionError('');
 
     const { error: updError } = await supabase.from('verification_requests').update({
       status: action,
@@ -60,7 +63,7 @@ export function AdminVerificationsPage() {
     }).eq('id', selected.id);
 
     if (updError) {
-      alert(updError.message);
+      setActionError(updError.message);
       setProcessing(false);
       return;
     }
@@ -149,7 +152,7 @@ export function AdminVerificationsPage() {
                     <td className="px-5 py-3 text-gray-500">{new Date(req.created_at).toLocaleDateString()}</td>
                     <td className="px-5 py-3">
                       <Button size="sm" variant={req.status === 'pending' ? 'secondary' : 'ghost'}
-                        onClick={() => { setSelected(req); setAdminNote(req.admin_note || ''); }}>
+                        onClick={() => { setSelected(req); setAdminNote(req.admin_note || ''); setActionError(''); }}>
                         {req.status === 'pending' ? 'Review' : 'View'}
                       </Button>
                     </td>
@@ -180,6 +183,7 @@ export function AdminVerificationsPage() {
             {selected.status === 'pending' ? (
               <>
                 <Textarea label="Admin Note" placeholder="Add a note..." value={adminNote} onChange={(e) => setAdminNote(e.target.value)} rows={2} />
+                {actionError && <Alert variant="error">{actionError}</Alert>}
                 <div className="flex gap-3">
                   <Button variant="danger" fullWidth loading={processing} onClick={() => decide('rejected')}>
                     <X className="h-4 w-4" /> Reject

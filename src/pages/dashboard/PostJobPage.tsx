@@ -85,6 +85,12 @@ export function PostJobPage() {
     setSuccess(false);
     setLoading(true);
 
+    if (profile.status !== 'active') {
+      setError('Your account is not active. Job posting is disabled.');
+      setLoading(false);
+      return;
+    }
+
     if (reward < 0.02) {
       setError('Minimum reward per worker is ৳0.02 (2 cents).');
       setLoading(false);

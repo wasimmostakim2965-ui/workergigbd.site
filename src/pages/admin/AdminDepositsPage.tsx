@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Input, Textarea } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { Tabs } from '@/components/ui/Tabs';
+import { Alert } from '@/components/ui/Alert';
 import { LoadingSpinner, EmptyState } from '@/components/ui/EmptyState';
 import { DepositRequest, Profile, AdminSetting } from '@/types';
 
@@ -20,6 +21,7 @@ export function AdminDepositsPage() {
   const [adminNote, setAdminNote] = useState('');
   const [processing, setProcessing] = useState(false);
   const [settings, setSettings] = useState<AdminSetting[]>([]);
+  const [actionError, setActionError] = useState('');
 
   useEffect(() => {
     supabase.from('admin_settings').select('*').then(({ data }) => {
@@ -55,6 +57,7 @@ export function AdminDepositsPage() {
   const handleApprove = async () => {
     if (!selected || !admin) return;
     setProcessing(true);
+    setActionError('');
 
     // Atomic RPC: credits deposit_balance + total_deposit, writes the ledger
     // transaction, applies the referral bonus (first deposit only) and notifies
@@ -69,7 +72,7 @@ export function AdminDepositsPage() {
     });
 
     if (error) {
-      alert(error.message);
+      setActionError(error.message);
       setProcessing(false);
       return;
     }
@@ -83,6 +86,7 @@ export function AdminDepositsPage() {
   const handleReject = async () => {
     if (!selected || !admin) return;
     setProcessing(true);
+    setActionError('');
 
     const { error } = await supabase.rpc('process_deposit', {
       p_deposit_id: selected.id,
@@ -92,7 +96,7 @@ export function AdminDepositsPage() {
     });
 
     if (error) {
-      alert(error.message);
+      setActionError(error.message);
       setProcessing(false);
       return;
     }
@@ -159,11 +163,11 @@ export function AdminDepositsPage() {
                     <td className="px-5 py-3 text-gray-500">{new Date(dep.created_at).toLocaleDateString()}</td>
                     <td className="px-5 py-3">
                       {dep.status === 'pending' ? (
-                        <Button size="sm" variant="secondary" onClick={() => { setSelected(dep); setAdminNote(''); }}>
+                        <Button size="sm" variant="secondary" onClick={() => { setSelected(dep); setAdminNote(''); setActionError(''); }}>
                           Review
                         </Button>
                       ) : (
-                        <Button size="sm" variant="ghost" onClick={() => { setSelected(dep); setAdminNote(dep.admin_note || ''); }}>
+                        <Button size="sm" variant="ghost" onClick={() => { setSelected(dep); setAdminNote(dep.admin_note || ''); setActionError(''); }}>
                           View
                         </Button>
                       )}
@@ -192,6 +196,8 @@ export function AdminDepositsPage() {
             </div>
 
             <Textarea label="Admin Note" placeholder="Add a note (optional for approval, required for rejection)..." value={adminNote} onChange={(e) => setAdminNote(e.target.value)} rows={2} />
+
+            {actionError && <Alert variant="error">{actionError}</Alert>}
 
             {selected.status === 'pending' ? (
               <div className="flex gap-3">

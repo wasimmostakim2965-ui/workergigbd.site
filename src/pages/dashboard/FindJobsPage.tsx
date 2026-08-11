@@ -1,10 +1,10 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Search, Briefcase, ExternalLink, X, Pin, Star } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Search, Briefcase, ExternalLink, X, Pin, Star, Camera, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
-import { Input, Select } from '@/components/ui/Input';
-import { Modal } from '@/components/ui/Modal';
+import { Input, Select, Textarea } from '@/components/ui/Input';
 import { EmptyState, LoadingSpinner } from '@/components/ui/EmptyState';
 import { Alert } from '@/components/ui/Alert';
 import { Job, Category } from '@/types';
@@ -25,6 +25,8 @@ const sortOptions = [
 
 export function FindJobsPage() {
   const { profile } = useAuth();
+  const { jobId } = useParams();
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,6 +36,8 @@ export function FindJobsPage() {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [proofUrl, setProofUrl] = useState('');
   const [proofText, setProofText] = useState('');
+  const [screenshots, setScreenshots] = useState<string[]>([]);
+  const [uploadingShot, setUploadingShot] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -70,15 +74,64 @@ export function FindJobsPage() {
     });
   }, []);
 
+  // Open a specific job directly from the URL (one-click from DashboardHome)
+  useEffect(() => {
+    if (!jobId) return;
+    let active = true;
+    supabase.from('jobs').select('*').eq('id', jobId).maybeSingle().then(({ data, error }) => {
+      if (active && data && !error) setSelectedJob(data as Job);
+      else if (active) navigate('/dashboard/find-jobs', { replace: true });
+    });
+    return () => { active = false; };
+  }, [jobId, navigate]);
+
   useEffect(() => { loadJobs(); }, [loadJobs]);
+
+  const handleScreenshotUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!selectedJob || !profile) return;
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    const remaining = selectedJob.screenshot_count - screenshots.length;
+    if (remaining <= 0) return;
+    setUploadingShot(true);
+    try {
+      const uploaded: string[] = [];
+      for (const file of files.slice(0, remaining)) {
+        const ext = file.name.split('.').pop();
+        const fileName = `task-proofs/${profile.id}/${selectedJob.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const { error: upErr } = await supabase.storage.from('job-assets').upload(fileName, file);
+        if (upErr) { setSubmitError('Screenshot upload failed: ' + upErr.message); break; }
+        const { data: urlData } = supabase.storage.from('job-assets').getPublicUrl(fileName);
+        uploaded.push(urlData.publicUrl);
+      }
+      setScreenshots((prev) => [...prev, ...uploaded]);
+    } finally {
+      setUploadingShot(false);
+      e.target.value = '';
+    }
+  };
 
   const handleAcceptJob = async () => {
     if (!selectedJob || !profile) return;
     setSubmitting(true);
     setSubmitError('');
 
+    if (profile.status !== 'active') {
+      setSubmitError('Your account is not active. You cannot accept jobs.');
+      setSubmitting(false);
+      return;
+    }
+
     if (selectedJob.is_premium_only && !profile.is_premium) {
       setSubmitError('This job is only available for premium members.');
+      setSubmitting(false);
+      return;
+    }
+
+    // Enforce the screenshot requirement declared by the job poster so the
+    // worker can't submit without the requested proof.
+    if ((selectedJob.screenshot_count ?? 0) > 0 && screenshots.length < selectedJob.screenshot_count) {
+      setSubmitError(`Please upload all ${selectedJob.screenshot_count} required screenshot(s). You have uploaded ${screenshots.length}.`);
       setSubmitting(false);
       return;
     }
@@ -97,11 +150,18 @@ export function FindJobsPage() {
       return;
     }
 
+    // Store screenshot URLs in proof_url as a JSON array (reuses the existing
+    // column — no schema change needed). Falls back to the typed proof URL
+    // when no screenshots are required.
+    const proofUrlValue = screenshots.length
+      ? JSON.stringify(screenshots)
+      : proofUrl;
+
     const { error } = await supabase.from('tasks').insert({
       job_id: selectedJob.id,
       worker_id: profile.id,
       status: 'submitted',
-      proof_url: proofUrl,
+      proof_url: proofUrlValue,
       proof_text: proofText,
       submitted_at: new Date().toISOString(),
     });
@@ -120,14 +180,181 @@ export function FindJobsPage() {
         n_type: 'info',
       });
       setTimeout(() => {
-        setSelectedJob(null);
-        setProofUrl('');
-        setProofText('');
+        closeJobDetail();
         setSubmitSuccess(false);
       }, 2000);
     }
     setSubmitting(false);
   };
+
+  const closeJobDetail = () => {
+    setSelectedJob(null);
+    setProofUrl('');
+    setProofText('');
+    setScreenshots([]);
+    setSubmitError('');
+    if (jobId) navigate('/dashboard/find-jobs', { replace: true });
+  };
+
+  // Inline job detail view — opens within the same page (no modal / no new window)
+  if (selectedJob) {
+    const totalReward = selectedJob.reward_per_worker + (selectedJob.screenshot_count ?? 0) * 0.05;
+    const isFull = selectedJob.filled_slots >= selectedJob.total_slots;
+    const remaining = selectedJob.screenshot_count - screenshots.length;
+
+    return (
+      <div className="space-y-4">
+        <button
+          onClick={closeJobDetail}
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900"
+        >
+          <ArrowLeft className="h-4 w-4" /> Back to jobs
+        </button>
+
+        {submitSuccess ? (
+          <div className="rounded-xl border border-gray-200 bg-white py-12 text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-success-50">
+              <Star className="h-7 w-7 text-success-600 fill-success-600" />
+            </div>
+            <h3 className="font-heading text-lg font-bold text-gray-900">Task Submitted!</h3>
+            <p className="mt-1 text-sm text-gray-600">Your task has been submitted for review.</p>
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="rounded-lg bg-primary-50 px-2.5 py-1 text-xs font-semibold text-primary-700">
+                {selectedJob.category}
+              </span>
+              {selectedJob.subcategory && (
+                <span className="rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                  {selectedJob.subcategory}
+                </span>
+              )}
+              {selectedJob.is_premium_only && (
+                <span className="rounded-lg bg-accent-50 px-2.5 py-1 text-xs font-semibold text-accent-700">
+                  Premium Only
+                </span>
+              )}
+              <span className="text-base">{flagEmojis[selectedJob.category] ?? '🌍'}</span>
+            </div>
+
+            <h2 className="font-heading text-xl font-bold uppercase text-gray-900">
+              {selectedJob.title}
+            </h2>
+
+            {selectedJob.image_url && (
+              <img src={selectedJob.image_url} alt="Job" className="w-full rounded-lg border border-gray-200" />
+            )}
+
+            <p className="text-sm text-gray-600">{selectedJob.description}</p>
+
+            {selectedJob.url && (
+              <a
+                href={selectedJob.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-primary-600 hover:text-primary-700"
+              >
+                <ExternalLink className="h-4 w-4" /> Open task link
+              </a>
+            )}
+
+            {selectedJob.proof_instructions && (
+              <div className="rounded-lg bg-gray-50 p-4">
+                <div className="text-sm font-semibold text-gray-700">Requirements / Proof Instructions</div>
+                <p className="mt-1 whitespace-pre-line text-sm text-gray-600">{selectedJob.proof_instructions}</p>
+              </div>
+            )}
+
+            {(selectedJob.screenshot_count ?? 0) > 0 && (
+              <div className="rounded-lg bg-primary-50/50 p-4">
+                <div className="text-sm font-semibold text-primary-700">
+                  📸 Screenshots required: {selectedJob.screenshot_count}
+                </div>
+                {selectedJob.screenshot_instructions && (
+                  <p className="mt-1 whitespace-pre-line text-sm text-gray-600">{selectedJob.screenshot_instructions}</p>
+                )}
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="rounded-lg border border-gray-200 p-3">
+                <div className="text-xs text-gray-500">Reward</div>
+                <div className="text-lg font-bold text-success-600">{totalReward.toFixed(3)} S</div>
+              </div>
+              <div className="rounded-lg border border-gray-200 p-3">
+                <div className="text-xs text-gray-500">Available Slots</div>
+                <div className="text-lg font-bold text-gray-900">{selectedJob.total_slots - selectedJob.filled_slots}</div>
+              </div>
+            </div>
+
+            {submitError && <Alert variant="error">{submitError}</Alert>}
+
+            {/* Proof submission */}
+            <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-4">
+              <div className="text-sm font-semibold text-gray-700">Submit Your Proof</div>
+
+              {/* Screenshot uploader (shown when the job requires screenshots) */}
+              {(selectedJob.screenshot_count ?? 0) > 0 && (
+                <div>
+                  <label className="label-text">
+                    Upload {selectedJob.screenshot_count} screenshot(s){' '}
+                    <span className="text-gray-400">({screenshots.length}/{selectedJob.screenshot_count} uploaded)</span>
+                  </label>
+                  {screenshots.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {screenshots.map((url, i) => (
+                        <div key={i} className="relative">
+                          <img src={url} alt={`Screenshot ${i + 1}`} className="h-20 w-20 rounded-lg border border-gray-200 object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => setScreenshots((prev) => prev.filter((_, idx) => idx !== i))}
+                            className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-error-500 text-white shadow"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {remaining > 0 && (
+                    <label className={`mt-2 flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 p-4 text-sm text-gray-500 transition-colors hover:border-primary-400 hover:bg-primary-50/30 ${uploadingShot ? 'opacity-60' : ''}`}>
+                      <Camera className="h-5 w-5" />
+                      <span>{uploadingShot ? 'Uploading...' : 'Click to upload screenshot(s)'}</span>
+                      <input type="file" accept="image/*" multiple className="hidden" onChange={handleScreenshotUpload} disabled={uploadingShot} />
+                    </label>
+                  )}
+                </div>
+              )}
+
+              <Input
+                label="Proof URL (if applicable)"
+                placeholder="https://..."
+                value={proofUrl}
+                onChange={(e) => setProofUrl(e.target.value)}
+              />
+              <Textarea
+                label="Proof Details"
+                placeholder="Describe or paste your proof..."
+                rows={3}
+                value={proofText}
+                onChange={(e) => setProofText(e.target.value)}
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <Button variant="secondary" fullWidth onClick={closeJobDetail}>
+                Cancel
+              </Button>
+              <Button fullWidth loading={submitting} disabled={isFull} onClick={handleAcceptJob}>
+                {isFull ? 'Slots Full' : 'Submit Task'}
+              </Button>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -136,7 +363,7 @@ export function FindJobsPage() {
         <p className="mt-1 text-sm text-gray-600">Browse available tasks and start earning</p>
       </div>
 
-      {/* Filter bar - WorkUpJob style */}
+      {/* Filter bar */}
       <div className="flex flex-col gap-3">
         <div className="flex gap-3">
           <div className="flex-1">
@@ -244,128 +471,6 @@ export function FindJobsPage() {
           })}
         </div>
       )}
-
-      {/* Job detail modal */}
-      <Modal
-        open={!!selectedJob}
-        onClose={() => { setSelectedJob(null); setSubmitError(''); setProofUrl(''); setProofText(''); }}
-        title="Job Details"
-        size="lg"
-      >
-        {selectedJob && (
-          <div className="space-y-4">
-            {submitSuccess ? (
-              <div className="py-8 text-center">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-success-50">
-                  <Star className="h-7 w-7 text-success-600 fill-success-600" />
-                </div>
-                <h3 className="font-heading text-lg font-bold text-gray-900">Task Submitted!</h3>
-                <p className="mt-1 text-sm text-gray-600">Your task has been submitted for review.</p>
-              </div>
-            ) : (
-              <>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="rounded-lg bg-primary-50 px-2.5 py-1 text-xs font-semibold text-primary-700">
-                    {selectedJob.category}
-                  </span>
-                  {selectedJob.subcategory && (
-                    <span className="rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
-                      {selectedJob.subcategory}
-                    </span>
-                  )}
-                  {selectedJob.is_premium_only && (
-                    <span className="rounded-lg bg-accent-50 px-2.5 py-1 text-xs font-semibold text-accent-700">
-                      Premium Only
-                    </span>
-                  )}
-                </div>
-
-                <h3 className="font-heading text-xl font-bold uppercase text-gray-900">
-                  {selectedJob.title}
-                </h3>
-
-                {selectedJob.image_url && (
-                  <img src={selectedJob.image_url} alt="Job" className="w-full rounded-lg border border-gray-200" />
-                )}
-
-                <p className="text-sm text-gray-600">{selectedJob.description}</p>
-
-                {selectedJob.url && (
-                  <a
-                    href={selectedJob.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-sm font-medium text-primary-600 hover:text-primary-700"
-                  >
-                    <ExternalLink className="h-4 w-4" /> Open task link
-                  </a>
-                )}
-
-                {selectedJob.proof_instructions && (
-                  <div className="rounded-lg bg-gray-50 p-4">
-                    <div className="text-sm font-semibold text-gray-700">Requirements</div>
-                    <p className="mt-1 text-sm text-gray-600">{selectedJob.proof_instructions}</p>
-                  </div>
-                )}
-
-                {(selectedJob.screenshot_count ?? 0) > 0 && (
-                  <div className="rounded-lg bg-primary-50/50 p-4">
-                    <div className="text-sm font-semibold text-primary-700">
-                      Screenshots required: {selectedJob.screenshot_count}
-                    </div>
-                    {selectedJob.screenshot_instructions && (
-                      <p className="mt-1 text-sm text-gray-600">{selectedJob.screenshot_instructions}</p>
-                    )}
-                  </div>
-                )}
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="rounded-lg border border-gray-200 p-3">
-                    <div className="text-xs text-gray-500">Reward</div>
-                    <div className="text-lg font-bold text-success-600">
-                      {(selectedJob.reward_per_worker + (selectedJob.screenshot_count ?? 0) * 0.05).toFixed(3)} S
-                    </div>
-                  </div>
-                  <div className="rounded-lg border border-gray-200 p-3">
-                    <div className="text-xs text-gray-500">Available Slots</div>
-                    <div className="text-lg font-bold text-gray-900">{selectedJob.total_slots - selectedJob.filled_slots}</div>
-                  </div>
-                </div>
-
-                {submitError && <Alert variant="error">{submitError}</Alert>}
-
-                <div className="space-y-3 border-t border-gray-100 pt-4">
-                  <Input
-                    label="Proof URL (if applicable)"
-                    placeholder="https://..."
-                    value={proofUrl}
-                    onChange={(e) => setProofUrl(e.target.value)}
-                  />
-                  <Input
-                    label="Proof Details"
-                    placeholder="Describe or paste your proof..."
-                    value={proofText}
-                    onChange={(e) => setProofText(e.target.value)}
-                  />
-                </div>
-
-                <div className="flex gap-3">
-                  <Button
-                    variant="secondary"
-                    fullWidth
-                    onClick={() => { setSelectedJob(null); setSubmitError(''); setProofUrl(''); setProofText(''); }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button fullWidth loading={submitting} onClick={handleAcceptJob}>
-                    Submit Task
-                  </Button>
-                </div>
-              </>
-            )}
-          </div>
-        )}
-      </Modal>
     </div>
   );
 }

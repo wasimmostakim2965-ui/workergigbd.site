@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { Tabs } from '@/components/ui/Tabs';
+import { Alert } from '@/components/ui/Alert';
 import { LoadingSpinner, EmptyState } from '@/components/ui/EmptyState';
 import { WithdrawalRequest, Profile } from '@/types';
 
@@ -19,6 +20,7 @@ export function AdminWithdrawalsPage() {
   const [selected, setSelected] = useState<WithdrawalRequest | null>(null);
   const [adminNote, setAdminNote] = useState('');
   const [processing, setProcessing] = useState(false);
+  const [actionError, setActionError] = useState('');
 
   const loadWithdrawals = useCallback(async () => {
     setLoading(true);
@@ -48,6 +50,7 @@ export function AdminWithdrawalsPage() {
   const handleApprove = async () => {
     if (!selected || !admin) return;
     setProcessing(true);
+    setActionError('');
 
     // Atomic RPC: updates balances, total_withdraw, status + notification
     // inside a single DB transaction. Re-approval is prevented by a status guard.
@@ -59,7 +62,7 @@ export function AdminWithdrawalsPage() {
     });
 
     if (error) {
-      alert(error.message);
+      setActionError(error.message);
       setProcessing(false);
       return;
     }
@@ -73,6 +76,7 @@ export function AdminWithdrawalsPage() {
   const handleReject = async () => {
     if (!selected || !admin) return;
     setProcessing(true);
+    setActionError('');
 
     // Atomic RPC: refunds the held amount + sets rejected + notifies.
     const { error } = await supabase.rpc('process_withdrawal_request', {
@@ -83,7 +87,7 @@ export function AdminWithdrawalsPage() {
     });
 
     if (error) {
-      alert(error.message);
+      setActionError(error.message);
       setProcessing(false);
       return;
     }
@@ -148,11 +152,11 @@ export function AdminWithdrawalsPage() {
                     <td className="px-5 py-3 text-gray-500">{new Date(wd.created_at).toLocaleDateString()}</td>
                     <td className="px-5 py-3">
                       {wd.status === 'pending' ? (
-                        <Button size="sm" variant="secondary" onClick={() => { setSelected(wd); setAdminNote(''); }}>
+                        <Button size="sm" variant="secondary" onClick={() => { setSelected(wd); setAdminNote(''); setActionError(''); }}>
                           Review
                         </Button>
                       ) : (
-                        <Button size="sm" variant="ghost" onClick={() => { setSelected(wd); setAdminNote(wd.admin_note || ''); }}>
+                        <Button size="sm" variant="ghost" onClick={() => { setSelected(wd); setAdminNote(wd.admin_note || ''); setActionError(''); }}>
                           View
                         </Button>
                       )}
@@ -180,6 +184,8 @@ export function AdminWithdrawalsPage() {
             </div>
 
             <Textarea label="Admin Note" placeholder="Add a note..." value={adminNote} onChange={(e) => setAdminNote(e.target.value)} rows={2} />
+
+            {actionError && <Alert variant="error">{actionError}</Alert>}
 
             {selected.status === 'pending' ? (
               <div className="flex gap-3">

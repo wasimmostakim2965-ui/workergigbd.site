@@ -117,6 +117,12 @@ export function WithdrawPage() {
     setSuccess(false);
     setLoading(true);
 
+    if (profile.status !== 'active') {
+      setError('Your account is not active. Withdrawals are disabled.');
+      setLoading(false);
+      return;
+    }
+
     const amt = parseFloat(amount);
     if (amt < minWithdraw) {
       setError(`Minimum withdrawal amount is ৳ ${minWithdraw}.`);

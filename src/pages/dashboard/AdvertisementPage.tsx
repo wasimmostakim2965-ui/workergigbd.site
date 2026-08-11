@@ -50,6 +50,12 @@ export function AdvertisementPage() {
     setCreating(true);
     setError('');
 
+    if (profile.status !== 'active') {
+      setError('Your account is not active. Ad creation is disabled.');
+      setCreating(false);
+      return;
+    }
+
     const budget = parseFloat(form.budget);
     if (!budget || budget <= 0) {
       setError('Please enter a valid budget amount.');

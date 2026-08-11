@@ -109,7 +109,7 @@ export function DashboardHome() {
             return (
               <Link
                 key={job.id}
-                to="/dashboard/find-jobs"
+                to={`/dashboard/find-jobs/${job.id}`}
                 className={`block rounded-xl border border-gray-200 bg-white p-4 transition-all hover:shadow-md ${
                   isFull ? 'opacity-60' : ''
                 }`}

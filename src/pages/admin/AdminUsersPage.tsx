@@ -99,19 +99,19 @@ export function AdminUsersPage() {
 
     // When an admin changes a balance, record the delta in the transactions
     // ledger so the audit trail stays intact (no silent balance overwrites).
-    const ledger: { user_id: string; type: any; amount: number; balance_type: any; description: string; reference_id: string | null }[] = [];
+    const ledger: { user_id: string; type: 'earning' | 'deposit'; amount: number; balance_type: 'earning' | 'deposit'; description: string }[] = [];
     const earningDelta = (editForm.earning_balance ?? 0) - (selectedUser?.earning_balance ?? 0);
     const depositDelta = (editForm.deposit_balance ?? 0) - (selectedUser?.deposit_balance ?? 0);
     if (Math.abs(earningDelta) > 0.0001) {
       ledger.push({
         user_id: editForm.id, type: 'earning', amount: earningDelta, balance_type: 'earning',
-        description: `Admin balance adjustment by ${selectedUser?.username ?? 'admin'}`, reference_id: null,
+        description: `Admin balance adjustment by ${selectedUser?.username ?? 'admin'}`,
       });
     }
     if (Math.abs(depositDelta) > 0.0001) {
       ledger.push({
         user_id: editForm.id, type: 'deposit', amount: depositDelta, balance_type: 'deposit',
-        description: `Admin balance adjustment by ${selectedUser?.username ?? 'admin'}`, reference_id: null,
+        description: `Admin balance adjustment by ${selectedUser?.username ?? 'admin'}`,
       });
     }
 

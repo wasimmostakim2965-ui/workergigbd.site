@@ -63,6 +63,12 @@ export function DepositPage() {
     setSuccess(false);
     setLoading(true);
 
+    if (profile.status !== 'active') {
+      setError('Your account is not active. Deposits are disabled.');
+      setLoading(false);
+      return;
+    }
+
     const amt = parseFloat(amount);
     if (amt < minDeposit) {
       setError(`Minimum deposit amount is ৳ ${minDeposit}.`);

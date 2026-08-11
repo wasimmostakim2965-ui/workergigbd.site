@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   Users, Wallet, ArrowDownToLine, ArrowUpFromLine, Briefcase,
-  TrendingUp, CheckCircle, Clock, XCircle, UserCheck, DollarSign,
+  TrendingUp, CheckCircle, UserCheck, DollarSign,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Card, StatCard } from '@/components/ui/Card';
@@ -11,10 +11,14 @@ import { LoadingSpinner } from '@/components/ui/EmptyState';
 interface AdminStats {
   totalUsers: number;
   activeUsers: number;
+  todayNewUsers: number;
   pendingDeposits: number;
   pendingWithdrawals: number;
   totalDeposits: number;
   totalWithdrawals: number;
+  yearDeposits: number;
+  monthEarnings: number;
+  totalJobsPosted: number;
   activeJobs: number;
   completedTasks: number;
   todayDeposits: number;
@@ -30,24 +34,34 @@ export function AdminDashboard() {
 
   useEffect(() => {
     async function loadStats() {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      const now = new Date();
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      // First day of current month
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      // First day of current year
+      const yearStart = new Date(now.getFullYear(), 0, 1);
 
       const [
-        usersCount, activeCount, pendingDep, pendingWd,
-        approvedDep, approvedWd, activeJobs, completedTasks,
-        todayDep, todayWd, recentDepData, recentWdData, recentUsersData,
+        usersCount, activeCount, todayUsers, pendingDep, pendingWd,
+        approvedDep, approvedWd, yearDep, activeJobs, totalJobs, completedTasks,
+        monthEarn, todayDep, todayWd, recentDepData, recentWdData, recentUsersData,
       ] = await Promise.all([
         supabase.from('profiles').select('id', { count: 'exact' }).neq('status', 'admin'),
         supabase.from('profiles').select('id', { count: 'exact' }).eq('status', 'active'),
+        supabase.from('profiles').select('id', { count: 'exact' }).neq('status', 'admin').gte('created_at', todayStart.toISOString()),
         supabase.from('deposit_requests').select('id', { count: 'exact' }).eq('status', 'pending'),
         supabase.from('withdrawal_requests').select('id', { count: 'exact' }).eq('status', 'pending'),
         supabase.from('deposit_requests').select('amount').eq('status', 'approved'),
         supabase.from('withdrawal_requests').select('amount').eq('status', 'approved'),
+        supabase.from('deposit_requests').select('amount').eq('status', 'approved').gte('created_at', yearStart.toISOString()),
         supabase.from('jobs').select('id', { count: 'exact' }).eq('status', 'active'),
+        supabase.from('jobs').select('id', { count: 'exact' }),
         supabase.from('tasks').select('id', { count: 'exact' }).eq('status', 'approved'),
-        supabase.from('deposit_requests').select('amount').eq('status', 'approved').gte('created_at', today.toISOString()),
-        supabase.from('withdrawal_requests').select('amount').eq('status', 'approved').gte('created_at', today.toISOString()),
+        // Platform earnings paid out to workers this month (type='earning' task payouts)
+        supabase.from('transactions').select('amount').eq('type', 'earning').gte('created_at', monthStart.toISOString()),
+        supabase.from('deposit_requests').select('amount').eq('status', 'approved').gte('created_at', todayStart.toISOString()),
+        supabase.from('withdrawal_requests').select('amount').eq('status', 'approved').gte('created_at', todayStart.toISOString()),
         supabase.from('deposit_requests').select('*, profiles(username)').order('created_at', { ascending: false }).limit(5),
         supabase.from('withdrawal_requests').select('*, profiles(username)').order('created_at', { ascending: false }).limit(5),
         supabase.from('profiles').select('username, created_at, status').neq('status', 'admin').order('created_at', { ascending: false }).limit(5),
@@ -55,16 +69,22 @@ export function AdminDashboard() {
 
       const totalDepAmount = (approvedDep.data as any[])?.reduce((sum, d) => sum + d.amount, 0) ?? 0;
       const totalWdAmount = (approvedWd.data as any[])?.reduce((sum, d) => sum + d.amount, 0) ?? 0;
+      const yearDepAmount = (yearDep.data as any[])?.reduce((sum, d) => sum + d.amount, 0) ?? 0;
+      const monthEarnAmount = (monthEarn.data as any[])?.reduce((sum, d) => sum + d.amount, 0) ?? 0;
       const todayDepAmount = (todayDep.data as any[])?.reduce((sum, d) => sum + d.amount, 0) ?? 0;
       const todayWdAmount = (todayWd.data as any[])?.reduce((sum, d) => sum + d.amount, 0) ?? 0;
 
       setStats({
         totalUsers: usersCount.count ?? 0,
         activeUsers: activeCount.count ?? 0,
+        todayNewUsers: todayUsers.count ?? 0,
         pendingDeposits: pendingDep.count ?? 0,
         pendingWithdrawals: pendingWd.count ?? 0,
         totalDeposits: totalDepAmount,
         totalWithdrawals: totalWdAmount,
+        yearDeposits: yearDepAmount,
+        monthEarnings: monthEarnAmount,
+        totalJobsPosted: totalJobs.count ?? 0,
         activeJobs: activeJobs.count ?? 0,
         completedTasks: completedTasks.count ?? 0,
         todayDeposits: todayDepAmount,
@@ -87,20 +107,28 @@ export function AdminDashboard() {
         <p className="mt-1 text-sm text-gray-600">Platform overview and statistics</p>
       </div>
 
-      {/* Main stats */}
+      {/* Users & jobs stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Total Users" value={stats.totalUsers} icon={<Users className="h-6 w-6" />} color="primary" trend={`${stats.activeUsers} active`} trendUp />
+        <StatCard label="New Today" value={stats.todayNewUsers} icon={<UserCheck className="h-6 w-6" />} color="accent" trend="registered today" trendUp />
+        <StatCard label="Jobs Posted" value={stats.totalJobsPosted} icon={<Briefcase className="h-6 w-6" />} color="primary" trend={`${stats.activeJobs} live now`} trendUp />
+        <StatCard label="Completed Tasks" value={stats.completedTasks} icon={<CheckCircle className="h-6 w-6" />} color="success" />
+      </div>
+
+      {/* Pending queue */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Active Jobs" value={stats.activeJobs} icon={<Briefcase className="h-6 w-6" />} color="accent" />
         <StatCard label="Pending Deposits" value={stats.pendingDeposits} icon={<ArrowDownToLine className="h-6 w-6" />} color="warning" />
         <StatCard label="Pending Withdrawals" value={stats.pendingWithdrawals} icon={<ArrowUpFromLine className="h-6 w-6" />} color="error" />
+        <StatCard label="This Month Earnings" value={`৳ ${stats.monthEarnings.toFixed(2)}`} icon={<TrendingUp className="h-6 w-6" />} color="success" />
       </div>
 
       {/* Financial stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Total Deposits" value={`৳ ${stats.totalDeposits.toFixed(2)}`} icon={<DollarSign className="h-6 w-6" />} color="success" />
+        <StatCard label="Year Deposits" value={`৳ ${stats.yearDeposits.toFixed(2)}`} icon={<ArrowDownToLine className="h-6 w-6" />} color="success" />
         <StatCard label="Total Withdrawals" value={`৳ ${stats.totalWithdrawals.toFixed(2)}`} icon={<Wallet className="h-6 w-6" />} color="primary" />
         <StatCard label="Today's Deposits" value={`৳ ${stats.todayDeposits.toFixed(2)}`} icon={<TrendingUp className="h-6 w-6" />} color="success" />
-        <StatCard label="Today's Withdrawals" value={`৳ ${stats.todayWithdrawals.toFixed(2)}`} icon={<TrendingUp className="h-6 w-6" />} color="error" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

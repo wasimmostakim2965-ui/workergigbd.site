@@ -43,6 +43,12 @@ export function PremiumPage() {
     setError('');
     setLoading(true);
 
+    if (profile.status !== 'active') {
+      setError('Your account is not active. Premium subscription is disabled.');
+      setLoading(false);
+      return;
+    }
+
     if (!premiumEnabled) {
       setError('Premium subscription is currently disabled by the administrator.');
       setLoading(false);

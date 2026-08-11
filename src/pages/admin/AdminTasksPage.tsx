@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { Tabs } from '@/components/ui/Tabs';
+import { Alert } from '@/components/ui/Alert';
 import { LoadingSpinner, EmptyState } from '@/components/ui/EmptyState';
 import { Task, Job } from '@/types';
 
@@ -20,6 +21,7 @@ export function AdminTasksPage() {
   const [tab, setTab] = useState('submitted');
   const [selected, setSelected] = useState<TaskWithRelations | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [actionError, setActionError] = useState('');
   const [search, setSearch] = useState('');
 
   const loadTasks = useCallback(async () => {
@@ -49,6 +51,7 @@ export function AdminTasksPage() {
   const handleApprove = async () => {
     if (!selected || !admin) return;
     setProcessing(true);
+    setActionError('');
 
     // Atomic RPC: pays the worker (earning_balance + total_earned), increments
     // tasks_completed, writes the ledger row, notifies the worker and sets the
@@ -62,7 +65,7 @@ export function AdminTasksPage() {
     });
 
     if (error) {
-      alert(error.message);
+      setActionError(error.message);
       setProcessing(false);
       return;
     }
@@ -75,6 +78,7 @@ export function AdminTasksPage() {
   const handleReject = async () => {
     if (!selected || !admin) return;
     setProcessing(true);
+    setActionError('');
 
     // Atomic RPC: sets rejected + reviewed_by, frees the job slot back, and
     // notifies the worker.
@@ -86,7 +90,7 @@ export function AdminTasksPage() {
     });
 
     if (error) {
-      alert(error.message);
+      setActionError(error.message);
       setProcessing(false);
       return;
     }
@@ -155,11 +159,11 @@ export function AdminTasksPage() {
                     <td className="px-5 py-3 text-gray-500">{new Date(task.created_at).toLocaleDateString()}</td>
                     <td className="px-5 py-3">
                       {task.status === 'submitted' || task.status === 'pending' ? (
-                        <Button size="sm" variant="secondary" onClick={() => setSelected(task)}>
+                        <Button size="sm" variant="secondary" onClick={() => { setSelected(task); setActionError(''); }}>
                           Review
                         </Button>
                       ) : (
-                        <Button size="sm" variant="ghost" onClick={() => setSelected(task)}>
+                        <Button size="sm" variant="ghost" onClick={() => { setSelected(task); setActionError(''); }}>
                           View
                         </Button>
                       )}
@@ -197,14 +201,41 @@ export function AdminTasksPage() {
               </div>
             )}
 
-            {selected.proof_url && (
-              <div>
-                <div className="text-sm font-semibold text-gray-700 mb-1">Proof URL</div>
-                <a href={selected.proof_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-primary-600 hover:text-primary-700">
-                  <ExternalLink className="h-4 w-4" /> {selected.proof_url}
-                </a>
-              </div>
-            )}
+            {/* Proof: support both a plain URL and a JSON array of screenshot
+                URLs (stored by FindJobsPage when the job requires screenshots). */}
+            {(() => {
+              let shotUrls: string[] = [];
+              let plainUrl = '';
+              if (selected.proof_url) {
+                try {
+                  const parsed = JSON.parse(selected.proof_url);
+                  if (Array.isArray(parsed)) shotUrls = parsed.filter(Boolean);
+                  else plainUrl = selected.proof_url;
+                } catch {
+                  plainUrl = selected.proof_url;
+                }
+              }
+              return (shotUrls.length > 0 || plainUrl) ? (
+                <div>
+                  <div className="text-sm font-semibold text-gray-700 mb-1">
+                    {shotUrls.length > 0 ? `Proof Screenshots (${shotUrls.length})` : 'Proof URL'}
+                  </div>
+                  {shotUrls.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {shotUrls.map((u, i) => (
+                        <a key={i} href={u} target="_blank" rel="noopener noreferrer">
+                          <img src={u} alt={`Proof ${i + 1}`} className="h-24 w-24 rounded-lg border border-gray-200 object-cover" />
+                        </a>
+                      ))}
+                    </div>
+                  ) : (
+                    <a href={plainUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-primary-600 hover:text-primary-700">
+                      <ExternalLink className="h-4 w-4" /> {plainUrl}
+                    </a>
+                  )}
+                </div>
+              ) : null;
+            })()}
 
             {selected.proof_text && (
               <div>
@@ -212,6 +243,8 @@ export function AdminTasksPage() {
                 <div className="rounded-lg border border-gray-200 p-3 text-sm text-gray-600">{selected.proof_text}</div>
               </div>
             )}
+
+            {actionError && <Alert variant="error">{actionError}</Alert>}
 
             {(selected.status === 'submitted' || selected.status === 'pending') ? (
               <div className="flex gap-3">

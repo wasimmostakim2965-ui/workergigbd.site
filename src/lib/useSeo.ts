@@ -9,7 +9,7 @@ type SeoConfig = {
 };
 
 const SITE_URL = 'https://workergigbd.site';
-const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.svg`;
+const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 function setMeta(attr: 'name' | 'property', key: string, content: string) {
   const selector = attr === 'property' ? `meta[property="${key}"]` : `meta[name="${key}"]`;
@@ -89,6 +89,9 @@ export function useSeo({ title, description, path, type = 'website', noindex }: 
         withdraw: 'উইথড্র',
         'share-earn': 'শেয়ার ও আয়',
         premium: 'প্রিমিয়াম',
+        'privacy-policy': 'প্রাইভেসি পলিসি',
+        'terms-of-service': 'টার্মস অফ সার্ভিস',
+        'admin-login': 'অ্যাডমিন',
       };
       const crumbs = segs.map((s, i) => ({
         '@type': 'ListItem',

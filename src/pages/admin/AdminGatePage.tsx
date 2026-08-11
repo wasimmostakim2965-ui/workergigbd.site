@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Logo } from '@/components/Logo';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { useSeo } from '@/lib/useSeo';
 
 // The admin panel uses a single shared admin account. Visitors only need the
 // password (no email) to unlock it; the login email is bound here on purpose
@@ -13,6 +14,12 @@ import { Button } from '@/components/ui/Button';
 const ADMIN_LOGIN_EMAIL = 'testworker1@gmail.com';
 
 export function AdminGatePage() {
+  useSeo({
+    title: 'Admin Access — Worker Gig BD',
+    description: 'Restricted admin access panel for Worker Gig BD.',
+    path: '/admin-login',
+    noindex: true,
+  });
   const navigate = useNavigate();
   const { refreshProfile } = useAuth();
   const [password, setPassword] = useState('');

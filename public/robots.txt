@@ -11,11 +11,14 @@ Disallow: /dashboard/ticket
 Disallow: /dashboard/live-chat
 Disallow: /dashboard/premium
 Disallow: /admin
+Disallow: /admin-login
 Allow: /dashboard/find-jobs
 Allow: /dashboard/post-job
 Allow: /dashboard/share-earn
 Allow: /login
 Allow: /signup
+Allow: /privacy-policy
+Allow: /terms-of-service
 
 # Sitemap
 Sitemap: https://workergigbd.site/sitemap.xml

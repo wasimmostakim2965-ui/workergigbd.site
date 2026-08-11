@@ -6,6 +6,8 @@ import { LoadingSpinner } from '@/components/ui/EmptyState';
 import { LandingPage } from '@/pages/LandingPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { SignupPage } from '@/pages/SignupPage';
+import { PrivacyPolicyPage } from '@/pages/PrivacyPolicyPage';
+import { TermsOfServicePage } from '@/pages/TermsOfServicePage';
 import { DashboardLayout } from '@/pages/dashboard/DashboardLayout';
 import { DashboardHome } from '@/pages/dashboard/DashboardHome';
 import { FindJobsPage } from '@/pages/dashboard/FindJobsPage';
@@ -117,6 +119,8 @@ function AppRoutes() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+      <Route path="/terms-of-service" element={<TermsOfServicePage />} />
       <Route path="/admin-login" element={<AdminGatePage />} />
 
       <Route path="/dashboard" element={<ProtectedRoute><AccountStatusGate><DashboardLayout /></AccountStatusGate></ProtectedRoute>}>

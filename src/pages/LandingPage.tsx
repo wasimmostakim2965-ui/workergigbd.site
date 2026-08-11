@@ -52,6 +52,7 @@ export function LandingPage() {
             <a href="#features" className="text-sm font-medium text-gray-600 transition-colors hover:text-primary-600">Features</a>
             <a href="#categories" className="text-sm font-medium text-gray-600 transition-colors hover:text-primary-600">Categories</a>
             <a href="#how-it-works" className="text-sm font-medium text-gray-600 transition-colors hover:text-primary-600">How It Works</a>
+            <a href="#faq" className="text-sm font-medium text-gray-600 transition-colors hover:text-primary-600">FAQ</a>
           </div>
           <div className="flex items-center gap-3">
             <Link to="/login" className="text-sm font-semibold text-gray-700 transition-colors hover:text-primary-600">
@@ -218,6 +219,58 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* FAQ */}
+      <section id="faq" className="py-20 bg-gray-50">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="font-heading text-3xl font-bold text-gray-900 sm:text-4xl">
+              সাধারণ জিজ্ঞাসা
+            </h2>
+            <p className="mt-3 text-lg text-gray-600">
+              Worker Gig BD সম্পর্কে যে প্রশ্নগুলো সবচেয়ে বেশি করা হয়
+            </p>
+          </div>
+          <div className="space-y-4">
+            <details className="group rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+              <summary className="flex cursor-pointer items-center justify-between font-semibold text-gray-900">
+                Worker Gig BD কী?
+                <span className="text-primary-600 transition-transform group-open:rotate-45">+</span>
+              </summary>
+              <p className="mt-3 text-sm leading-relaxed text-gray-600">
+                Worker Gig BD বাংলাদেশের একটি মাইক্রো-টাস্ক ও ফ্রিল্যান্স প্ল্যাটফর্ম, যেখানে আপনি সহজ অনলাইন টাস্ক (ফেসবুক লাইক, সাইন আপ, সার্ভে ইত্যাদি) সম্পন্ন করে ঘরে বসে আয় করতে পারেন।
+              </p>
+            </details>
+            <details className="group rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+              <summary className="flex cursor-pointer items-center justify-between font-semibold text-gray-900">
+                আয় করা টাকা কীভাবে তুলব?
+                <span className="text-primary-600 transition-transform group-open:rotate-45">+</span>
+              </summary>
+              <p className="mt-3 text-sm leading-relaxed text-gray-600">
+                ড্যাশবোর্ড থেকে উইথড্র অপশনে গিয়ে বিকাশ, নগদ বা রকেট অ্যাকাউন্ট দিয়ে ন্যূনতম পরিমাণ পূরণ করে টাকা তুলতে পারেন। ১ ডলার = ১০০ টাকা।
+              </p>
+            </details>
+            <details className="group rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+              <summary className="flex cursor-pointer items-center justify-between font-semibold text-gray-900">
+                সাইন আপ করতে কি টাকা লাগে?
+                <span className="text-primary-600 transition-transform group-open:rotate-45">+</span>
+              </summary>
+              <p className="mt-3 text-sm leading-relaxed text-gray-600">
+                না, সাইন আপ সম্পূর্ণ ফ্রি। শুধু ইমেইল ও ইউজারনেম দিয়ে অ্যাকাউন্ট খুলে কাজ শুরু করতে পারেন।
+              </p>
+            </details>
+            <details className="group rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+              <summary className="flex cursor-pointer items-center justify-between font-semibold text-gray-900">
+                কী কী ধরনের কাজ পাওয়া যায়?
+                <span className="text-primary-600 transition-transform group-open:rotate-45">+</span>
+              </summary>
+              <p className="mt-3 text-sm leading-relaxed text-gray-600">
+                ফেসবুক, টুইটার, ইনস্টাগ্রাম, ইউটিউব/টফি, টিকটক, সাইন আপ, অ্যাডস ক্লিক, সার্ভে, জিমেইল অ্যাকাউন্ট, মোবাইল অ্যাপ, আর্টিকেল, কমেন্ট, লিংকডইন ও রেডিট — ৪৫+ ক্যাটাগরিতে কাজ পাওয়া যায়।
+              </p>
+            </details>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-20">
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
@@ -272,10 +325,10 @@ export function LandingPage() {
             <div>
               <h4 className="font-semibold text-gray-900 mb-3">Support</h4>
               <ul className="space-y-2 text-sm text-gray-500">
-                <li><a href="#" className="hover:text-primary-600">Help Center</a></li>
-                <li><a href="#" className="hover:text-primary-600">FAQ</a></li>
-                <li><a href="#" className="hover:text-primary-600">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-primary-600">Privacy Policy</a></li>
+                <li><Link to="/dashboard/ticket" className="hover:text-primary-600">Help Center</Link></li>
+                <li><a href="#faq" className="hover:text-primary-600">FAQ</a></li>
+                <li><Link to="/terms-of-service" className="hover:text-primary-600">Terms of Service</Link></li>
+                <li><Link to="/privacy-policy" className="hover:text-primary-600">Privacy Policy</Link></li>
               </ul>
             </div>
             <div>

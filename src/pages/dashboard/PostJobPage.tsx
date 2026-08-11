@@ -62,12 +62,18 @@ export function PostJobPage() {
     const file = e.target.files?.[0];
     if (!file || !profile) return;
 
+    // Validate before uploading: images only, max 5 MB.
+    if (file.size > 5 * 1024 * 1024) { setError('Image must be less than 5 MB.'); return; }
+    if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type)) {
+      setError('Only image files (JPG, PNG, WEBP, GIF) are allowed.'); return;
+    }
+
     const ext = file.name.split('.').pop();
     const fileName = `job-images/${profile.id}/${Date.now()}.${ext}`;
 
     const { error: uploadError } = await supabase.storage
       .from('job-assets')
-      .upload(fileName, file);
+      .upload(fileName, file, { contentType: file.type });
 
     if (uploadError) {
       setError('Image upload failed: ' + uploadError.message);

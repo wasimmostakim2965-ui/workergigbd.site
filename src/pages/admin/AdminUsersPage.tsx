@@ -61,7 +61,10 @@ export function AdminUsersPage() {
   useEffect(() => { loadUsers(); }, [loadUsers]);
 
   const updateStatus = async (user: Profile, status: string) => {
-    const { error: e } = await supabase.from('profiles').update({ status, updated_at: new Date().toISOString() }).eq('id', user.id);
+    // Use the set_user_status RPC (admin-only, can't touch admin accounts)
+    // instead of a direct client update, which the hardened RLS trigger now
+    // blocks for the privileged status column.
+    const { error: e } = await supabase.rpc('set_user_status', { p_user_uid: user.id, p_status: status });
     if (e) { setError(e.message); return; }
     flash(`${user.username} marked ${status}.`);
     loadUsers();
@@ -69,7 +72,7 @@ export function AdminUsersPage() {
   };
 
   const toggleVerified = async (user: Profile) => {
-    const { error: e } = await supabase.from('profiles').update({ is_verified: !user.is_verified, updated_at: new Date().toISOString() }).eq('id', user.id);
+    const { error: e } = await supabase.rpc('set_user_verified', { p_user_uid: user.id, p_verified: !user.is_verified });
     if (e) { setError(e.message); return; }
     flash(`${user.username} ${user.is_verified ? 'unverified' : 'verified'}.`);
     loadUsers();
@@ -77,16 +80,20 @@ export function AdminUsersPage() {
   };
 
   const togglePremium = async (user: Profile) => {
-    const updates: any = { is_premium: !user.is_premium, updated_at: new Date().toISOString() };
     if (!user.is_premium) {
-      const expiry = new Date(); expiry.setDate(expiry.getDate() + 30);
-      updates.premium_expires_at = expiry.toISOString();
+      // Grant 30 days premium via the admin RPC (atomic, extends if active).
+      const { error: e } = await supabase.rpc('set_user_premium', { p_user_uid: user.id, p_days: 30 });
+      if (e) { setError(e.message); return; }
+      flash(`${user.username} premium granted for 30 days.`);
     } else {
-      updates.premium_expires_at = null;
+      // Revoke premium. Admins may still write the privileged columns (the
+      // guard trigger allows is_admin), so set expiry to now.
+      const { error: e } = await supabase.from('profiles')
+        .update({ is_premium: false, premium_expires_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+        .eq('id', user.id);
+      if (e) { setError(e.message); return; }
+      flash(`${user.username} premium removed.`);
     }
-    const { error: e } = await supabase.from('profiles').update(updates).eq('id', user.id);
-    if (e) { setError(e.message); return; }
-    flash(`${user.username} premium ${user.is_premium ? 'removed' : 'granted'}.`);
     loadUsers();
     setSelectedUser(null);
   };
@@ -95,44 +102,40 @@ export function AdminUsersPage() {
     if (!editForm) return;
     setSaving(true);
     setError('');
-    const now = new Date().toISOString();
 
-    // When an admin changes a balance, record the delta in the transactions
-    // ledger so the audit trail stays intact (no silent balance overwrites).
-    const ledger: { user_id: string; type: 'earning' | 'deposit'; amount: number; balance_type: 'earning' | 'deposit'; description: string }[] = [];
+    // Apply balance changes as atomic DELTAS via the admin RPC so a concurrent
+    // deposit/task payout can never be overwritten (the old code wrote the
+    // absolute new value, racing with server-side balance updates).
     const earningDelta = (editForm.earning_balance ?? 0) - (selectedUser?.earning_balance ?? 0);
     const depositDelta = (editForm.deposit_balance ?? 0) - (selectedUser?.deposit_balance ?? 0);
+
     if (Math.abs(earningDelta) > 0.0001) {
-      ledger.push({
-        user_id: editForm.id, type: 'earning', amount: earningDelta, balance_type: 'earning',
-        description: `Admin balance adjustment by ${selectedUser?.username ?? 'admin'}`,
+      const { error: balErr } = await supabase.rpc('adjust_user_balance', {
+        p_user_uid: editForm.id, p_earning_delta: earningDelta, p_deposit_delta: 0,
+        p_reason: `Admin earning adjustment by ${selectedUser?.username ?? 'admin'}`,
       });
+      if (balErr) { setError(balErr.message); setSaving(false); return; }
     }
     if (Math.abs(depositDelta) > 0.0001) {
-      ledger.push({
-        user_id: editForm.id, type: 'deposit', amount: depositDelta, balance_type: 'deposit',
-        description: `Admin balance adjustment by ${selectedUser?.username ?? 'admin'}`,
+      const { error: balErr } = await supabase.rpc('adjust_user_balance', {
+        p_user_uid: editForm.id, p_earning_delta: 0, p_deposit_delta: depositDelta,
+        p_reason: `Admin deposit adjustment by ${selectedUser?.username ?? 'admin'}`,
       });
+      if (balErr) { setError(balErr.message); setSaving(false); return; }
     }
 
+    // Safe, non-privileged profile fields the admin may edit directly.
     const { error: updError } = await supabase.from('profiles').update({
       username: editForm.username,
       full_name: editForm.full_name,
       phone: editForm.phone,
-      earning_balance: editForm.earning_balance,
-      deposit_balance: editForm.deposit_balance,
-      updated_at: now,
+      updated_at: new Date().toISOString(),
     }).eq('id', editForm.id);
 
     if (updError) {
       setError(updError.message);
       setSaving(false);
       return;
-    }
-
-    if (ledger.length) {
-      const { error: txError } = await supabase.from('transactions').insert(ledger);
-      if (txError) setError(`Profile saved, but ledger insert failed: ${txError.message}`);
     }
 
     setSaving(false);

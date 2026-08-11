@@ -73,9 +73,26 @@ export function VerifyPage() {
     setError('');
 
     try {
+      // Block duplicate submissions: a user with a pending/approved request
+      // should not spam another (which would also orphan a storage file).
+      const { data: existing } = await supabase
+        .from('verification_requests')
+        .select('id, status')
+        .eq('user_id', profile.id)
+        .in('status', ['pending', 'approved'])
+        .maybeSingle();
+      if (existing) {
+        setError(existing.status === 'approved'
+          ? 'You are already verified. No further submission is needed.'
+          : 'You already have a verification request under review. Please wait for the admin to process it.');
+        setSubmitting(false);
+        return;
+      }
+
+      setUploading(true);
       // Upload image to Supabase storage
       const fileName = `${profile.id}/verification_${Date.now()}.${selectedFile.name.split('.').pop()}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('verification-docs')
         .upload(fileName, selectedFile, {
           contentType: selectedFile.type,
@@ -85,18 +102,24 @@ export function VerifyPage() {
       if (uploadError) {
         throw uploadError;
       }
+      setUploading(false);
 
-      // Get public URL
-      const { data: urlData } = supabase.storage
+      // The verification-docs bucket is PRIVATE (it holds government ID photos),
+      // so we store a signed URL that only the owner/admin can read instead of
+      // a public URL. 10-year expiry is effectively permanent for review.
+      const { data: signedData, error: signedError } = await supabase.storage
         .from('verification-docs')
-        .getPublicUrl(fileName);
+        .createSignedUrl(fileName, 60 * 60 * 24 * 365 * 10);
+      if (signedError || !signedData?.signedUrl) {
+        throw signedError ?? new Error('Failed to generate a document link.');
+      }
 
       // Create verification request
       const { error: insertError } = await supabase
         .from('verification_requests')
         .insert({
           user_id: profile.id,
-          document_url: urlData.publicUrl,
+          document_url: signedData.signedUrl,
           status: 'pending',
         });
 
@@ -109,6 +132,7 @@ export function VerifyPage() {
     } catch (err: any) {
       setError(err.message || 'Failed to submit verification. Please try again.');
     } finally {
+      setUploading(false);
       setSubmitting(false);
     }
   };

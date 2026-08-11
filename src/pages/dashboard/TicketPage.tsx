@@ -81,7 +81,15 @@ export function TicketPage() {
       is_admin_reply: false,
     });
 
-    if (msgError) console.error('Message error:', msgError);
+    if (msgError) {
+      // Roll back the empty ticket so the user isn't left with an orphan
+      // ticket that has no first message; surface the real error.
+      console.error('Ticket message error:', msgError);
+      await supabase.from('tickets').delete().eq('id', ticketData.id);
+      setCreateError(`Ticket created, but the first message failed: ${msgError.message}. Please try again.`);
+      setCreating(false);
+      return;
+    }
 
     setShowNew(false);
     setForm({ subject: '', category: 'general', priority: 'normal', message: '' });

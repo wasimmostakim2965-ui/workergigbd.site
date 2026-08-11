@@ -93,13 +93,19 @@ export function FindJobsPage() {
     if (!files.length) return;
     const remaining = selectedJob.screenshot_count - screenshots.length;
     if (remaining <= 0) return;
+    // Validate before uploading: images only, max 5 MB each.
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    for (const f of files.slice(0, remaining)) {
+      if (f.size > 5 * 1024 * 1024) { setSubmitError('Each screenshot must be less than 5 MB.'); return; }
+      if (!allowed.includes(f.type)) { setSubmitError('Screenshots must be image files (JPG, PNG, WEBP, GIF).'); return; }
+    }
     setUploadingShot(true);
     try {
       const uploaded: string[] = [];
       for (const file of files.slice(0, remaining)) {
         const ext = file.name.split('.').pop();
         const fileName = `task-proofs/${profile.id}/${selectedJob.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-        const { error: upErr } = await supabase.storage.from('job-assets').upload(fileName, file);
+        const { error: upErr } = await supabase.storage.from('job-assets').upload(fileName, file, { contentType: file.type });
         if (upErr) { setSubmitError('Screenshot upload failed: ' + upErr.message); break; }
         const { data: urlData } = supabase.storage.from('job-assets').getPublicUrl(fileName);
         uploaded.push(urlData.publicUrl);
@@ -122,8 +128,14 @@ export function FindJobsPage() {
       return;
     }
 
-    if (selectedJob.is_premium_only && !profile.is_premium) {
-      setSubmitError('This job is only available for premium members.');
+    // Premium-only jobs require an ACTIVE premium subscription (the boolean
+    // alone is not enough — premium may have expired). The DB trigger also
+    // enforces this server-side, but we block early here for a better UX.
+    const premiumActive =
+      profile.is_premium &&
+      (!profile.premium_expires_at || new Date(profile.premium_expires_at) > new Date());
+    if (selectedJob.is_premium_only && !premiumActive) {
+      setSubmitError('This job is only available for active premium members.');
       setSubmitting(false);
       return;
     }
@@ -136,16 +148,18 @@ export function FindJobsPage() {
       return;
     }
 
+    // A worker may only ever complete a job ONCE (regardless of task status),
+    // enforced atomically by the tasks_one_active_per_job unique index. This
+    // client-side check gives a friendly message before the insert attempt.
     const { data: existing } = await supabase
       .from('tasks')
       .select('id')
       .eq('job_id', selectedJob.id)
       .eq('worker_id', profile.id)
-      .in('status', ['pending', 'submitted'])
       .maybeSingle();
 
     if (existing) {
-      setSubmitError('You already have an active task for this job.');
+      setSubmitError('You have already worked on this job.');
       setSubmitting(false);
       return;
     }

@@ -191,6 +191,33 @@ export function AdminSettingsPage() {
 function LimitRow({ setting, onSave, savedKey }: { setting: AdminSetting; onSave: (s: AdminSetting, v: string) => void; savedKey: string }) {
   const [value, setValue] = useState(setting.value);
 
+  // Boolean settings (is_boolean) are shown as a toggle, not a free-text input,
+  // so an admin can't type a value that the rest of the code can't interpret
+  // (the app compares `value === 'true'`).
+  if (setting.is_boolean) {
+    const isOn = value === 'true';
+    return (
+      <div className="flex items-center justify-between gap-4 p-4">
+        <div className="flex-1">
+          <div className="text-sm font-semibold text-gray-900">{setting.description}</div>
+          <div className="text-xs text-gray-500 font-mono">{setting.key}</div>
+        </div>
+        <div className="flex items-center gap-3">
+          {savedKey === setting.key && <Badge variant="success" size="sm">Saved!</Badge>}
+          <button
+            onClick={() => { const nv = isOn ? 'false' : 'true'; setValue(nv); onSave(setting, nv); }}
+            className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${
+              isOn ? 'bg-success-50 text-success-700' : 'bg-gray-100 text-gray-500'
+            }`}
+          >
+            {isOn ? <ToggleRight className="h-5 w-5" /> : <ToggleLeft className="h-5 w-5" />}
+            {isOn ? 'Enabled' : 'Disabled'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center justify-between gap-4 p-4">
       <div className="flex-1">

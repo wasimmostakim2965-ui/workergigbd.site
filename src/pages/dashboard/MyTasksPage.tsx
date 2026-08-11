@@ -104,11 +104,39 @@ export function MyTasksPage() {
 
               {(task.proof_url || task.proof_text) && (
                 <div className="mt-3 border-t border-gray-100 pt-3">
-                  {task.proof_url && (
-                    <a href={task.proof_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700">
-                      <ExternalLink className="h-3 w-3" /> {task.proof_url}
-                    </a>
-                  )}
+                  {(() => {
+                    // proof_url may be a plain URL or a JSON array of screenshot
+                    // URLs (stored by FindJobsPage when screenshots are required).
+                    let shotUrls: string[] = [];
+                    let plainUrl = '';
+                    if (task.proof_url) {
+                      try {
+                        const parsed = JSON.parse(task.proof_url);
+                        if (Array.isArray(parsed)) shotUrls = parsed.filter(Boolean) as string[];
+                        else plainUrl = task.proof_url;
+                      } catch {
+                        plainUrl = task.proof_url;
+                      }
+                    }
+                    return (
+                      <>
+                        {plainUrl && (
+                          <a href={plainUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700">
+                            <ExternalLink className="h-3 w-3" /> View proof
+                          </a>
+                        )}
+                        {shotUrls.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {shotUrls.map((u, i) => (
+                              <a key={i} href={u} target="_blank" rel="noopener noreferrer">
+                                <img src={u} alt={`Proof ${i + 1}`} className="h-16 w-16 rounded-md object-cover ring-1 ring-gray-200" />
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                   {task.proof_text && <p className="mt-1 text-xs text-gray-500">{task.proof_text}</p>}
                 </div>
               )}

@@ -38,6 +38,10 @@ export function MyJobsPage() {
   useEffect(() => { loadJobs(); }, [loadJobs]);
 
   const toggleStatus = async (job: Job) => {
+    if (job.status !== 'active' && job.status !== 'paused') {
+      setError('Completed or rejected jobs cannot be reactivated.');
+      return;
+    }
     const newStatus = job.status === 'active' ? 'paused' : 'active';
     const { error: e } = await supabase.from('jobs').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', job.id);
     if (e) setError(e.message);
@@ -45,8 +49,10 @@ export function MyJobsPage() {
   };
 
   const deleteJob = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this job?')) return;
-    const { error: e } = await supabase.from('jobs').delete().eq('id', id);
+    if (!confirm('Are you sure you want to delete this job? Unused prepaid budget will be refunded.')) return;
+    // Use the delete_job RPC so the prepaid budget is refunded and affected
+    // workers are notified instead of a raw cascade delete.
+    const { error: e } = await supabase.rpc('delete_job', { p_job_id: id });
     if (e) setError(e.message);
     loadJobs();
   };

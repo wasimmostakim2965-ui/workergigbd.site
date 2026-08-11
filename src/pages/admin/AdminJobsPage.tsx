@@ -39,6 +39,14 @@ export function AdminJobsPage() {
   useEffect(() => { loadJobs(); }, [loadJobs]);
 
   const toggleStatus = async (job: Job) => {
+    // Only allow toggling between active/paused for jobs that are still in
+    // progress. A completed or rejected job must not be reactivated (its
+    // filled_slots would be stale, making it show in the feed but be
+    // un-takeable).
+    if (job.status !== 'active' && job.status !== 'paused') {
+      setError('Completed or rejected jobs cannot be reactivated.');
+      return;
+    }
     const newStatus = job.status === 'active' ? 'paused' : 'active';
     const { error: e } = await supabase.from('jobs').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', job.id);
     if (e) setError(e.message);
@@ -46,8 +54,10 @@ export function AdminJobsPage() {
   };
 
   const deleteJob = async (id: string) => {
-    if (!confirm('Delete this job permanently?')) return;
-    const { error: e } = await supabase.from('jobs').delete().eq('id', id);
+    if (!confirm('Delete this job permanently? Unused prepaid budget will be refunded and affected workers notified.')) return;
+    // Use the delete_job RPC so the prepaid budget is refunded and affected
+    // workers are notified, instead of a raw delete that just drops everything.
+    const { error: e } = await supabase.rpc('delete_job', { p_job_id: id });
     if (e) setError(e.message);
     loadJobs();
   };
@@ -120,7 +130,12 @@ export function AdminJobsPage() {
                             <ExternalLink className="h-4 w-4" />
                           </a>
                         )}
-                        <button onClick={() => toggleStatus(job)} className="rounded-lg p-1.5 text-gray-500 hover:bg-primary-50 hover:text-primary-600">
+                        <button
+                          onClick={() => toggleStatus(job)}
+                          disabled={job.status !== 'active' && job.status !== 'paused'}
+                          className="rounded-lg p-1.5 text-gray-500 hover:bg-primary-50 hover:text-primary-600 disabled:opacity-30 disabled:hover:bg-transparent"
+                          title={job.status === 'active' ? 'Pause' : job.status === 'paused' ? 'Activate' : 'Cannot toggle this status'}
+                        >
                           {job.status === 'active' ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                         </button>
                         <button onClick={() => deleteJob(job.id)} className="rounded-lg p-1.5 text-gray-500 hover:bg-error-50 hover:text-error-600">

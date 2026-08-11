@@ -41,11 +41,18 @@ export function AdminCategoriesPage() {
   const handleSave = async () => {
     setSaving(true);
     setError('');
+    const trimmedName = form.name.trim();
+    if (!trimmedName) { setError('Category name is required.'); setSaving(false); return; }
     const subs = form.subcategories.split(',').map(s => s.trim()).filter(Boolean);
+
+    // Prevent duplicate category names (case-insensitive) across the platform
+    // since jobs reference categories by name.
+    const dup = categories.find(c => c.name.toLowerCase() === trimmedName.toLowerCase() && c.id !== editing?.id);
+    if (dup) { setError(`A category named "${dup.name}" already exists.`); setSaving(false); return; }
 
     if (editing) {
       const { error: e } = await supabase.from('categories').update({
-        name: form.name,
+        name: trimmedName,
         icon: form.icon,
         subcategories: subs,
         display_order: parseInt(form.display_order) || 0,
@@ -53,7 +60,7 @@ export function AdminCategoriesPage() {
       if (e) { setError(e.message); setSaving(false); return; }
     } else {
       const { error: e } = await supabase.from('categories').insert({
-        name: form.name,
+        name: trimmedName,
         icon: form.icon,
         subcategories: subs,
         display_order: parseInt(form.display_order) || 0,

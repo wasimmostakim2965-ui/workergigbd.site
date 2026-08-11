@@ -94,7 +94,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const refreshProfile = async () => {
-    if (user) await loadProfile(user.id);
+    // Read the CURRENT logged-in user from the live Supabase session instead
+    // of relying on the `user` React state, which is a stale closure right
+    // after signIn (the onAuthStateChange setUser hasn't re-rendered yet).
+    // This was the admin-gate bug: refreshProfile was a no-op, so `profile`
+    // stayed null and AdminRoute redirected admins to /dashboard.
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    if (currentUser) await loadProfile(currentUser.id);
   };
 
   const signIn = async (email: string, password: string) => {

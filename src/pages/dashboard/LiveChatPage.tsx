@@ -23,14 +23,26 @@ export function LiveChatPage() {
   const loadConversation = useCallback(async () => {
     if (!profile) return;
     // Ensure a conversation exists for this user.
-    const { data: convId } = await supabase.rpc('get_or_create_chat_conversation');
+    const { data: convId, error: rpcError } = await supabase.rpc('get_or_create_chat_conversation');
+    if (rpcError) {
+      console.error('Create conversation error:', rpcError);
+      setError('Could not open the live chat. Please try again.');
+      setLoading(false);
+      return;
+    }
     if (!convId) { setLoading(false); return; }
 
-    const { data: conv } = await supabase
+    const { data: conv, error: convError } = await supabase
       .from('chat_conversations')
       .select('*')
       .eq('id', convId)
       .maybeSingle();
+    if (convError) {
+      console.error('Load conversation error:', convError);
+      setError('Could not load the chat. Please try again.');
+      setLoading(false);
+      return;
+    }
     setConversation(conv as ChatConversation | null);
 
     const { data: msgs } = await supabase

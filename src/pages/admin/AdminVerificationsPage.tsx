@@ -69,11 +69,17 @@ export function AdminVerificationsPage() {
     }
 
     // Mark the user verified on approval so the verified badge + withdrawal
-    // gate reflect the decision immediately.
+    // gate reflect the decision immediately. Use the admin RPC so the hardened
+    // profile-column guard allows the privileged is_verified change.
     if (action === 'approved') {
-      await supabase.from('profiles')
-        .update({ is_verified: true, updated_at: new Date().toISOString() })
-        .eq('id', selected.user_id);
+      const { error: verifyErr } = await supabase.rpc('set_user_verified', {
+        p_user_uid: selected.user_id, p_verified: true,
+      });
+      if (verifyErr) {
+        setActionError(`Verification updated, but marking user verified failed: ${verifyErr.message}`);
+        setProcessing(false);
+        return;
+      }
 
       await supabase.rpc('notify_user', {
         target_uid: selected.user_id,

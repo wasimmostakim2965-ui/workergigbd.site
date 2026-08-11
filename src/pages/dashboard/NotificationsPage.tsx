@@ -70,12 +70,20 @@ export function NotificationsPage() {
 
   const markAllRead = async () => {
     if (!profile) return;
-    await supabase.from('notifications').update({ is_read: true }).eq('user_id', profile.id).eq('is_read', false);
+    const { error } = await supabase.from('notifications').update({ is_read: true }).eq('user_id', profile.id).eq('is_read', false);
+    if (error) {
+      console.error('Mark all read error:', error);
+      return;
+    }
     loadNotifications();
   };
 
   const deleteNotification = async (id: string) => {
-    await supabase.from('notifications').delete().eq('id', id);
+    const { error } = await supabase.from('notifications').delete().eq('id', id);
+    if (error) {
+      console.error('Delete notification error:', error);
+      return;
+    }
     setNotifications(notifications.filter(n => n.id !== id));
   };
 

@@ -33,10 +33,11 @@ export function AdminGatePage() {
       return;
     }
     // Confirm the signed-in account really is an admin before opening the panel.
+    const { data: { user: authUser } } = await supabase.auth.getUser();
     const { data: profile } = await supabase
       .from('profiles')
       .select('status')
-      .eq('id', (await supabase.auth.getUser()).data.user?.id ?? '')
+      .eq('id', authUser?.id ?? '')
       .maybeSingle();
     if (profile?.status !== 'admin') {
       await supabase.auth.signOut();
@@ -44,6 +45,8 @@ export function AdminGatePage() {
       setLoading(false);
       return;
     }
+    // Make sure the AuthContext has the admin profile loaded BEFORE we navigate,
+    // otherwise AdminRoute sees profile === null and bounces to /dashboard.
     await refreshProfile?.();
     navigate('/admin', { replace: true });
   };

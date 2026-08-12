@@ -83,11 +83,11 @@ export function SignupPage() {
               type="button"
               fullWidth
               size="lg"
+              variant="secondary"
               loading={loading}
               onClick={handleGoogle}
-              className="bg-white text-gray-800 border border-gray-300 hover:bg-gray-50"
             >
-              <GoogleIcon className="h-5 w-5" /> Sign up with Email
+              <GoogleIcon className="h-5 w-5 shrink-0" /> Sign up with Email
             </Button>
           </div>
 

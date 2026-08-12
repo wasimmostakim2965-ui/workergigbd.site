@@ -3,6 +3,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, Briefcase, ExternalLink, X, Pin, Star, Camera, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
+import { checkProofScreenshots } from '@/lib/fraudGuard';
 import { Button } from '@/components/ui/Button';
 import { Input, Select, Textarea } from '@/components/ui/Input';
 import { EmptyState, LoadingSpinner } from '@/components/ui/EmptyState';
@@ -118,6 +119,16 @@ export function FindJobsPage() {
     }
     setUploadingShot(true);
     try {
+      // Anti-fraud: reject reused screenshots BEFORE storing them. Each file's
+      // SHA-256 is checked against the global registry (Supabase Storage key
+      // collision); a 409 means this exact screenshot was already submitted by
+      // anyone. See src/lib/fraudGuard.ts.
+      const dupCheck = await checkProofScreenshots(files.slice(0, remaining));
+      if (dupCheck.duplicateIndex !== null) {
+        setSubmitError('This screenshot has already been used as proof. Please take a fresh screenshot.');
+        return;
+      }
+
       const uploaded: string[] = [];
       for (const file of files.slice(0, remaining)) {
         const ext = file.name.split('.').pop();

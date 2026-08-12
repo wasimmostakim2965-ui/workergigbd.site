@@ -155,21 +155,16 @@
     </noscript>
     <script type="module" src="/src/main.tsx"></script>
 
-    <!-- Google Analytics 4: set VITE_GA_ID in Vercel env vars (e.g. G-XXXXXXXXXX). Removed automatically when blank. -->
+    <!-- Google Analytics 4 (gtag.js) -->
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HTY5305Y1J"></script>
     <script>
-      window.VITE_GA_ID = '%VITE_GA_ID%';
-      (function () {
-        var id = window.VITE_GA_ID;
-        if (!id || id.indexOf('G-') !== 0) return;
-        var s = document.createElement('script');
-        s.async = true;
-        s.src = 'https://www.googletagmanager.com/gtag/js?id=' + id;
-        document.head.appendChild(s);
-        window.dataLayer = window.dataLayer || [];
-        window.gtag = function () { window.dataLayer.push(arguments); };
-        window.gtag('js', new Date());
-        window.gtag('config', id, { anonymize_ip: true });
-      })();
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+
+      gtag('config', 'G-HTY5305Y1J');
     </script>
   </body>
 </html>

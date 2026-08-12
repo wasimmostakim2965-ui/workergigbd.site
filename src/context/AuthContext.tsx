@@ -103,10 +103,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (currentUser) await loadProfile(currentUser.id);
   };
 
+  // Get the correct redirect URL based on environment
+  const getRedirectUrl = (): string => {
+    const prodUrl = import.meta.env.VITE_AUTH_REDIRECT_URL;
+    
+    // If production URL is set in env, use it
+    if (prodUrl && import.meta.env.PROD) {
+      return `${prodUrl}/dashboard`;
+    }
+    
+    // Otherwise use current origin (for localhost development)
+    return `${window.location.origin}/dashboard`;
+  };
+
   const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/dashboard` },
+      options: { redirectTo: getRedirectUrl() },
     });
     return { error: error?.message ?? null };
   };
@@ -115,7 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/dashboard`,
+        redirectTo: getRedirectUrl(),
         queryParams: referralCode ? { ref: referralCode } : undefined,
       },
     });

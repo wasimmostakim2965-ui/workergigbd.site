@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowUpFromLine, Send, Smartphone, Mail, ShieldCheck, RefreshCw } from 'lucide-react';
+import { ArrowUpFromLine, Send, Smartphone } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { Card } from '@/components/ui/Card';
@@ -18,7 +18,7 @@ export function WithdrawPage() {
     path: '/dashboard/withdraw',
     noindex: true,
   });
-  const { profile, user, refreshProfile } = useAuth();
+  const { profile, refreshProfile } = useAuth();
   const [amount, setAmount] = useState('');
   const [method, setMethod] = useState('bkash');
   const [accountNumber, setAccountNumber] = useState('');
@@ -29,21 +29,11 @@ export function WithdrawPage() {
   const [settings, setSettings] = useState<AdminSetting[]>([]);
   const [pageLoading, setPageLoading] = useState(true);
 
-  // Email verification state
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpCode, setOtpCode] = useState('');
-  const [otpError, setOtpError] = useState('');
-  const [otpSending, setOtpSending] = useState(false);
-  const [otpVerifying, setOtpVerifying] = useState(false);
-  const [otpVerified, setOtpVerified] = useState(false);
-
   const paymentMethods = [
     { id: 'bkash', name: 'bKash', color: 'bg-pink-500' },
     { id: 'nagad', name: 'Nagad', color: 'bg-orange-500' },
     { id: 'rocket', name: 'Rocket', color: 'bg-purple-500' },
   ];
-
-  const emailVerified = profile?.email_verified ?? false;
 
   useEffect(() => {
     (async () => {
@@ -65,57 +55,6 @@ export function WithdrawPage() {
 
   const withdrawEnabled = settings.find(s => s.key === 'withdrawal_enabled')?.value === 'true';
   const minWithdraw = parseFloat(settings.find(s => s.key === 'min_withdrawal')?.value || '1');
-
-  const sendOtp = async () => {
-    if (!profile || !user?.email) return;
-    setOtpSending(true);
-    setOtpError('');
-
-    // Send a real one-time code to the user's email via Supabase Auth.
-    // shouldCreateUser:false ensures it targets the existing account instead of creating a new one.
-    const { error: emailError } = await supabase.auth.signInWithOtp({
-      email: user.email,
-      options: { shouldCreateUser: false },
-    });
-
-    if (emailError) {
-      setOtpError(emailError.message || 'Failed to send verification code. Please try again.');
-      setOtpSending(false);
-      return;
-    }
-
-    setOtpSent(true);
-    setOtpSending(false);
-  };
-
-  const verifyOtp = async () => {
-    if (!profile || !user?.email || !otpCode) return;
-    setOtpVerifying(true);
-    setOtpError('');
-
-    // Verify the code Supabase actually emailed to the user.
-    const { data, error: verifyError } = await supabase.auth.verifyOtp({
-      email: user.email,
-      token: otpCode,
-      type: 'email',
-    });
-
-    if (verifyError || !data) {
-      setOtpError(verifyError?.message || 'Invalid verification code. Please check and try again.');
-      setOtpVerifying(false);
-      return;
-    }
-
-    // Mark the profile as email-verified so withdrawals are unlocked.
-    await supabase.from('profiles').update({
-      email_verified: true,
-      updated_at: new Date().toISOString(),
-    }).eq('id', profile.id);
-
-    setOtpVerified(true);
-    setOtpVerifying(false);
-    await refreshProfile();
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,86 +126,12 @@ export function WithdrawPage() {
     );
   }
 
-  // Email verification gate
-  if (!emailVerified && !otpVerified) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="font-heading text-2xl font-bold text-gray-900">Withdraw Earnings</h1>
-          <p className="mt-1 text-sm text-gray-600">Withdraw your earning balance to mobile banking</p>
-        </div>
-
-        <Card className="p-6">
-          <div className="flex flex-col items-center text-center py-6">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-warning-50">
-              <ShieldCheck className="h-8 w-8 text-warning-600" />
-            </div>
-            <h2 className="font-heading text-xl font-bold text-gray-900">Verify Your Email</h2>
-            <p className="mt-2 max-w-md text-sm text-gray-600">
-              You need to verify your email address before you can withdraw your earnings.
-              This is a one-time verification. Click the button below to receive a verification code.
-            </p>
-
-            {otpError && (
-              <div className="mt-4 w-full max-w-md">
-                <Alert variant="error">{otpError}</Alert>
-              </div>
-            )}
-
-            {!otpSent ? (
-              <Button
-                className="mt-5"
-                onClick={sendOtp}
-                loading={otpSending}
-                size="lg"
-              >
-                <Mail className="h-5 w-5" /> Send Verification Code
-              </Button>
-            ) : (
-              <div className="mt-5 w-full max-w-sm space-y-3">
-                <Input
-                  label="Enter 6-digit verification code"
-                  value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value)}
-                  placeholder="000000"
-                  maxLength={6}
-                  className="text-center text-lg tracking-widest"
-                />
-                <Button
-                  fullWidth
-                  onClick={verifyOtp}
-                  loading={otpVerifying}
-                  size="lg"
-                >
-                  <ShieldCheck className="h-5 w-5" /> Verify Email
-                </Button>
-                <button
-                  onClick={sendOtp}
-                  disabled={otpSending}
-                  className="mx-auto flex items-center gap-1.5 text-xs text-primary-600 hover:text-primary-700"
-                >
-                  <RefreshCw className="h-3.5 w-3.5" /> Resend code
-                </button>
-              </div>
-            )}
-          </div>
-        </Card>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div>
         <h1 className="font-heading text-2xl font-bold text-gray-900">Withdraw Earnings</h1>
         <p className="mt-1 text-sm text-gray-600">Withdraw your earning balance to mobile banking</p>
       </div>
-
-      {otpVerified && (
-        <Alert variant="success" title="Email Verified!">
-          Your email has been verified successfully. You can now withdraw your earnings.
-        </Alert>
-      )}
 
       {success && (
         <Alert variant="success" title="Withdrawal Request Submitted!">

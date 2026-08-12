@@ -8,8 +8,8 @@ interface AuthContextType {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (email: string, password: string, username: string, referralCode?: string) => Promise<{ error: string | null }>;
+  signInWithGoogle: () => Promise<{ error: string | null }>;
+  signUpWithGoogle: (referralCode?: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -103,27 +103,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (currentUser) await loadProfile(currentUser.id);
   };
 
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/dashboard` },
+    });
     return { error: error?.message ?? null };
   };
 
-  const signUp = async (email: string, password: string, username: string, referralCode?: string) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
+  const signUpWithGoogle = async (referralCode?: string) => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
       options: {
-        data: { username, referred_by: referralCode || null },
+        redirectTo: `${window.location.origin}/dashboard`,
+        queryParams: referralCode ? { ref: referralCode } : undefined,
       },
     });
-    if (error) return { error: error.message };
-
-    if (data.user) {
-      await new Promise((r) => setTimeout(r, 1500));
-      await loadProfile(data.user.id);
-    }
-
-    return { error: null };
+    return { error: error?.message ?? null };
   };
 
   const signOut = async () => {
@@ -134,7 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, profile, loading, signIn, signUp, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ session, user, profile, loading, signInWithGoogle, signUpWithGoogle, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

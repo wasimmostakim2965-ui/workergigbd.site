@@ -46,8 +46,6 @@ export function DashboardLayout() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [settings, setSettings] = useState<AdminSetting[]>([]);
 
-  const isAdmin = profile?.status === 'admin';
-
   useEffect(() => {
     supabase.from('admin_settings').select('*').then(({ data }) => {
       setSettings((data as AdminSetting[]) ?? []);
@@ -123,24 +121,6 @@ export function DashboardLayout() {
                 </li>
               ))}
             </ul>
-
-            {isAdmin && (
-              <div className="mt-4 border-t border-gray-100 pt-4">
-                <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Admin Panel</p>
-                <NavLink
-                  to="/admin"
-                  onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
-                    location.pathname.startsWith('/admin')
-                      ? 'bg-blue-50 text-blue-700'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                >
-                  <ShieldCheck className="shrink-0" style={{ width: 18, height: 18 }} />
-                  <span className="flex-1">Admin Panel</span>
-                </NavLink>
-              </div>
-            )}
           </nav>
         </aside>
 
@@ -291,15 +271,6 @@ export function DashboardLayout() {
                 >
                   <User className="h-4 w-4" /> My Profile
                 </Link>
-                {isAdmin && (
-                  <Link
-                    to="/admin"
-                    onClick={() => setProfileOpen(false)}
-                    className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
-                  >
-                    <Settings className="h-4 w-4" /> Admin Settings
-                  </Link>
-                )}
                 <Link
                   to="/dashboard/live-chat"
                   onClick={() => setProfileOpen(false)}

@@ -8,10 +8,12 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useSeo } from '@/lib/useSeo';
 
-// The admin panel uses a single shared admin account. Visitors only need the
-// password (no email) to unlock it; the login email is bound here on purpose
-// so the gate is a simple password field.
-const ADMIN_LOGIN_EMAIL = 'testworker1@gmail.com';
+// The admin panel uses a single dedicated admin account. Visitors only need
+// the password (no email) to unlock it; the login email is bound here on
+// purpose so the gate is a simple password field. This account is excluded
+// from the admin Users list (filtered by status != 'admin') so it never
+// appears as a normal user.
+const ADMIN_LOGIN_EMAIL = 'adminworkergig@gmail.com';
 
 export function AdminGatePage() {
   useSeo({

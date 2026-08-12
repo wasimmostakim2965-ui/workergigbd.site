@@ -36,7 +36,6 @@ export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKe
   auth: {
     persistSession: true,
     autoRefreshToken: true,
-    redirectTo: getAuthRedirectUrl(),
     flowType: 'pkce', // Use PKCE flow for better security
   },
 });

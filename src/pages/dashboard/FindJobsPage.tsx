@@ -53,6 +53,17 @@ export function FindJobsPage() {
   const loadJobs = useCallback(async () => {
     setLoading(true);
     try {
+      // Jobs the current worker has already submitted a task for — hidden so
+      // they never reappear (one task per worker per job, enforced by the DB).
+      let doneJobIds: string[] = [];
+      if (profile) {
+        const { data: myTasks } = await supabase
+          .from('tasks')
+          .select('job_id')
+          .eq('worker_id', profile.id);
+        doneJobIds = (myTasks ?? []).map((t) => t.job_id);
+      }
+
       let query = supabase.from('jobs').select('*').eq('status', 'active');
       if (categoryFilter !== 'all') query = query.eq('category', categoryFilter);
       if (search) query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
@@ -67,14 +78,19 @@ export function FindJobsPage() {
         console.error('Load jobs error:', error);
         setJobs([]);
       } else {
-        setJobs((data as Job[]) ?? []);
+        // Hide full (100% completed) jobs and jobs this worker already did.
+        setJobs(
+          ((data as Job[]) ?? []).filter(
+            (j) => j.filled_slots < j.total_slots && !doneJobIds.includes(j.id),
+          ),
+        );
       }
     } catch (err) {
       console.error('Load jobs error:', err);
       setJobs([]);
     }
     setLoading(false);
-  }, [categoryFilter, search, sortBy]);
+  }, [categoryFilter, search, sortBy, profile]);
 
   useEffect(() => {
     supabase.from('categories').select('*').eq('is_active', true).order('display_order').then(({ data }) => {
@@ -258,8 +274,8 @@ export function FindJobsPage() {
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-success-50">
               <Star className="h-7 w-7 text-success-600 fill-success-600" />
             </div>
-            <h3 className="font-heading text-lg font-bold text-gray-900">Task Submitted!</h3>
-            <p className="mt-1 text-sm text-gray-600">Your task has been submitted for review.</p>
+            <h3 className="font-heading text-lg font-bold text-gray-900">Your task is submitted</h3>
+            <p className="mt-1 text-sm text-gray-600">Your task has been submitted for review. You can no longer work on this job.</p>
           </div>
         ) : (
           <>

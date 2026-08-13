@@ -2,7 +2,7 @@
 -- WorkerGig BD — Currency model: dollar-scale minima
 -- ============================================================
 -- The app stores all monetary amounts in DOLLAR scale (small decimals:
--- rewards 0.020, screenshot fee 0.050, balances 1.000). Conceptually
+-- rewards 0.020, screenshot fee 0.0010, balances 1.000). Conceptually
 -- $1 = 100 BDT (withdraw) / 110 BDT (deposit, the 10 BDT margin is the
 -- platform spread). The previous seed used taka-scale minima
 -- (min_deposit=100, min_withdrawal=500) which was inconsistent with the

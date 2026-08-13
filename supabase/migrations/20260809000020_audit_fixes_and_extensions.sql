@@ -389,7 +389,7 @@ BEGIN
   END IF;
 
   v_cost := ((p_reward_per_worker * p_total_slots)
-            + (p_screenshot_count * 0.05 * p_total_slots))::numeric(12,3);
+            + (p_screenshot_count  * 0.001 * p_total_slots))::numeric(12,3);
 
   SELECT deposit_balance INTO v_bal FROM public.profiles WHERE id = p_uid FOR UPDATE;
 

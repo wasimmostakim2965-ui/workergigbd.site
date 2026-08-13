@@ -803,7 +803,7 @@ BEGIN
   END IF;
   IF p_reward_per_worker IS NULL OR p_reward_per_worker < 0 THEN RAISE EXCEPTION 'Invalid reward per worker.'; END IF;
   IF p_total_slots IS NULL OR p_total_slots < 1 THEN RAISE EXCEPTION 'Total slots must be at least 1.'; END IF;
-  v_cost := ((p_reward_per_worker * p_total_slots) + (p_screenshot_count * 0.05 * p_total_slots))::numeric(12,3);
+  v_cost := ((p_reward_per_worker * p_total_slots) + (p_screenshot_count  * 0.001 * p_total_slots))::numeric(12,3);
   SELECT deposit_balance INTO v_bal FROM public.profiles WHERE id = p_uid FOR UPDATE;
   IF NOT FOUND THEN RAISE EXCEPTION 'Account not found.'; END IF;
   IF v_bal < v_cost THEN RAISE EXCEPTION 'Insufficient deposit balance. Need ৳ %, have ৳ %.', v_cost, v_bal; END IF;

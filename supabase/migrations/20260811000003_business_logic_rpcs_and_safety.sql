@@ -247,7 +247,7 @@ BEGIN
 
   -- Full payout = base reward + screenshot fee (matches the posted cost).
   v_reward := (COALESCE(v_task.reward_per_worker,0)
-               + COALESCE(v_task.screenshot_count,0) * 0.05)::numeric(12,3);
+               + COALESCE(v_task.screenshot_count,0)  * 0.001)::numeric(12,3);
 
   IF p_action = 'approve' THEN
     UPDATE public.tasks
@@ -587,7 +587,7 @@ BEGIN
   -- Refund the unspent prepaid budget: reward*remaining_slots + screenshot fee.
   v_refund := ( (COALESCE(v_job.reward_per_worker,0)
                  * GREATEST(v_job.total_slots - v_job.filled_slots, 0))
-               + (COALESCE(v_job.screenshot_count,0) * 0.05
+               + (COALESCE(v_job.screenshot_count,0)  * 0.001
                  * GREATEST(v_job.total_slots - v_job.filled_slots, 0)) )::numeric(12,3);
 
   IF v_refund > 0 THEN

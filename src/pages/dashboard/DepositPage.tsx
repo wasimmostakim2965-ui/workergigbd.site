@@ -14,7 +14,7 @@ import { useSeo } from '@/lib/useSeo';
 export function DepositPage() {
   useSeo({
     title: 'ডিপোজিট — WORKER GIG BD',
-    description: 'WORKER GIG BD অ্যাকাউন্টে টাকা ডিপোজিট করুন। ১ ডলার = ১১০ টাকা।',
+    description: 'WORKER GIG BD অ্যাকাউন্টে টাকা ডিপোজিট করুন। $1 = 110 BDT।',
     path: '/dashboard/deposit',
     noindex: true,
   });
@@ -78,7 +78,7 @@ export function DepositPage() {
 
     const amt = parseFloat(amount);
     if (amt < minDeposit) {
-      setError(`Minimum deposit is ৳${minDeposit}.`);
+      setError(`Minimum deposit is $${minDeposit}.`);
       setLoading(false);
       return;
     }
@@ -168,17 +168,17 @@ export function DepositPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="Amount (৳)"
+              label="Amount ($)"
               type="number"
               step="0.001"
               min={minDeposit}
-              placeholder={`Min ৳${minDeposit}`}
+              placeholder={`Min $${minDeposit}`}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required
               icon={<Wallet className="h-4 w-4" />}
             />
-            <p className="text-xs text-gray-500">১ ডলার = ১১০ টাকা</p>
+            <p className="text-xs text-gray-500">$1 = 110 BDT</p>
             <Input
               label="Your Sender Number"
               placeholder="01XXXXXXXXX"
@@ -215,7 +215,7 @@ export function DepositPage() {
               {history.map((dep) => (
                 <div key={dep.id} className="flex items-center justify-between p-4">
                   <div>
-                    <div className="text-sm font-semibold text-gray-900">৳ {dep.amount.toFixed(3)}</div>
+                    <div className="text-sm font-semibold text-gray-900">$ {dep.amount.toFixed(3)}</div>
                     <div className="text-xs text-gray-500">
                       {dep.method} • {new Date(dep.created_at).toLocaleDateString()}
                     </div>

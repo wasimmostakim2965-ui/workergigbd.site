@@ -116,7 +116,7 @@ export function AdminJobsPage() {
                     </td>
                     <td className="px-5 py-3 text-gray-600">{job.profiles?.username ?? 'Unknown'}</td>
                     <td className="px-5 py-3 text-gray-600">{job.category}</td>
-                    <td className="px-5 py-3 font-semibold text-success-600">৳ {job.reward_per_worker.toFixed(3)}</td>
+                    <td className="px-5 py-3 font-semibold text-success-600">$ {job.reward_per_worker.toFixed(3)}</td>
                     <td className="px-5 py-3 text-gray-700">{job.filled_slots}/{job.total_slots}</td>
                     <td className="px-5 py-3">
                       <Badge variant={job.status === 'active' ? 'success' : job.status === 'paused' ? 'warning' : job.status === 'completed' ? 'primary' : 'error'} dot>

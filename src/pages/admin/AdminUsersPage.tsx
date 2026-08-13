@@ -213,8 +213,8 @@ export function AdminUsersPage() {
                         {user.status}
                       </Badge>
                     </td>
-                    <td className="px-5 py-3 font-semibold text-gray-900">৳ {user.earning_balance.toFixed(2)}</td>
-                    <td className="px-5 py-3 font-semibold text-gray-900">৳ {user.deposit_balance.toFixed(2)}</td>
+                    <td className="px-5 py-3 font-semibold text-gray-900">$ {user.earning_balance.toFixed(2)}</td>
+                    <td className="px-5 py-3 font-semibold text-gray-900">$ {user.deposit_balance.toFixed(2)}</td>
                     <td className="px-5 py-3 text-gray-700">{user.tasks_completed}</td>
                     <td className="px-5 py-3 text-gray-500">{new Date(user.created_at).toLocaleDateString()}</td>
                     <td className="px-5 py-3">
@@ -256,11 +256,11 @@ export function AdminUsersPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="rounded-lg border border-gray-200 p-3">
                 <div className="text-xs text-gray-500">Earning Balance</div>
-                <div className="text-lg font-bold text-gray-900">৳ {selectedUser.earning_balance.toFixed(3)}</div>
+                <div className="text-lg font-bold text-gray-900">$ {selectedUser.earning_balance.toFixed(3)}</div>
               </div>
               <div className="rounded-lg border border-gray-200 p-3">
                 <div className="text-xs text-gray-500">Deposit Balance</div>
-                <div className="text-lg font-bold text-gray-900">৳ {selectedUser.deposit_balance.toFixed(3)}</div>
+                <div className="text-lg font-bold text-gray-900">$ {selectedUser.deposit_balance.toFixed(3)}</div>
               </div>
               <div className="rounded-lg border border-gray-200 p-3">
                 <div className="text-xs text-gray-500">Tasks Completed</div>

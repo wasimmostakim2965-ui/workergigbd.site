@@ -14,7 +14,7 @@ import { useSeo } from '@/lib/useSeo';
 export function WithdrawPage() {
   useSeo({
     title: 'উইথড্র — WORKER GIG BD',
-    description: 'WORKER GIG BD থেকে আয়কৃত টাকা উইথড্র করুন। ১ ডলার = ১০০ টাকা।',
+    description: 'WORKER GIG BD থেকে আয়কৃত টাকা উইথড্র করুন। $1 = 100 BDT।',
     path: '/dashboard/withdraw',
     noindex: true,
   });
@@ -71,12 +71,12 @@ export function WithdrawPage() {
 
     const amt = parseFloat(amount);
     if (amt < minWithdraw) {
-      setError(`Minimum withdrawal is ৳${minWithdraw}.`);
+      setError(`Minimum withdrawal is $${minWithdraw}.`);
       setLoading(false);
       return;
     }
     if (amt > profile.earning_balance) {
-      setError(`Insufficient earning balance. You have ৳${profile.earning_balance.toFixed(3)}.`);
+      setError(`Insufficient earning balance. You have $${profile.earning_balance.toFixed(3)}.`);
       setLoading(false);
       return;
     }
@@ -135,7 +135,7 @@ export function WithdrawPage() {
 
       {success && (
         <Alert variant="success" title="Withdrawal Request Submitted!">
-          ৳ {parseFloat(amount || '0') || '0'} has been held from your balance. Your request is pending admin approval. Funds will be sent within 24-48 hours, or refunded if rejected.
+          $ {parseFloat(amount || '0') || '0'} has been held from your balance. Your request is pending admin approval. Funds will be sent within 24-48 hours, or refunded if rejected.
         </Alert>
       )}
       {error && <Alert variant="error">{error}</Alert>}
@@ -144,8 +144,8 @@ export function WithdrawPage() {
         <Card className="p-6">
           <div className="mb-4 rounded-lg bg-gradient-to-br from-primary-600 to-primary-800 p-4 text-white">
             <div className="text-xs text-primary-100">Available Earning Balance</div>
-            <div className="mt-1 text-3xl font-bold">৳ {profile?.earning_balance?.toFixed(3) ?? '0.000'}</div>
-            <div className="mt-2 text-xs text-primary-200">Minimum withdrawal: ৳ {minWithdraw}</div>
+            <div className="mt-1 text-3xl font-bold">$ {profile?.earning_balance?.toFixed(3) ?? '0.000'}</div>
+            <div className="mt-2 text-xs text-primary-200">Minimum withdrawal: $ {minWithdraw}</div>
           </div>
 
           <div className="grid grid-cols-3 gap-3 mb-5">
@@ -167,17 +167,17 @@ export function WithdrawPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="Amount (৳)"
+              label="Amount ($)"
               type="number"
               step="0.001"
               min={minWithdraw}
-              placeholder={`Min ৳${minWithdraw}`}
+              placeholder={`Min $${minWithdraw}`}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required
               icon={<ArrowUpFromLine className="h-4 w-4" />}
             />
-            <p className="text-xs text-gray-500">১ ডলার = ১০০ টাকা</p>
+            <p className="text-xs text-gray-500">$1 = 100 BDT</p>
             <Input
               label="Your Account Number"
               placeholder="01XXXXXXXXX"
@@ -206,7 +206,7 @@ export function WithdrawPage() {
               {history.map((wd) => (
                 <div key={wd.id} className="flex items-center justify-between p-4">
                   <div>
-                    <div className="text-sm font-semibold text-gray-900">৳ {wd.amount.toFixed(3)}</div>
+                    <div className="text-sm font-semibold text-gray-900">$ {wd.amount.toFixed(3)}</div>
                     <div className="text-xs text-gray-500">
                       {wd.method} • {new Date(wd.created_at).toLocaleDateString()}
                     </div>

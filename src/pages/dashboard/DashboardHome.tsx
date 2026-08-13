@@ -168,7 +168,7 @@ export function DashboardHome() {
                     className="text-xl font-extrabold"
                     style={{ color: COLORS.primaryGreen }}
                   >
-                    ৳ {totalReward.toFixed(3)}
+                    $ {totalReward.toFixed(3)}
                   </div>
                 </div>
               </Link>

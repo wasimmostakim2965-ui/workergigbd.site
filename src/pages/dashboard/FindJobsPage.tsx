@@ -336,7 +336,7 @@ export function FindJobsPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="rounded-lg border border-gray-200 p-3">
                 <div className="text-xs text-gray-500">Reward</div>
-                <div className="text-lg font-bold text-success-600">৳ {totalReward.toFixed(3)}</div>
+                <div className="text-lg font-bold text-success-600">$ {totalReward.toFixed(3)}</div>
               </div>
               <div className="rounded-lg border border-gray-200 p-3">
                 <div className="text-xs text-gray-500">Available Slots</div>
@@ -527,7 +527,7 @@ export function FindJobsPage() {
                     </div>
                   </div>
                   <div className="text-lg font-extrabold text-success-600">
-                    ৳ {totalReward.toFixed(3)}
+                    $ {totalReward.toFixed(3)}
                   </div>
                 </div>
               </button>

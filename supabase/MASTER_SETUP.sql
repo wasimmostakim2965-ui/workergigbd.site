@@ -751,24 +751,27 @@ CREATE OR REPLACE FUNCTION public.process_task(
 RETURNS boolean
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = public
 AS $$
-DECLARE v_task RECORD;
+DECLARE v_task RECORD; v_reward numeric(12,3);
 BEGIN
   IF NOT public.is_admin() THEN RAISE EXCEPTION 'Admin only.'; END IF;
-  SELECT t.*, j.reward_per_worker, j.title INTO v_task
+  SELECT t.*, j.reward_per_worker, j.screenshot_count, j.title INTO v_task
     FROM public.tasks t JOIN public.jobs j ON j.id = t.job_id
     WHERE t.id = p_task_id FOR UPDATE OF t;
   IF NOT FOUND THEN RAISE EXCEPTION 'Task not found.'; END IF;
   IF v_task.status <> 'submitted' THEN RAISE EXCEPTION 'This task is not awaiting review (status: %).', v_task.status; END IF;
 
+  -- Full payout = base reward + screenshot fee ($0.001 per screenshot).
+  v_reward := (COALESCE(v_task.reward_per_worker, 0) + GREATEST(COALESCE(v_task.screenshot_count, 0), 0) * 0.001)::numeric(12,3);
+
   IF p_action = 'approve' THEN
     UPDATE public.tasks SET status='approved', reviewed_by=p_admin_uid, reviewed_at=now() WHERE id = p_task_id;
-    UPDATE public.profiles SET earning_balance = earning_balance + v_task.reward_per_worker,
-        total_earned = total_earned + v_task.reward_per_worker, tasks_completed = tasks_completed + 1, updated_at = now()
+    UPDATE public.profiles SET earning_balance = earning_balance + v_reward,
+        total_earned = total_earned + v_reward, tasks_completed = tasks_completed + 1, updated_at = now()
       WHERE id = v_task.worker_id;
     INSERT INTO public.transactions (user_id, type, amount, balance_type, description, reference_id)
-      VALUES (v_task.worker_id, 'earning', v_task.reward_per_worker, 'earning', 'Task approved - ' || v_task.title, p_task_id);
+      VALUES (v_task.worker_id, 'earning', v_reward, 'earning', 'Task approved - ' || v_task.title, p_task_id);
     PERFORM public.notify_user(v_task.worker_id, 'Task Approved!',
-      'Your task for "' || v_task.title || '" has been approved. $ ' || v_task.reward_per_worker || ' credited to your earning balance.', 'success');
+      'Your task for "' || v_task.title || '" has been approved. $ ' || v_reward || ' credited to your earning balance.', 'success');
   ELSIF p_action = 'reject' THEN
     UPDATE public.tasks SET status='rejected', reviewed_by=p_admin_uid, reviewed_at=now() WHERE id = p_task_id;
     UPDATE public.jobs SET filled_slots = GREATEST(filled_slots - 1, 0),
@@ -803,7 +806,9 @@ BEGIN
   END IF;
   IF p_reward_per_worker IS NULL OR p_reward_per_worker < 0 THEN RAISE EXCEPTION 'Invalid reward per worker.'; END IF;
   IF p_total_slots IS NULL OR p_total_slots < 1 THEN RAISE EXCEPTION 'Total slots must be at least 1.'; END IF;
-  v_cost := ((p_reward_per_worker * p_total_slots))::numeric(12,3);
+  IF p_screenshot_count IS NULL OR p_screenshot_count < 0 THEN RAISE EXCEPTION 'Invalid screenshot count.'; END IF;
+  -- Per-worker cost = reward + screenshot fee ($0.001 per screenshot).
+  v_cost := (((p_reward_per_worker + GREATEST(p_screenshot_count, 0) * 0.001) * p_total_slots))::numeric(12,3);
   SELECT deposit_balance INTO v_bal FROM public.profiles WHERE id = p_uid FOR UPDATE;
   IF NOT FOUND THEN RAISE EXCEPTION 'Account not found.'; END IF;
   IF v_bal < v_cost THEN RAISE EXCEPTION 'Insufficient deposit balance. Need $ %, have $ %.', v_cost, v_bal; END IF;

@@ -102,7 +102,8 @@ export function DashboardHome() {
           {jobs.map((job) => {
             const progress = job.total_slots > 0 ? (job.filled_slots / job.total_slots) * 100 : 0;
             const isFull = job.filled_slots >= job.total_slots;
-            const totalReward = job.reward_per_worker;
+            const totalReward = (job.reward_per_worker ?? 0)
+              + (job.screenshot_count ?? 0) * 0.001;
             const isPinned = job.is_premium_only;
             const isTopJob = totalReward >= 0.1;
 

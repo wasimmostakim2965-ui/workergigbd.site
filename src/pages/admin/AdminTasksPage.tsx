@@ -140,7 +140,7 @@ export function AdminTasksPage() {
                     <td className="px-5 py-3 font-medium text-gray-900">{task.profiles?.username ?? 'Unknown'}</td>
                     <td className="px-5 py-3 text-gray-700 line-clamp-1">{task.jobs?.title ?? 'Unknown'}</td>
                     <td className="px-5 py-3 font-semibold text-success-600">
-                      $ {((task.jobs?.reward_per_worker ?? 0)).toFixed(3)}
+                      $ {(((task.jobs?.reward_per_worker ?? 0) + (task.jobs?.screenshot_count ?? 0) * 0.001)).toFixed(3)}
                     </td>
                     <td className="px-5 py-3">
                       {task.proof_url ? (
@@ -183,7 +183,7 @@ export function AdminTasksPage() {
               <div className="flex justify-between"><span className="text-gray-500">Worker:</span><span className="font-semibold text-gray-900">{selected.profiles?.username ?? 'Unknown'}</span></div>
               <div className="flex justify-between"><span className="text-gray-500">Job:</span><span className="font-semibold text-gray-900">{selected.jobs?.title ?? 'Unknown'}</span></div>
               <div className="flex justify-between"><span className="text-gray-500">Category:</span><span className="text-gray-700">{selected.jobs?.category}</span></div>
-              <div className="flex justify-between"><span className="text-gray-500">Reward:</span><span className="font-bold text-success-600">$ {((selected.jobs?.reward_per_worker ?? 0)).toFixed(3)}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">Reward:</span><span className="font-bold text-success-600">$ {(((selected.jobs?.reward_per_worker ?? 0) + (selected.jobs?.screenshot_count ?? 0) * 0.001)).toFixed(3)}</span></div>
               <div className="flex justify-between"><span className="text-gray-500">Date:</span><span className="text-gray-700">{new Date(selected.created_at).toLocaleString()}</span></div>
             </div>
 

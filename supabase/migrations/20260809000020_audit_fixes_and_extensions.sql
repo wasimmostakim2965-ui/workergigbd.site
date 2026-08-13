@@ -111,7 +111,7 @@ BEGIN
         PERFORM public.notify_user(
           v_referrer_id,
           'Referral Bonus Earned!',
-          'You earned ৳ ' || v_bonus || ' referral bonus. Your referred user just made their first deposit.',
+          'You earned $ ' || v_bonus || ' referral bonus. Your referred user just made their first deposit.',
           'success'
         );
       END IF;
@@ -120,7 +120,7 @@ BEGIN
     PERFORM public.notify_user(
       v_req.user_id,
       'Deposit Approved!',
-      'Your deposit of ৳ ' || v_req.amount || ' has been approved and credited to your account.',
+      'Your deposit of $ ' || v_req.amount || ' has been approved and credited to your account.',
       'success'
     );
   ELSIF p_action = 'reject' THEN
@@ -132,7 +132,7 @@ BEGIN
     PERFORM public.notify_user(
       v_req.user_id,
       'Deposit Rejected',
-      'Your deposit request of ৳ ' || v_req.amount || ' was rejected. ' || COALESCE(p_note, ''),
+      'Your deposit request of $ ' || v_req.amount || ' was rejected. ' || COALESCE(p_note, ''),
       'error'
     );
   ELSE
@@ -318,7 +318,7 @@ BEGIN
     PERFORM public.notify_user(
       v_task.worker_id,
       'Task Approved!',
-      'Your task for "' || v_task.title || '" has been approved. ৳ ' || v_task.reward_per_worker || ' credited to your earning balance.',
+      'Your task for "' || v_task.title || '" has been approved. $ ' || v_task.reward_per_worker || ' credited to your earning balance.',
       'success'
     );
   ELSIF p_action = 'reject' THEN
@@ -388,8 +388,7 @@ BEGIN
     RAISE EXCEPTION 'Total slots must be at least 1.';
   END IF;
 
-  v_cost := ((p_reward_per_worker * p_total_slots)
-            + (p_screenshot_count  * 0.001 * p_total_slots))::numeric(12,3);
+  v_cost := ((p_reward_per_worker * p_total_slots))::numeric(12,3);
 
   SELECT deposit_balance INTO v_bal FROM public.profiles WHERE id = p_uid FOR UPDATE;
 
@@ -398,7 +397,7 @@ BEGIN
   END IF;
 
   IF v_bal < v_cost THEN
-    RAISE EXCEPTION 'Insufficient deposit balance. Need ৳ %, have ৳ %.', v_cost, v_bal;
+    RAISE EXCEPTION 'Insufficient deposit balance. Need $ %, have $ %.', v_cost, v_bal;
   END IF;
 
   UPDATE public.profiles
@@ -455,7 +454,7 @@ BEGIN
     RAISE EXCEPTION 'Account not found.';
   END IF;
   IF v_bal < v_price THEN
-    RAISE EXCEPTION 'Insufficient deposit balance. Need ৳ %, have ৳ %.', v_price, v_bal;
+    RAISE EXCEPTION 'Insufficient deposit balance. Need $ %, have $ %.', v_price, v_bal;
   END IF;
 
   UPDATE public.profiles
@@ -504,7 +503,7 @@ BEGIN
     RAISE EXCEPTION 'Account not found.';
   END IF;
   IF v_bal < p_budget THEN
-    RAISE EXCEPTION 'Insufficient deposit balance. Need ৳ %, have ৳ %.', p_budget, v_bal;
+    RAISE EXCEPTION 'Insufficient deposit balance. Need $ %, have $ %.', p_budget, v_bal;
   END IF;
 
   UPDATE public.profiles

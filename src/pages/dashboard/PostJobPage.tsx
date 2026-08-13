@@ -51,12 +51,9 @@ export function PostJobPage() {
 
   const reward = parseFloat(form.reward_per_worker || '0') || 0;
   const slots = parseInt(form.total_slots || '0') || 0;
-  const screenshots = form.screenshot_count;
 
-  // Cost calculation: reward * slots + (screenshots  * 0.001 * slots)
-  const screenshotFee = screenshots  * 0.001 * slots;
-  const baseCost = reward * slots;
-  const totalCost = baseCost + screenshotFee;
+  // Cost = reward * slots. Screenshots are free.
+  const totalCost = reward * slots;
 
   const handleCategoryChange = (catName: string) => {
     const cat = categories.find(c => c.name === catName);
@@ -256,7 +253,7 @@ export function PostJobPage() {
                 </button>
               ))}
             </div>
-            <p className="mt-1.5 text-xs text-gray-500">Max 4 screenshots. Each screenshot costs $0.001 per worker.</p>
+            <p className="mt-1.5 text-xs text-gray-500">Max 4 screenshots. Screenshots are free.</p>
           </div>
 
           {/* 7. Screenshot instructions (optional) */}
@@ -333,14 +330,8 @@ export function PostJobPage() {
             <div className="rounded-lg bg-gray-50 p-4 space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-600">Worker rewards ({slots} × ${reward.toFixed(3)})</span>
-                <span className="font-medium text-gray-900">${baseCost.toFixed(3)}</span>
+                <span className="font-medium text-gray-900">${totalCost.toFixed(3)}</span>
               </div>
-              {screenshotFee > 0 && (
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Screenshot fees ({screenshots} × $0.001 × {slots})</span>
-                  <span className="font-medium text-gray-900">${screenshotFee.toFixed(3)}</span>
-                </div>
-              )}
               <div className="border-t border-gray-200 pt-2 flex items-center justify-between">
                 <span className="text-sm font-semibold text-gray-700">Total Cost</span>
                 <span className="text-lg font-bold text-primary-700">${totalCost.toFixed(3)}</span>

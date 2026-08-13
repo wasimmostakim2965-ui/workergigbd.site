@@ -666,14 +666,14 @@ BEGIN
     UPDATE public.withdrawal_requests SET status='approved', admin_note=p_note, reviewed_by=p_admin_uid, reviewed_at=now() WHERE id = p_wd_id;
     UPDATE public.profiles SET total_withdraw = total_withdraw + v_req.amount, updated_at = now() WHERE id = v_req.user_id;
     PERFORM public.notify_user(v_req.user_id, 'Withdrawal Approved!',
-      'Your withdrawal of ৳ ' || v_req.amount || ' has been approved and sent to your ' || v_req.method || ' account.', 'success');
+      'Your withdrawal of $ ' || v_req.amount || ' has been approved and sent to your ' || v_req.method || ' account.', 'success');
   ELSIF p_action = 'reject' THEN
     UPDATE public.profiles SET earning_balance = earning_balance + v_req.amount, updated_at = now() WHERE id = v_req.user_id;
     UPDATE public.withdrawal_requests SET status='rejected', admin_note=p_note, reviewed_by=p_admin_uid, reviewed_at=now() WHERE id = p_wd_id;
     INSERT INTO public.transactions (user_id, type, amount, balance_type, description, reference_id)
       VALUES (v_req.user_id, 'earning', v_req.amount, 'earning', 'Withdrawal rejected - amount refunded', v_req.id);
     PERFORM public.notify_user(v_req.user_id, 'Withdrawal Rejected',
-      'Your withdrawal request of ৳ ' || v_req.amount || ' was rejected. ' || COALESCE(p_note, ''), 'error');
+      'Your withdrawal request of $ ' || v_req.amount || ' was rejected. ' || COALESCE(p_note, ''), 'error');
   ELSE
     RAISE EXCEPTION 'Unknown action. Use approve or reject.';
   END IF;
@@ -727,15 +727,15 @@ BEGIN
         INSERT INTO public.transactions (user_id, type, amount, balance_type, description)
           VALUES (v_referrer_id, 'referral_bonus', v_bonus, 'deposit', 'Referral bonus for referred user''s first deposit');
         PERFORM public.notify_user(v_referrer_id, 'Referral Bonus Earned!',
-          'You earned ৳ ' || v_bonus || ' referral bonus. Your referred user just made their first deposit.', 'success');
+          'You earned $ ' || v_bonus || ' referral bonus. Your referred user just made their first deposit.', 'success');
       END IF;
     END IF;
     PERFORM public.notify_user(v_req.user_id, 'Deposit Approved!',
-      'Your deposit of ৳ ' || v_req.amount || ' has been approved and credited to your account.', 'success');
+      'Your deposit of $ ' || v_req.amount || ' has been approved and credited to your account.', 'success');
   ELSIF p_action = 'reject' THEN
     UPDATE public.deposit_requests SET status='rejected', admin_note=p_note, reviewed_by=p_admin_uid, reviewed_at=now() WHERE id = p_deposit_id;
     PERFORM public.notify_user(v_req.user_id, 'Deposit Rejected',
-      'Your deposit request of ৳ ' || v_req.amount || ' was rejected. ' || COALESCE(p_note, ''), 'error');
+      'Your deposit request of $ ' || v_req.amount || ' was rejected. ' || COALESCE(p_note, ''), 'error');
   ELSE
     RAISE EXCEPTION 'Unknown action. Use approve or reject.';
   END IF;
@@ -768,7 +768,7 @@ BEGIN
     INSERT INTO public.transactions (user_id, type, amount, balance_type, description, reference_id)
       VALUES (v_task.worker_id, 'earning', v_task.reward_per_worker, 'earning', 'Task approved - ' || v_task.title, p_task_id);
     PERFORM public.notify_user(v_task.worker_id, 'Task Approved!',
-      'Your task for "' || v_task.title || '" has been approved. ৳ ' || v_task.reward_per_worker || ' credited to your earning balance.', 'success');
+      'Your task for "' || v_task.title || '" has been approved. $ ' || v_task.reward_per_worker || ' credited to your earning balance.', 'success');
   ELSIF p_action = 'reject' THEN
     UPDATE public.tasks SET status='rejected', reviewed_by=p_admin_uid, reviewed_at=now() WHERE id = p_task_id;
     UPDATE public.jobs SET filled_slots = GREATEST(filled_slots - 1, 0),
@@ -803,10 +803,10 @@ BEGIN
   END IF;
   IF p_reward_per_worker IS NULL OR p_reward_per_worker < 0 THEN RAISE EXCEPTION 'Invalid reward per worker.'; END IF;
   IF p_total_slots IS NULL OR p_total_slots < 1 THEN RAISE EXCEPTION 'Total slots must be at least 1.'; END IF;
-  v_cost := ((p_reward_per_worker * p_total_slots) + (p_screenshot_count  * 0.001 * p_total_slots))::numeric(12,3);
+  v_cost := ((p_reward_per_worker * p_total_slots))::numeric(12,3);
   SELECT deposit_balance INTO v_bal FROM public.profiles WHERE id = p_uid FOR UPDATE;
   IF NOT FOUND THEN RAISE EXCEPTION 'Account not found.'; END IF;
-  IF v_bal < v_cost THEN RAISE EXCEPTION 'Insufficient deposit balance. Need ৳ %, have ৳ %.', v_cost, v_bal; END IF;
+  IF v_bal < v_cost THEN RAISE EXCEPTION 'Insufficient deposit balance. Need $ %, have $ %.', v_cost, v_bal; END IF;
   UPDATE public.profiles SET deposit_balance = deposit_balance - v_cost, jobs_posted = jobs_posted + 1, updated_at = now() WHERE id = p_uid;
   INSERT INTO public.jobs (user_id, title, description, category, subcategory, url, proof_instructions,
       reward_per_worker, total_slots, status, is_premium_only, screenshot_count, screenshot_instructions, image_url)
@@ -836,7 +836,7 @@ BEGIN
   v_days := COALESCE(v_days, 30);
   SELECT deposit_balance INTO v_bal FROM public.profiles WHERE id = p_uid FOR UPDATE;
   IF NOT FOUND THEN RAISE EXCEPTION 'Account not found.'; END IF;
-  IF v_bal < v_price THEN RAISE EXCEPTION 'Insufficient deposit balance. Need ৳ %, have ৳ %.', v_price, v_bal; END IF;
+  IF v_bal < v_price THEN RAISE EXCEPTION 'Insufficient deposit balance. Need $ %, have $ %.', v_price, v_bal; END IF;
   UPDATE public.profiles SET deposit_balance = deposit_balance - v_price, is_premium = true,
       premium_expires_at = now() + make_interval(days => v_days), updated_at = now() WHERE id = p_uid;
   INSERT INTO public.transactions (user_id, type, amount, balance_type, description)
@@ -861,7 +861,7 @@ BEGIN
   IF p_budget IS NULL OR p_budget <= 0 THEN RAISE EXCEPTION 'Budget must be greater than zero.'; END IF;
   SELECT deposit_balance INTO v_bal FROM public.profiles WHERE id = p_uid FOR UPDATE;
   IF NOT FOUND THEN RAISE EXCEPTION 'Account not found.'; END IF;
-  IF v_bal < p_budget THEN RAISE EXCEPTION 'Insufficient deposit balance. Need ৳ %, have ৳ %.', p_budget, v_bal; END IF;
+  IF v_bal < p_budget THEN RAISE EXCEPTION 'Insufficient deposit balance. Need $ %, have $ %.', p_budget, v_bal; END IF;
   UPDATE public.profiles SET deposit_balance = deposit_balance - p_budget, updated_at = now() WHERE id = p_uid;
   INSERT INTO public.advertisements (user_id, title, url, image_url, budget, status)
     VALUES (p_uid, p_title, p_url, p_image_url, p_budget, 'pending') RETURNING id INTO v_id;

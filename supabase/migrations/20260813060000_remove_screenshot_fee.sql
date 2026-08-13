@@ -1,14 +1,14 @@
 -- ============================================================
--- WorkerGig BD — Screenshot fee 0.05 -> 0.001
+-- WorkerGig BD — Remove screenshot fee entirely (fee = 0)
 -- ============================================================
--- Reduces the per-screenshot-per-worker fee from $0.05 to $0.001 across
--- every money-moving RPC so the posted cost, worker payout, and refund
--- all stay consistent with the new fee. Recreates the affected functions
--- with the new constant. Idempotent. Safe to re-run.
+-- Screenshots are now free. This recreates the three money-moving RPCs
+-- (post_job, process_task, delete_job) so they charge/pay/refund ONLY the
+-- base reward per worker, with no per-screenshot cost.
+-- Idempotent. Safe to re-run.
 -- ============================================================
 NOTIFY pgrst, 'reload schema_cache';
 
--- 1. post_job — charge 0.001 per screenshot per worker
+-- 1. post_job — charge only reward * slots (no screenshot fee)
 CREATE OR REPLACE FUNCTION public.post_job(
   p_uid uuid,
   p_title text,
@@ -44,8 +44,8 @@ BEGIN
     RAISE EXCEPTION 'Total slots must be at least 1.';
   END IF;
 
-  v_cost := ((p_reward_per_worker * p_total_slots)
-            + (p_screenshot_count * 0.001 * p_total_slots))::numeric(12,3);
+  -- Cost = reward * slots. Screenshots are free.
+  v_cost := (p_reward_per_worker * p_total_slots)::numeric(12,3);
 
   SELECT deposit_balance INTO v_bal FROM public.profiles WHERE id = p_uid FOR UPDATE;
 
@@ -83,7 +83,7 @@ END;
 $$;
 GRANT EXECUTE ON FUNCTION public.post_job(uuid, text, text, text, text, text, text, numeric, integer, boolean, integer, text, text) TO authenticated;
 
--- 2. process_task — pay reward + 0.001 per screenshot
+-- 2. process_task — pay only the base reward (no screenshot fee)
 CREATE OR REPLACE FUNCTION public.process_task(
   p_task_id uuid,
   p_admin_uid uuid,
@@ -118,9 +118,8 @@ BEGIN
     RAISE EXCEPTION 'This task is not awaiting review (status: %).', v_task.status;
   END IF;
 
-  -- Full payout = base reward + screenshot fee (matches the posted cost).
-  v_reward := (COALESCE(v_task.reward_per_worker,0)
-               + COALESCE(v_task.screenshot_count,0) * 0.001)::numeric(12,3);
+  -- Payout = base reward only. Screenshots are free.
+  v_reward := COALESCE(v_task.reward_per_worker,0)::numeric(12,3);
 
   IF p_action = 'approve' THEN
     UPDATE public.tasks
@@ -170,7 +169,7 @@ END;
 $$;
 GRANT EXECUTE ON FUNCTION public.process_task(uuid, uuid, text, text) TO authenticated;
 
--- 3. delete_job — refund reward + 0.001 per screenshot per remaining slot
+-- 3. delete_job — refund only reward * remaining_slots (no screenshot fee)
 CREATE OR REPLACE FUNCTION public.delete_job(p_job_id uuid)
 RETURNS boolean
 LANGUAGE plpgsql
@@ -191,11 +190,9 @@ BEGIN
     RAISE EXCEPTION 'You can only delete your own jobs.';
   END IF;
 
-  -- Refund the unspent prepaid budget: reward*remaining_slots + screenshot fee.
-  v_refund := ( (COALESCE(v_job.reward_per_worker,0)
-                 * GREATEST(v_job.total_slots - v_job.filled_slots, 0))
-               + (COALESCE(v_job.screenshot_count,0) * 0.001
-                 * GREATEST(v_job.total_slots - v_job.filled_slots, 0)) )::numeric(12,3);
+  -- Refund only the unspent prepaid reward. Screenshots are free.
+  v_refund := (COALESCE(v_job.reward_per_worker,0)
+               * GREATEST(v_job.total_slots - v_job.filled_slots, 0))::numeric(12,3);
 
   IF v_refund > 0 THEN
     UPDATE public.profiles

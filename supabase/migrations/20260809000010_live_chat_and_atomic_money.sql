@@ -204,7 +204,7 @@ BEGIN
     PERFORM public.notify_user(
       v_req.user_id,
       'Withdrawal Approved!',
-      'Your withdrawal of ৳ ' || v_req.amount || ' has been approved and sent to your ' || v_req.method || ' account.',
+      'Your withdrawal of $ ' || v_req.amount || ' has been approved and sent to your ' || v_req.method || ' account.',
       'success'
     );
   ELSIF p_action = 'reject' THEN
@@ -225,7 +225,7 @@ BEGIN
     PERFORM public.notify_user(
       v_req.user_id,
       'Withdrawal Rejected',
-      'Your withdrawal request of ৳ ' || v_req.amount || ' was rejected. ' || COALESCE(p_note, ''),
+      'Your withdrawal request of $ ' || v_req.amount || ' was rejected. ' || COALESCE(p_note, ''),
       'error'
     );
   ELSE
@@ -311,7 +311,7 @@ BEGIN
           PERFORM public.notify_user(
             v_referrer_id,
             'Referral Bonus Earned!',
-            'You earned ৳ ' || v_bonus || ' referral bonus. Your referred user just made their first deposit.',
+            'You earned $ ' || v_bonus || ' referral bonus. Your referred user just made their first deposit.',
             'success'
           );
         END IF;
@@ -321,7 +321,7 @@ BEGIN
     PERFORM public.notify_user(
       v_req.user_id,
       'Deposit Approved!',
-      'Your deposit of ৳ ' || v_req.amount || ' has been approved and credited to your account.',
+      'Your deposit of $ ' || v_req.amount || ' has been approved and credited to your account.',
       'success'
     );
   ELSIF p_action = 'reject' THEN
@@ -333,7 +333,7 @@ BEGIN
     PERFORM public.notify_user(
       v_req.user_id,
       'Deposit Rejected',
-      'Your deposit request of ৳ ' || v_req.amount || ' was rejected. ' || COALESCE(p_note, ''),
+      'Your deposit request of $ ' || v_req.amount || ' was rejected. ' || COALESCE(p_note, ''),
       'error'
     );
   ELSE

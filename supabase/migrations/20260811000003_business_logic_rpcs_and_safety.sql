@@ -246,8 +246,7 @@ BEGIN
   END IF;
 
   -- Full payout = base reward + screenshot fee (matches the posted cost).
-  v_reward := (COALESCE(v_task.reward_per_worker,0)
-               + COALESCE(v_task.screenshot_count,0)  * 0.001)::numeric(12,3);
+  v_reward := COALESCE(v_task.reward_per_worker,0)::numeric(12,3);
 
   IF p_action = 'approve' THEN
     UPDATE public.tasks
@@ -268,7 +267,7 @@ BEGIN
     PERFORM public.notify_user(
       v_task.worker_id,
       'Task Approved!',
-      'Your task for "' || v_task.title || '" has been approved. ৳ ' || v_reward || ' credited to your earning balance.',
+      'Your task for "' || v_task.title || '" has been approved. $ ' || v_reward || ' credited to your earning balance.',
       'success'
     );
   ELSIF p_action = 'reject' THEN
@@ -452,7 +451,7 @@ BEGIN
         PERFORM public.notify_user(
           v_referrer_id,
           'Referral Bonus Earned!',
-          'You earned ৳ ' || v_bonus || ' referral bonus. Your referred user just made their first deposit.',
+          'You earned $ ' || v_bonus || ' referral bonus. Your referred user just made their first deposit.',
           'success'
         );
       END IF;
@@ -461,7 +460,7 @@ BEGIN
     PERFORM public.notify_user(
       v_req.user_id,
       'Deposit Approved!',
-      'Your deposit of ৳ ' || v_req.amount || ' has been approved and credited to your account.',
+      'Your deposit of $ ' || v_req.amount || ' has been approved and credited to your account.',
       'success'
     );
   ELSIF p_action = 'reject' THEN
@@ -473,7 +472,7 @@ BEGIN
     PERFORM public.notify_user(
       v_req.user_id,
       'Deposit Rejected',
-      'Your deposit request of ৳ ' || v_req.amount || ' was rejected. ' || COALESCE(p_note, ''),
+      'Your deposit request of $ ' || v_req.amount || ' was rejected. ' || COALESCE(p_note, ''),
       'error'
     );
   ELSE
@@ -528,7 +527,7 @@ BEGIN
     PERFORM public.notify_user(
       v_req.user_id,
       'Withdrawal Approved!',
-      'Your withdrawal of ৳ ' || v_req.amount || ' has been approved and sent to your ' || v_req.method || ' account.',
+      'Your withdrawal of $ ' || v_req.amount || ' has been approved and sent to your ' || v_req.method || ' account.',
       'success'
     );
   ELSIF p_action = 'reject' THEN
@@ -548,7 +547,7 @@ BEGIN
     PERFORM public.notify_user(
       v_req.user_id,
       'Withdrawal Rejected',
-      'Your withdrawal request of ৳ ' || v_req.amount || ' was rejected. ' || COALESCE(p_note, ''),
+      'Your withdrawal request of $ ' || v_req.amount || ' was rejected. ' || COALESCE(p_note, ''),
       'error'
     );
   ELSE
@@ -584,11 +583,9 @@ BEGIN
     RAISE EXCEPTION 'You can only delete your own jobs.';
   END IF;
 
-  -- Refund the unspent prepaid budget: reward*remaining_slots + screenshot fee.
-  v_refund := ( (COALESCE(v_job.reward_per_worker,0)
-                 * GREATEST(v_job.total_slots - v_job.filled_slots, 0))
-               + (COALESCE(v_job.screenshot_count,0)  * 0.001
-                 * GREATEST(v_job.total_slots - v_job.filled_slots, 0)) )::numeric(12,3);
+  -- Refund the unspent prepaid budget: reward * remaining slots. Screenshots are free.
+  v_refund := (COALESCE(v_job.reward_per_worker,0)
+               * GREATEST(v_job.total_slots - v_job.filled_slots, 0))::numeric(12,3);
 
   IF v_refund > 0 THEN
     UPDATE public.profiles

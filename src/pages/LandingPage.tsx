@@ -39,7 +39,7 @@ const steps = [
 export function LandingPage() {
   useSeo({
     title: 'WORKER GIG BD: Best Micro Job Site for Earning',
-    description: 'WORKER GIG BD (workergigbd.site) বাংলাদেশের শীর্ষ মাইক্রো-টাস্ক ও ফ্রিল্যান্স প্ল্যাটফর্ম। সহজ অনলাইন টাস্ক সম্পন্ন করে ঘরে বসে আয় করুন। সাইন আপ করুন, কাজ করুন, বিকাশ/নগদে টাকা তুলুন। ১ ডলার = ১০০ টাকা।',
+    description: 'WORKER GIG BD (workergigbd.site) বাংলাদেশের শীর্ষ মাইক্রো-টাস্ক ও ফ্রিল্যান্স প্ল্যাটফর্ম। সহজ অনলাইন টাস্ক সম্পন্ন করে ঘরে বসে আয় করুন। সাইন আপ করুন, কাজ করুন, বিকাশ/নগদে টাকা তুলুন। $1 = 100 BDT.',
     path: '/',
   });
   return (
@@ -246,7 +246,7 @@ export function LandingPage() {
                 <span className="text-primary-600 transition-transform group-open:rotate-45">+</span>
               </summary>
               <p className="mt-3 text-sm leading-relaxed text-gray-600">
-                ড্যাশবোর্ড থেকে উইথড্র অপশনে গিয়ে বিকাশ, নগদ বা রকেট অ্যাকাউন্ট দিয়ে ন্যূনতম পরিমাণ পূরণ করে টাকা তুলতে পারেন। ১ ডলার = ১০০ টাকা।
+                ড্যাশবোর্ড থেকে উইথড্র অপশনে গিয়ে বিকাশ, নগদ বা রকেট অ্যাকাউন্ট দিয়ে ন্যূনতম পরিমাণ পূরণ করে টাকা তুলতে পারেন। $1 = 100 BDT.
               </p>
             </details>
             <details className="group rounded-xl border border-gray-200 bg-white p-5 shadow-sm">

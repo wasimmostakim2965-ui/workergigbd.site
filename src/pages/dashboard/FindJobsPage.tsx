@@ -256,9 +256,8 @@ export function FindJobsPage() {
 
   // Inline job detail view — opens within the same page (no modal / no new window)
   if (selectedJob) {
-    // Worker payout includes the $0.001 per-screenshot fee.
-    const totalReward = (selectedJob.reward_per_worker ?? 0)
-      + (selectedJob.screenshot_count ?? 0) * 0.001;
+    // Worker payout is the base reward only (screenshots are free).
+    const totalReward = (selectedJob.reward_per_worker ?? 0);
     const isFull = selectedJob.filled_slots >= selectedJob.total_slots;
     const remaining = selectedJob.screenshot_count - screenshots.length;
 
@@ -484,8 +483,7 @@ export function FindJobsPage() {
           {jobs.map((job) => {
             const progress = job.total_slots > 0 ? (job.filled_slots / job.total_slots) * 100 : 0;
             const isFull = job.filled_slots >= job.total_slots;
-            const totalReward = (job.reward_per_worker ?? 0)
-              + (job.screenshot_count ?? 0) * 0.001;
+            const totalReward = (job.reward_per_worker ?? 0);
             const isPinned = job.is_premium_only;
 
             return (

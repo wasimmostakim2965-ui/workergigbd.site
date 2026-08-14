@@ -53,8 +53,11 @@ export function PostJobPage() {
   const slots = parseInt(form.total_slots || '0') || 0;
   const shots = form.screenshot_count;
 
-  // Screenshots are free — cost is reward * slots only.
-  const totalCost = reward * slots;
+  // Per-worker screenshot fee: $0.0001 per required screenshot.
+  const SCREENSHOT_FEE = 0.0001;
+  const shotFeePerWorker = shots * SCREENSHOT_FEE;
+  // Cost = (reward + screenshot fee) * slots. Screenshot fee is $0.0001/shot/worker.
+  const totalCost = (reward + shotFeePerWorker) * slots;
 
   const handleCategoryChange = (catName: string) => {
     const cat = categories.find(c => c.name === catName);
@@ -254,7 +257,7 @@ export function PostJobPage() {
                 </button>
               ))}
             </div>
-            <p className="mt-1.5 text-xs text-gray-500">Max 4 screenshots. Screenshots are free.</p>
+            <p className="mt-1.5 text-xs text-gray-500">Max 4 screenshots. $0.0001 fee per screenshot per worker.</p>
           </div>
 
           {/* 7. Screenshot instructions (optional) */}
@@ -335,8 +338,8 @@ export function PostJobPage() {
               </div>
               {shots > 0 && (
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Screenshots ({shots} per worker)</span>
-                  <span className="font-medium text-success-600">FREE</span>
+                  <span className="text-gray-600">Screenshot fee ({slots} × {shots} × $0.0001)</span>
+                  <span className="font-medium text-gray-900">${(shotFeePerWorker * slots).toFixed(4)}</span>
                 </div>
               )}
               <div className="border-t border-gray-200 pt-2 flex items-center justify-between">

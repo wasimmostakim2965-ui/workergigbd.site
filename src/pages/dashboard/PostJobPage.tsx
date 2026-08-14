@@ -358,7 +358,7 @@ export function PostJobPage() {
               </div>
               {shots > 0 && (
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Screenshot fee ({slots} × {shots} × $0.0001)</span>
+                  <span className="text-gray-600">Platform fee — screenshots ({slots} × {shots} × $0.0001)</span>
                   <span className="font-medium text-gray-900">${(shotFeePerWorker * slots).toFixed(4)}</span>
                 </div>
               )}

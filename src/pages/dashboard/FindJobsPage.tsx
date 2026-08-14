@@ -119,16 +119,27 @@ export function FindJobsPage() {
     });
   }, []);
 
-  // Open a specific job directly from the URL (one-click from DashboardHome)
+  // Open a specific job directly from the URL (one-click from DashboardHome).
+  // If the worker already did this job, never reopen it — bounce back to the
+  // list so they can't submit twice.
   useEffect(() => {
-    if (!jobId) return;
+    if (!jobId || !profile) return;
     let active = true;
-    supabase.from('jobs').select('*').eq('id', jobId).maybeSingle().then(({ data, error }) => {
+    (async () => {
+      const { data: existing } = await supabase
+        .from('tasks')
+        .select('id')
+        .eq('job_id', jobId)
+        .eq('worker_id', profile.id)
+        .maybeSingle();
+      if (!active) return;
+      if (existing) { navigate('/dashboard/find-jobs', { replace: true }); return; }
+      const { data, error } = await supabase.from('jobs').select('*').eq('id', jobId).maybeSingle();
       if (active && data && !error) openJob(data as Job);
       else if (active) navigate('/dashboard/find-jobs', { replace: true });
-    });
+    })();
     return () => { active = false; };
-  }, [jobId, navigate]);
+  }, [jobId, profile, navigate]);
 
   useEffect(() => { loadJobs(); }, [loadJobs]);
 
@@ -265,10 +276,14 @@ export function FindJobsPage() {
         n_message: `A worker has submitted a task for "${selectedJob.title}". Review it in your admin panel.`,
         n_type: 'info',
       });
+      // Show the success message briefly, then redirect to the dashboard so
+      // the worker can't resubmit the same job. The job is also hidden from
+      // the find-jobs list on the next load (loadJobs filters doneJobIds).
       setTimeout(() => {
-        closeJobDetail();
         setSubmitSuccess(false);
-      }, 2000);
+        closeJobDetail();
+        navigate('/dashboard');
+      }, 1800);
     }
     setSubmitting(false);
   };
@@ -315,7 +330,7 @@ export function FindJobsPage() {
               <Star className="h-7 w-7 text-success-600 fill-success-600" />
             </div>
             <h3 className="font-heading text-lg font-bold text-gray-900">Your task is submitted</h3>
-            <p className="mt-1 text-sm text-gray-600">Your task has been submitted for review. You can no longer work on this job.</p>
+            <p className="mt-1 text-sm text-gray-600">Your task has been submitted for review. Redirecting to dashboard…</p>
           </div>
         ) : (
           <>

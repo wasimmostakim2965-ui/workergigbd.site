@@ -109,16 +109,17 @@ export function MyTasksPage() {
       p_action: action,
       p_note: action === 'reject' ? 'Task did not meet requirements.' : '',
     });
-    setProcessing(false);
-    if (error) { setActionError(error.message); return; }
-    // Refresh the selected submission + list.
-    if (selectedJob) loadSubmissions(selectedJob);
+    if (error) { setProcessing(false); setActionError(error.message); return; }
+    // Refresh the selected submission so its status/reward update immediately,
+    // then reload the submissions list (awaited so the badge stays in sync).
     const refreshed = await supabase
       .from('tasks')
       .select('*, jobs(*), profiles:worker_id(username, avatar_url)')
       .eq('id', selectedSub.id)
       .maybeSingle();
     if (refreshed.data) setSelectedSub(refreshed.data as Submission);
+    if (selectedJob) await loadSubmissions(selectedJob);
+    setProcessing(false);
   };
 
   const handleTip = async () => {
@@ -202,12 +203,13 @@ export function MyTasksPage() {
                 <div className="space-y-1.5">
                   {submissions.map((sub) => {
                     const { shots, plain } = parseProof(sub.proof_url);
-                    const preview = (sub.proof_text || plain || (shots.length ? `${shots.length} screenshot(s)` : '')).slice(0, 60);
+                    const preview = (sub.proof_text || plain || (shots.length ? `${shots.length} screenshot(s)` : '')).slice(0, 50);
+                    const reward = selectedJob.reward_per_worker ?? 0;
                     return (
                       <button
                         key={sub.id}
                         onClick={() => { setSelectedSub(sub); setActionError(''); setTipMsg(''); }}
-                        className="flex w-full items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-left transition-all hover:border-primary-200 hover:shadow-sm"
+                        className="flex w-full items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-left transition-all hover:border-primary-200 hover:shadow-sm"
                       >
                         <div className="flex min-w-0 items-center gap-2">
                           <Badge
@@ -220,7 +222,11 @@ export function MyTasksPage() {
                             {sub.profiles?.username || sub.worker_id.slice(0, 8)}
                           </span>
                         </div>
-                        <span className="truncate text-xs text-gray-500">{preview || 'No proof text'}</span>
+                        <div className="flex shrink-0 items-center gap-3">
+                          <span className="truncate text-xs text-gray-400">{preview || 'No proof'}</span>
+                          <span className="text-sm font-bold text-success-600">$ {reward.toFixed(3)}</span>
+                          {sub.tip_amount ? <span className="text-xs text-primary-600">+tip</span> : null}
+                        </div>
                       </button>
                     );
                   })}

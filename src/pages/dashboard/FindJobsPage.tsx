@@ -25,6 +25,27 @@ const sortOptions = [
   { value: 'best_paying', label: 'Best Paying' },
 ];
 
+// Parse the per-screenshot instructions stored as
+//   "Screenshot 1: ...\nScreenshot 2: ..."
+// into an array of `count` strings (index 0 = screenshot 1).
+// Falls back to showing the raw text on every slot when the job was
+// created with the old single-box format.
+function parseShotInstructions(raw: string, count: number): string[] {
+  const arr = new Array(Math.max(count, 0)).fill('');
+  if (!raw || !raw.trim()) return arr;
+  const lines = raw.split('\n');
+  let found = false;
+  for (const line of lines) {
+    const m = line.match(/^Screenshot\s+(\d+)\s*:\s*(.*)$/);
+    if (m) {
+      const idx = parseInt(m[1], 10) - 1;
+      if (idx >= 0 && idx < count) { arr[idx] = m[2].trim(); found = true; }
+    }
+  }
+  if (!found) return new Array(count).fill(raw.trim());
+  return arr;
+}
+
 export function FindJobsPage() {
   useSeo({
     title: 'কাজ খুঁজুন — WORKER GIG BD | অনলাইন মাইক্রো-টাস্ক ও ফ্রিল্যান্স কাজ',
@@ -103,7 +124,7 @@ export function FindJobsPage() {
     if (!jobId) return;
     let active = true;
     supabase.from('jobs').select('*').eq('id', jobId).maybeSingle().then(({ data, error }) => {
-      if (active && data && !error) setSelectedJob(data as Job);
+      if (active && data && !error) openJob(data as Job);
       else if (active) navigate('/dashboard/find-jobs', { replace: true });
     });
     return () => { active = false; };
@@ -121,44 +142,46 @@ export function FindJobsPage() {
     setSearchParams(next, { replace: true });
   };
 
-  const handleScreenshotUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleScreenshotUpload = async (e: React.ChangeEvent<HTMLInputElement>, slotIndex: number) => {
     if (!selectedJob || !profile) return;
-    const files = Array.from(e.target.files ?? []);
-    if (!files.length) return;
-    const remaining = selectedJob.screenshot_count - screenshots.length;
-    if (remaining <= 0) return;
+    const file = (e.target.files ?? [])[0];
+    e.target.value = '';
+    if (!file) return;
     // Validate before uploading: images only, max 5 MB each.
     const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    for (const f of files.slice(0, remaining)) {
-      if (f.size > 5 * 1024 * 1024) { setSubmitError('Each screenshot must be less than 5 MB.'); return; }
-      if (!allowed.includes(f.type)) { setSubmitError('Screenshots must be image files (JPG, PNG, WEBP, GIF).'); return; }
-    }
+    if (file.size > 5 * 1024 * 1024) { setSubmitError('Each screenshot must be less than 5 MB.'); return; }
+    if (!allowed.includes(file.type)) { setSubmitError('Screenshots must be image files (JPG, PNG, WEBP, GIF).'); return; }
     setUploadingShot(true);
     try {
-      // Anti-fraud: reject reused screenshots BEFORE storing them. Each file's
+      // Anti-fraud: reject reused screenshots BEFORE storing them. The file's
       // SHA-256 is checked against the global registry (Supabase Storage key
-      // collision); a 409 means this exact screenshot was already submitted by
-      // anyone. See src/lib/fraudGuard.ts.
-      const dupCheck = await checkProofScreenshots(files.slice(0, remaining));
+      // collision); a 409 means this exact screenshot was already submitted.
+      const dupCheck = await checkProofScreenshots([file]);
       if (dupCheck.duplicateIndex !== null) {
         setSubmitError('This screenshot has already been used as proof. Please take a fresh screenshot.');
         return;
       }
-
-      const uploaded: string[] = [];
-      for (const file of files.slice(0, remaining)) {
-        const ext = file.name.split('.').pop();
-        const fileName = `task-proofs/${profile.id}/${selectedJob.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-        const { error: upErr } = await supabase.storage.from('job-assets').upload(fileName, file, { contentType: file.type });
-        if (upErr) { setSubmitError('Screenshot upload failed: ' + upErr.message); break; }
-        const { data: urlData } = supabase.storage.from('job-assets').getPublicUrl(fileName);
-        uploaded.push(urlData.publicUrl);
-      }
-      setScreenshots((prev) => [...prev, ...uploaded]);
+      const ext = file.name.split('.').pop();
+      const fileName = `task-proofs/${profile.id}/${selectedJob.id}/${Date.now()}-${slotIndex}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: upErr } = await supabase.storage.from('job-assets').upload(fileName, file, { contentType: file.type });
+      if (upErr) { setSubmitError('Screenshot upload failed: ' + upErr.message); return; }
+      const { data: urlData } = supabase.storage.from('job-assets').getPublicUrl(fileName);
+      setScreenshots((prev) => {
+        const next = [...prev];
+        next[slotIndex] = urlData.publicUrl;
+        return next;
+      });
     } finally {
       setUploadingShot(false);
-      e.target.value = '';
     }
+  };
+
+  const removeScreenshot = (slotIndex: number) => {
+    setScreenshots((prev) => {
+      const next = [...prev];
+      next[slotIndex] = '';
+      return next;
+    });
   };
 
   const handleAcceptJob = async () => {
@@ -185,11 +208,15 @@ export function FindJobsPage() {
     }
 
     // Enforce the screenshot requirement declared by the job poster so the
-    // worker can't submit without the requested proof.
-    if ((selectedJob.screenshot_count ?? 0) > 0 && screenshots.length < selectedJob.screenshot_count) {
-      setSubmitError(`Please upload all ${selectedJob.screenshot_count} required screenshot(s). You have uploaded ${screenshots.length}.`);
-      setSubmitting(false);
-      return;
+    // worker can't submit without the requested proof. Each slot must be filled.
+    const shotCount = selectedJob.screenshot_count ?? 0;
+    if (shotCount > 0) {
+      const filled = screenshots.filter(Boolean);
+      if (filled.length < shotCount) {
+        setSubmitError(`Please upload all ${shotCount} required screenshot(s). You have uploaded ${filled.length}.`);
+        setSubmitting(false);
+        return;
+      }
     }
 
     // A worker may only ever complete a job ONCE (regardless of task status),
@@ -211,8 +238,9 @@ export function FindJobsPage() {
     // Store screenshot URLs in proof_url as a JSON array (reuses the existing
     // column — no schema change needed). Falls back to the typed proof URL
     // when no screenshots are required.
-    const proofUrlValue = screenshots.length
-      ? JSON.stringify(screenshots)
+    const filledShots = screenshots.filter(Boolean);
+    const proofUrlValue = filledShots.length
+      ? JSON.stringify(filledShots)
       : proofUrl;
 
     const { error } = await supabase.from('tasks').insert({
@@ -245,6 +273,15 @@ export function FindJobsPage() {
     setSubmitting(false);
   };
 
+  const openJob = (job: Job) => {
+    setSelectedJob(job);
+    setProofUrl('');
+    setProofText('');
+    setScreenshots(new Array(Math.max(job.screenshot_count ?? 0, 0)).fill(''));
+    setSubmitError('');
+    setSubmitSuccess(false);
+  };
+
   const closeJobDetail = () => {
     setSelectedJob(null);
     setProofUrl('');
@@ -260,7 +297,8 @@ export function FindJobsPage() {
     const totalReward = (selectedJob.reward_per_worker ?? 0)
       + (selectedJob.screenshot_count ?? 0) * 0.0001;
     const isFull = selectedJob.filled_slots >= selectedJob.total_slots;
-    const remaining = selectedJob.screenshot_count - screenshots.length;
+    const shotCount = selectedJob.screenshot_count ?? 0;
+    const shotInstructions = parseShotInstructions(selectedJob.screenshot_instructions ?? '', shotCount);
 
     return (
       <div className="space-y-4">
@@ -317,21 +355,18 @@ export function FindJobsPage() {
             )}
 
             {/* 2. Requirements / what workers must submit */}
-            {selectedJob.proof_instructions && (
+            {selectedJob.proof_instructions?.trim() && (
               <div className="rounded-lg bg-gray-50 p-4">
                 <div className="text-sm font-semibold text-gray-700">Requirements / Proof Instructions</div>
                 <p className="mt-1 whitespace-pre-line text-sm text-gray-600">{selectedJob.proof_instructions}</p>
               </div>
             )}
 
-            {(selectedJob.screenshot_count ?? 0) > 0 && (
+            {shotCount > 0 && (
               <div className="rounded-lg bg-primary-50/50 p-4">
                 <div className="text-sm font-semibold text-primary-700">
-                  📸 Screenshots required: {selectedJob.screenshot_count}
+                  📸 Screenshots required: {shotCount}
                 </div>
-                {selectedJob.screenshot_instructions && (
-                  <p className="mt-1 whitespace-pre-line text-sm text-gray-600">{selectedJob.screenshot_instructions}</p>
-                )}
               </div>
             )}
 
@@ -366,36 +401,48 @@ export function FindJobsPage() {
                 onChange={(e) => setProofUrl(e.target.value)}
               />
 
-              {/* Screenshot uploader (shown when the job requires screenshots) */}
-              {(selectedJob.screenshot_count ?? 0) > 0 && (
-                <div>
+              {/* Per-screenshot upload boxes (one slot per required screenshot) */}
+              {shotCount > 0 && (
+                <div className="space-y-3">
                   <label className="label-text">
-                    Upload {selectedJob.screenshot_count} screenshot(s){' '}
-                    <span className="text-gray-400">({screenshots.length}/{selectedJob.screenshot_count} uploaded)</span>
+                    Upload {shotCount} screenshot(s){' '}
+                    <span className="text-gray-400">({screenshots.filter(Boolean).length}/{shotCount} uploaded)</span>
                   </label>
-                  {screenshots.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {screenshots.map((url, i) => (
-                        <div key={i} className="relative">
-                          <img src={url} alt={`Screenshot ${i + 1}`} className="h-20 w-20 rounded-lg border border-gray-200 object-cover" />
-                          <button
-                            type="button"
-                            onClick={() => setScreenshots((prev) => prev.filter((_, idx) => idx !== i))}
-                            className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-error-500 text-white shadow"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
+                  {Array.from({ length: shotCount }).map((_, i) => {
+                    const url = screenshots[i];
+                    const instruction = shotInstructions[i];
+                    return (
+                      <div key={i} className="rounded-lg border border-gray-200 p-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-semibold text-gray-700">Screenshot {i + 1}</span>
+                          {instruction ? (
+                            <span className="text-xs text-gray-500">{instruction}</span>
+                          ) : null}
                         </div>
-                      ))}
-                    </div>
-                  )}
-                  {remaining > 0 && (
-                    <label className={`mt-2 flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 p-4 text-sm text-gray-500 transition-colors hover:border-primary-400 hover:bg-primary-50/30 ${uploadingShot ? 'opacity-60' : ''}`}>
-                      <Camera className="h-5 w-5" />
-                      <span>{uploadingShot ? 'Uploading...' : 'Click to upload screenshot(s)'}</span>
-                      <input type="file" accept="image/*" multiple className="hidden" onChange={handleScreenshotUpload} disabled={uploadingShot} />
-                    </label>
-                  )}
+                        {instruction && (
+                          <p className="mb-2 whitespace-pre-line text-xs text-gray-600">{instruction}</p>
+                        )}
+                        {url ? (
+                          <div className="relative inline-block">
+                            <img src={url} alt={`Screenshot ${i + 1}`} className="h-24 w-24 rounded-lg border border-gray-200 object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => removeScreenshot(i)}
+                              className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-error-500 text-white shadow"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <label className={`mt-1 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 p-3 text-sm text-gray-500 transition-colors hover:border-primary-400 hover:bg-primary-50/30 ${uploadingShot ? 'opacity-60' : ''}`}>
+                            <Camera className="h-4 w-4" />
+                            <span>{uploadingShot ? 'Uploading...' : 'Click to upload screenshot ' + (i + 1)}</span>
+                            <input type="file" accept="image/*" className="hidden" onChange={(e) => handleScreenshotUpload(e, i)} disabled={uploadingShot} />
+                          </label>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -491,7 +538,7 @@ export function FindJobsPage() {
             return (
               <button
                 key={job.id}
-                onClick={() => setSelectedJob(job)}
+                onClick={() => openJob(job)}
                 disabled={isFull}
                 className="block w-full text-left rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-primary-200 hover:shadow-md disabled:opacity-60"
               >

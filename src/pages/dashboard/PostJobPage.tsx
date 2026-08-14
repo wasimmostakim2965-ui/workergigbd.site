@@ -31,12 +31,26 @@ export function PostJobPage() {
     subcategory: '',
     url: '',
     screenshot_count: 0,
-    screenshot_instructions: '',
+    screenshot_instructions: ['', '', '', ''],
     image_url: '',
     reward_per_worker: '',
     total_slots: '1',
     is_premium_only: false,
   });
+
+  const setShotInstruction = (index: number, value: string) => {
+    setForm((prev) => {
+      const next = [...prev.screenshot_instructions];
+      next[index] = value;
+      return { ...prev, screenshot_instructions: next };
+    });
+  };
+
+  const serializeShotInstructions = (arr: string[]) =>
+    arr
+      .map((t, i) => (t && t.trim() ? `Screenshot ${i + 1}: ${t.trim()}` : ''))
+      .filter(Boolean)
+      .join('\n');
 
   useEffect(() => {
     supabase.from('categories').select('*').eq('is_active', true).order('display_order').then(({ data }) => {
@@ -128,7 +142,7 @@ export function PostJobPage() {
       p_total_slots: slots,
       p_is_premium_only: form.is_premium_only,
       p_screenshot_count: form.screenshot_count,
-      p_screenshot_instructions: form.screenshot_instructions,
+      p_screenshot_instructions: serializeShotInstructions(form.screenshot_instructions),
       p_image_url: form.image_url,
     });
 
@@ -143,7 +157,7 @@ export function PostJobPage() {
     setSuccess(true);
     setForm({
       title: '', description: '', requirements: '', category: '', subcategory: '', url: '',
-      screenshot_count: 0, screenshot_instructions: '', image_url: '',
+      screenshot_count: 0, screenshot_instructions: ['', '', '', ''], image_url: '',
       reward_per_worker: '', total_slots: '1', is_premium_only: false,
     });
     setLoading(false);
@@ -260,15 +274,21 @@ export function PostJobPage() {
             <p className="mt-1.5 text-xs text-gray-500">Max 4 screenshots. $0.0001 fee per screenshot per worker.</p>
           </div>
 
-          {/* 7. Screenshot instructions (optional) */}
+          {/* 7. Per-screenshot instructions (one box per required screenshot) */}
           {form.screenshot_count > 0 && (
-            <Textarea
-              label="Screenshot Instructions (optional)"
-              placeholder="Describe what each screenshot should show..."
-              rows={2}
-              value={form.screenshot_instructions}
-              onChange={(e) => setForm({ ...form, screenshot_instructions: e.target.value })}
-            />
+            <div className="space-y-2.5">
+              {Array.from({ length: form.screenshot_count }).map((_, i) => (
+                <Textarea
+                  key={i}
+                  label={`Screenshot ${i + 1} — what should it show?`}
+                  placeholder={`e.g., Screenshot of the liked Facebook page`}
+                  rows={1}
+                  className="py-1.5"
+                  value={form.screenshot_instructions[i] ?? ''}
+                  onChange={(e) => setShotInstruction(i, e.target.value)}
+                />
+              ))}
+            </div>
           )}
 
           {/* 8. Image upload (optional) */}

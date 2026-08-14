@@ -3,7 +3,7 @@ import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-do
 import {
   LayoutDashboard, Users, Wallet, ArrowUpFromLine, ArrowDownToLine,
   Briefcase, Settings, Ticket, FolderTree, LogOut, Menu, X,
-  ShieldCheck, ChevronDown, Bell, Search, MessageSquare, BadgeCheck,
+  ShieldCheck, ChevronDown, Bell, Search, MessageSquare, BadgeCheck, Flag,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Logo } from '@/components/Logo';
@@ -18,6 +18,7 @@ const adminNav = [
   { to: '/admin/live-chat', icon: MessageSquare, label: 'Live Chat' },
   { to: '/admin/jobs', icon: Briefcase, label: 'Jobs' },
   { to: '/admin/tasks', icon: Briefcase, label: 'Task Review' },
+  { to: '/admin/reports', icon: Flag, label: 'Reports' },
   { to: '/admin/tickets', icon: Ticket, label: 'Tickets' },
   { to: '/admin/categories', icon: FolderTree, label: 'Categories' },
   { to: '/admin/settings', icon: Settings, label: 'Settings' },

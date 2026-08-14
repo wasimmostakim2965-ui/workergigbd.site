@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { checkProofScreenshots } from '@/lib/fraudGuard';
 import { Button } from '@/components/ui/Button';
+import { ReportButton } from '@/components/ui/ReportButton';
 import { Input, Select, Textarea } from '@/components/ui/Input';
 import { EmptyState, LoadingSpinner } from '@/components/ui/EmptyState';
 import { Alert } from '@/components/ui/Alert';
@@ -351,9 +352,12 @@ export function FindJobsPage() {
               <span className="text-base">{flagEmojis[selectedJob.category] ?? '🌍'}</span>
             </div>
 
-            <h2 className="font-heading text-xl font-bold uppercase text-gray-900">
-              {selectedJob.title}
-            </h2>
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="font-heading text-xl font-bold uppercase text-gray-900">
+                {selectedJob.title}
+              </h2>
+              <ReportButton jobId={selectedJob.id} label="Report job" />
+            </div>
 
             {/* 1. Description */}
             <p className="text-sm text-gray-600">{selectedJob.description}</p>

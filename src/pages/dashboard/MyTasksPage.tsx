@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/Input';
 import { EmptyState, LoadingSpinner } from '@/components/ui/EmptyState';
 import { Tabs } from '@/components/ui/Tabs';
 import { Lightbox } from '@/components/ui/Lightbox';
+import { ReportButton } from '@/components/ui/ReportButton';
 import { Task, Job, Profile } from '@/types';
 
 type Submission = Task & { jobs?: Job; profiles?: Pick<Profile, 'username' | 'avatar_url'> };
@@ -318,6 +319,9 @@ export function MyTasksPage() {
                       {task.proof_text && <p className="mt-1 text-xs text-gray-500">{task.proof_text}</p>}
                     </div>
                   )}
+                  <div className="mt-3 flex justify-end">
+                    <ReportButton taskId={task.id} jobId={task.job_id} label="Report this task" />
+                  </div>
                 </Card>
               ))}
             </div>

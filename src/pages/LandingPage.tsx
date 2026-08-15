@@ -1,25 +1,12 @@
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import {
   ArrowRight, CheckCircle, Users, TrendingUp, Wallet, Shield,
-  Facebook, Youtube, Instagram, Twitter, Smartphone, PenTool,
-  MousePointerClick, ClipboardList, Mail, MessageSquare, Linkedin,
-  Hash, UserPlus, Zap, BarChart3, Lock, Globe, Music2,
+  Zap, BarChart3, Lock,
 } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { useSeo } from '@/lib/useSeo';
-
-const categoryIcons: Record<string, typeof Facebook> = {
-  Facebook, Twitter, Instagram, 'YouTube/Toffe': Youtube, TikTok: Music2,
-  'Sign Up': UserPlus, 'Ads Click': MousePointerClick, Survey: ClipboardList,
-  'Gmail Account': Mail, 'Mobile Application': Smartphone, 'Write an Article': PenTool,
-  Comment: MessageSquare, LinkedIn: Linkedin, Reddit: Hash,
-};
-
-const categories = [
-  'Facebook', 'Twitter', 'Instagram', 'YouTube/Toffe', 'TikTok',
-  'Sign Up', 'Ads Click', 'Survey', 'Gmail Account', 'Mobile Application',
-  'Write an Article', 'Comment', 'LinkedIn', 'Reddit',
-];
+import { supabase } from '@/lib/supabase';
 
 const features = [
   { icon: Wallet, title: 'Easy Deposits & Withdrawals', desc: 'bKash, Nagad, Rocket — deposit and withdraw your earnings instantly with low fees.' },
@@ -37,6 +24,11 @@ const steps = [
 ];
 
 export function LandingPage() {
+  const [categories, setCategories] = useState<string[]>([]);
+  useEffect(() => {
+    supabase.from('categories').select('name').eq('is_active', true).order('display_order')
+      .then(({ data }) => setCategories((data ?? []).map((c: { name: string }) => c.name)));
+  }, []);
   useSeo({
     title: 'WORKER GIG BD: Best Micro Job Site for Earning',
     description: 'WORKER GIG BD (workergigbd.site) বাংলাদেশের শীর্ষ মাইক্রো-টাস্ক ও ফ্রিল্যান্স প্ল্যাটফর্ম। সহজ অনলাইন টাস্ক সম্পন্ন করে ঘরে বসে আয় করুন। সাইন আপ করুন, কাজ করুন, বিকাশ/নগদে টাকা তুলুন। $1 = 100 BDT.',
@@ -143,27 +135,24 @@ export function LandingPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="font-heading text-3xl font-bold text-gray-900 sm:text-4xl">
-              45+ Task Categories
+              {categories.length}+ Task Categories
             </h2>
             <p className="mt-3 text-lg text-gray-600">
               Pick from a wide range of micro-tasks across every major platform
             </p>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
-            {categories.map((cat) => {
-              const Icon = categoryIcons[cat] || CheckCircle;
-              return (
-                <div
-                  key={cat}
-                  className="group flex flex-col items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-primary-300 hover:shadow-md hover:-translate-y-0.5"
-                >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-50 text-primary-600 transition-colors group-hover:bg-primary-600 group-hover:text-white">
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <span className="text-center text-xs font-medium text-gray-700">{cat}</span>
+            {categories.map((cat) => (
+              <div
+                key={cat}
+                className="group flex flex-col items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-primary-300 hover:shadow-md hover:-translate-y-0.5"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-50 text-primary-600 transition-colors group-hover:bg-primary-600 group-hover:text-white">
+                  <CheckCircle className="h-6 w-6" />
                 </div>
-              );
-            })}
+                <span className="text-center text-xs font-medium text-gray-700">{cat}</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>

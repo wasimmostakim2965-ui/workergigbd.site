@@ -23,7 +23,6 @@ const COLORS = {
 
 const navItems = [
   { to: '/dashboard', icon: Home, label: 'Dashboard', end: true },
-  { to: '/dashboard/find-jobs', icon: Search, label: 'Find Jobs' },
   { to: '/dashboard/post-job', icon: PlusCircle, label: 'Post New Job' },
   { to: '/dashboard/my-tasks', icon: Briefcase, label: 'My Tasks' },
   { to: '/dashboard/my-jobs', icon: Briefcase, label: 'My Jobs' },
@@ -220,25 +219,10 @@ export function DashboardLayout() {
 
           {/* SECTION D: FILTER & SORT SECTION */}
           <div className="px-4 pt-4 pb-2" style={{ backgroundColor: COLORS.bodyBg }}>
-            {/* Filter Buttons Row */}
-            <div className="flex gap-3">
-              <Link to="/dashboard/find-jobs" className="flex-1">
-                <button className="w-full rounded-lg py-3 text-sm font-bold text-white" style={{ backgroundColor: COLORS.filterBlue }}>
-                  <Filter className="inline-block h-4 w-4 mr-1.5" />
-                  Select Category
-                </button>
-              </Link>
-              <Link to="/dashboard/find-jobs" className="flex-1">
-                <button className="w-full rounded-lg py-3 text-sm font-bold text-white" style={{ backgroundColor: COLORS.filterBlue }}>
-                  <MapPin className="inline-block h-4 w-4 mr-1.5" />
-                  Select Location
-                </button>
-              </Link>
-            </div>
-            {/* Sort Row */}
-            <Link to="/dashboard/find-jobs" className="mt-3 flex justify-end items-center block">
-              <button className="text-sm font-extrabold" style={{ color: COLORS.primaryGreen }}>
-                Sort ▼
+            <Link to="/dashboard" className="block">
+              <button className="w-full rounded-lg py-3 text-sm font-bold text-white" style={{ backgroundColor: COLORS.filterBlue }}>
+                <Filter className="inline-block h-4 w-4 mr-1.5" />
+                Browse Available Jobs
               </button>
             </Link>
           </div>
@@ -325,7 +309,7 @@ export function DashboardLayout() {
           >
             {[
               { to: '/dashboard', icon: Home, label: 'Home' },
-              { to: '/dashboard/find-jobs', icon: Search, label: 'Jobs' },
+              { to: '/dashboard', icon: Search, label: 'Jobs' },
               { to: '/dashboard/post-job', icon: PlusCircle, label: 'Post' },
               { to: '/dashboard/my-tasks', icon: Briefcase, label: 'Tasks' },
               { to: '/dashboard/profile', icon: User, label: 'Profile' },

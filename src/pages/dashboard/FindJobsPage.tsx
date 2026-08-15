@@ -57,7 +57,6 @@ export function FindJobsPage() {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [sortBy, setSortBy] = useState('latest');
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [proofUrl, setProofUrl] = useState('');
   const [proofText, setProofText] = useState('');
   const [screenshots, setScreenshots] = useState<string[]>([]);
   const [uploadingShot, setUploadingShot] = useState(false);
@@ -241,12 +240,11 @@ export function FindJobsPage() {
     }
 
     // Store screenshot URLs in proof_url as a JSON array (reuses the existing
-    // column — no schema change needed). Falls back to the typed proof URL
-    // when no screenshots are required.
+    // column — no schema change needed).
     const filledShots = screenshots.filter(Boolean);
     const proofUrlValue = filledShots.length
       ? JSON.stringify(filledShots)
-      : proofUrl;
+      : null;
 
     const { error } = await supabase.from('tasks').insert({
       job_id: selectedJob.id,
@@ -284,7 +282,6 @@ export function FindJobsPage() {
 
   const openJob = (job: Job) => {
     setSelectedJob(job);
-    setProofUrl('');
     setProofText('');
     setScreenshots(new Array(Math.max(job.screenshot_count ?? 0, 0)).fill(''));
     setSubmitError('');
@@ -293,7 +290,6 @@ export function FindJobsPage() {
 
   const closeJobDetail = () => {
     setSelectedJob(null);
-    setProofUrl('');
     setProofText('');
     setScreenshots([]);
     setSubmitError('');
@@ -397,12 +393,6 @@ export function FindJobsPage() {
                 rows={3}
                 value={proofText}
                 onChange={(e) => setProofText(e.target.value)}
-              />
-              <Input
-                label="Proof URL (if applicable)"
-                placeholder="https://..."
-                value={proofUrl}
-                onChange={(e) => setProofUrl(e.target.value)}
               />
 
               {/* 5. Screenshot upload (required screenshots) */}

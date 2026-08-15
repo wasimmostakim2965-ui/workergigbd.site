@@ -10,7 +10,6 @@ import { PrivacyPolicyPage } from '@/pages/PrivacyPolicyPage';
 import { TermsOfServicePage } from '@/pages/TermsOfServicePage';
 import { DashboardLayout } from '@/pages/dashboard/DashboardLayout';
 import { DashboardHome } from '@/pages/dashboard/DashboardHome';
-import { FindJobsPage } from '@/pages/dashboard/FindJobsPage';
 import { PostJobPage } from '@/pages/dashboard/PostJobPage';
 import { MyTasksPage } from '@/pages/dashboard/MyTasksPage';
 import { MyJobsPage } from '@/pages/dashboard/MyJobsPage';
@@ -126,8 +125,8 @@ function AppRoutes() {
 
       <Route path="/dashboard" element={<ProtectedRoute><AccountStatusGate><DashboardLayout /></AccountStatusGate></ProtectedRoute>}>
         <Route index element={<DashboardHome />} />
-        <Route path="find-jobs" element={<FindJobsPage />} />
-        <Route path="find-jobs/:jobId" element={<FindJobsPage />} />
+        <Route path="find-jobs" element={<Navigate to="/dashboard" replace />} />
+        <Route path="find-jobs/:jobId" element={<Navigate to="/dashboard" replace />} />
         <Route path="post-job" element={<PostJobPage />} />
         <Route path="my-tasks" element={<MyTasksPage />} />
         <Route path="my-jobs" element={<MyJobsPage />} />

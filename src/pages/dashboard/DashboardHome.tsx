@@ -48,7 +48,6 @@ export function DashboardHome() {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [sortBy, setSortBy] = useState('latest');
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [proofUrl, setProofUrl] = useState('');
   const [proofText, setProofText] = useState('');
   const [screenshots, setScreenshots] = useState<string[]>([]);
   const [uploadingShot, setUploadingShot] = useState(false);
@@ -105,7 +104,6 @@ export function DashboardHome() {
 
   const openJob = (job: Job) => {
     setSelectedJob(job);
-    setProofUrl('');
     setProofText('');
     setScreenshots(new Array(Math.max(job.screenshot_count ?? 0, 0)).fill(''));
     setSubmitError('');
@@ -114,7 +112,6 @@ export function DashboardHome() {
 
   const closeJobDetail = () => {
     setSelectedJob(null);
-    setProofUrl('');
     setProofText('');
     setScreenshots([]);
     setSubmitError('');
@@ -185,7 +182,7 @@ export function DashboardHome() {
     }
 
     const filledShots = screenshots.filter(Boolean);
-    const proofUrlValue = filledShots.length ? JSON.stringify(filledShots) : proofUrl;
+    const proofUrlValue = filledShots.length ? JSON.stringify(filledShots) : null;
 
     const { error } = await supabase.from('tasks').insert({
       job_id: selectedJob.id,
@@ -284,7 +281,6 @@ export function DashboardHome() {
             <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-4">
               <div className="text-sm font-semibold text-gray-700">Submit Your Proof</div>
               <Textarea label="Proof Details" placeholder="Describe or paste your proof..." rows={3} value={proofText} onChange={(e) => setProofText(e.target.value)} />
-              <Input label="Proof URL (if applicable)" placeholder="https://..." value={proofUrl} onChange={(e) => setProofUrl(e.target.value)} />
 
               {/* 5. Screenshot upload (required screenshots) */}
               {shotCount > 0 && (

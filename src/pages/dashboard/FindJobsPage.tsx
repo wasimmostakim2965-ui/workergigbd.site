@@ -328,6 +328,7 @@ export function FindJobsPage() {
           </div>
         ) : (
           <>
+            {/* 1. Title (top) with category badges */}
             <div className="flex items-center gap-2 flex-wrap">
               <span className="rounded-lg bg-primary-50 px-2.5 py-1 text-xs font-semibold text-primary-700">
                 {selectedJob.category}
@@ -342,6 +343,9 @@ export function FindJobsPage() {
                   Premium Only
                 </span>
               )}
+              <span className="ml-auto text-sm font-semibold text-success-600">
+                $ {totalReward.toFixed(3)} · {selectedJob.total_slots - selectedJob.filled_slots} slots left
+              </span>
             </div>
 
             <div className="flex items-center justify-between gap-2">
@@ -351,7 +355,7 @@ export function FindJobsPage() {
               <ReportButton jobId={selectedJob.id} label="Report job" />
             </div>
 
-            {/* 1. Description */}
+            {/* 2. Description */}
             <p className="text-sm text-gray-600">{selectedJob.description}</p>
 
             {selectedJob.url && (
@@ -365,10 +369,10 @@ export function FindJobsPage() {
               </a>
             )}
 
-            {/* 2. Requirements / what workers must submit */}
+            {/* 3. Requirements / what workers must submit */}
             {selectedJob.proof_instructions?.trim() && (
               <div className="rounded-lg bg-gray-50 p-4">
-                <div className="text-sm font-semibold text-gray-700">Requirements / Proof Instructions</div>
+                <div className="text-sm font-semibold text-gray-700">Requirements</div>
                 <p className="mt-1 whitespace-pre-line text-sm text-gray-600">{selectedJob.proof_instructions}</p>
               </div>
             )}
@@ -376,25 +380,14 @@ export function FindJobsPage() {
             {shotCount > 0 && (
               <div className="rounded-lg bg-primary-50/50 p-4">
                 <div className="text-sm font-semibold text-primary-700">
-                  📸 Screenshots required: {shotCount}
+                  Screenshots required: {shotCount}
                 </div>
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-lg border border-gray-200 p-3">
-                <div className="text-xs text-gray-500">Reward</div>
-                <div className="text-lg font-bold text-success-600">$ {totalReward.toFixed(3)}</div>
-              </div>
-              <div className="rounded-lg border border-gray-200 p-3">
-                <div className="text-xs text-gray-500">Available Slots</div>
-                <div className="text-lg font-bold text-gray-900">{selectedJob.total_slots - selectedJob.filled_slots}</div>
-              </div>
-            </div>
-
             {submitError && <Alert variant="error">{submitError}</Alert>}
 
-            {/* Proof submission: text proof → screenshot upload (the order workers fill in) */}
+            {/* 4. Proof submission box (where workers write their answer) */}
             <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-4">
               <div className="text-sm font-semibold text-gray-700">Submit Your Proof</div>
 
@@ -412,7 +405,7 @@ export function FindJobsPage() {
                 onChange={(e) => setProofUrl(e.target.value)}
               />
 
-              {/* Per-screenshot upload boxes (one slot per required screenshot) */}
+              {/* 5. Screenshot upload (required screenshots) */}
               {shotCount > 0 && (
                 <div className="space-y-3">
                   <label className="label-text">
@@ -458,7 +451,7 @@ export function FindJobsPage() {
               )}
             </div>
 
-            {/* Job image (the image the poster attached) — shown last as reference */}
+            {/* 6. Job image (optional, at the bottom) */}
             {selectedJob.image_url && (
               <div>
                 <div className="text-xs font-semibold text-gray-500 mb-1">Job Image</div>

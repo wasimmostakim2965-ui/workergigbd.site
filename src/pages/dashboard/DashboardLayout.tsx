@@ -44,6 +44,7 @@ export function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [settings, setSettings] = useState<AdminSetting[]>([]);
+  const [adBanner, setAdBanner] = useState<{ title: string; image_url: string; link_url: string } | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -66,15 +67,25 @@ export function DashboardLayout() {
     supabase.from('admin_settings').select('*').then(({ data }) => {
       setSettings((data as AdminSetting[]) ?? []);
     });
+    supabase.from('ad_banners')
+      .select('title,image_url,link_url')
+      .eq('is_active', true)
+      .eq('position', 'job_list_top')
+      .order('display_order', { ascending: true })
+      .limit(1)
+      .then(({ data }) => {
+        if (data && data.length > 0) setAdBanner(data[0] as any);
+      });
   }, []);
 
   const marqueeActive = settings.find(s => s.key === 'marquee_active')?.value === 'true';
   const marqueeMessage = settings.find(s => s.key === 'marquee_message')?.value || '';
   const marqueeColor = settings.find(s => s.key === 'marquee_color')?.value || 'primary';
   const bannerActive = settings.find(s => s.key === 'banner_active')?.value === 'true';
-  const bannerTitle = settings.find(s => s.key === 'banner_title')?.value || '';
-  const bannerUrl = settings.find(s => s.key === 'banner_url')?.value || '';
-  const bannerImage = settings.find(s => s.key === 'banner_image')?.value || '';
+  const bannerTitle = adBanner?.title || settings.find(s => s.key === 'banner_title')?.value || '';
+  const bannerUrl = adBanner?.link_url || settings.find(s => s.key === 'banner_url')?.value || '';
+  const bannerImage = adBanner?.image_url || settings.find(s => s.key === 'banner_image')?.value || '';
+  const showBanner = adBanner !== null || bannerActive;
 
   const handleSignOut = async () => {
     await signOut();
@@ -215,7 +226,7 @@ export function DashboardLayout() {
           </div>
 
           {/* SECTION C: PAID AD BANNER */}
-          {bannerActive && bannerTitle && (
+          {showBanner && bannerTitle && (
             <div className="mx-4 mb-4 rounded-xl bg-white p-3 shadow-sm">
               <div className="text-center text-sm font-medium" style={{ color: '#666' }}>
                 Paid

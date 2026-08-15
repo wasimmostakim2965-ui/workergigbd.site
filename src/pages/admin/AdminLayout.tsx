@@ -3,7 +3,7 @@ import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-do
 import {
   LayoutDashboard, Users, Wallet, ArrowUpFromLine, ArrowDownToLine,
   Briefcase, Settings, Ticket, FolderTree, LogOut, Menu, X,
-  ShieldCheck, ChevronDown, Bell, Search, MessageSquare, BadgeCheck, Flag,
+  ShieldCheck, ChevronDown, Bell, Search, MessageSquare, BadgeCheck, Flag, Megaphone,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Logo } from '@/components/Logo';
@@ -21,6 +21,7 @@ const adminNav = [
   { to: '/admin/reports', icon: Flag, label: 'Reports' },
   { to: '/admin/tickets', icon: Ticket, label: 'Tickets' },
   { to: '/admin/categories', icon: FolderTree, label: 'Categories' },
+  { to: '/admin/ads', icon: Megaphone, label: 'Ad Link' },
   { to: '/admin/settings', icon: Settings, label: 'Settings' },
 ];
 

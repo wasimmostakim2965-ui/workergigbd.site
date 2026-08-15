@@ -65,6 +65,7 @@ export function AdminSettingsPage() {
   const bannerSettings = settings.filter(s => s.category === 'banner');
   const marqueeSettings = settings.filter(s => s.category === 'marquee');
   const paymentSettings = settings.filter(s => s.category === 'payment');
+  const paymentToggleSettings = settings.filter(s => s.category === 'payment_toggle');
 
   return (
     <div className="space-y-6">
@@ -166,6 +167,41 @@ export function AdminSettingsPage() {
         <div className="divide-y divide-gray-50">
           {generalSettings.map((setting) => (
             <LimitRow key={setting.id} setting={setting} onSave={updateSetting} savedKey={savedKey} />
+          ))}
+        </div>
+      </Card>
+
+      {/* Payment Method Toggles */}
+      <Card>
+        <div className="border-b border-gray-100 px-5 py-4">
+          <h3 className="font-heading font-bold text-gray-900 flex items-center gap-2">
+            <Smartphone className="h-5 w-5 text-pink-600" /> Payment Method Enable/Disable
+          </h3>
+          <p className="mt-1 text-xs text-gray-500">Toggle which payment methods users can select for deposits & withdrawals</p>
+        </div>
+        <div className="divide-y divide-gray-50">
+          {paymentToggleSettings.map((setting) => (
+            <div key={setting.id} className="flex items-center justify-between p-4">
+              <div className="flex-1">
+                <div className="text-sm font-semibold text-gray-900">{setting.description}</div>
+                <div className="text-xs text-gray-500 font-mono">{setting.key}</div>
+              </div>
+              <div className="flex items-center gap-3">
+                {savedKey === setting.key && <Badge variant="success" size="sm">Saved!</Badge>}
+                <button
+                  onClick={() => toggleBoolean(setting)}
+                  disabled={saving}
+                  className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${
+                    setting.value === 'true'
+                      ? 'bg-success-50 text-success-700'
+                      : 'bg-gray-100 text-gray-500'
+                  }`}
+                >
+                  {setting.value === 'true' ? <ToggleRight className="h-5 w-5" /> : <ToggleLeft className="h-5 w-5" />}
+                  {setting.value === 'true' ? 'Enabled' : 'Disabled'}
+                </button>
+              </div>
+            </div>
           ))}
         </div>
       </Card>

@@ -159,6 +159,18 @@ export interface AdminSetting {
   updated_at: string;
 }
 
+export interface AdBanner {
+  id: string;
+  title: string;
+  image_url: string;
+  link_url: string;
+  position: string;
+  is_active: boolean;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Referral {
   id: string;
   referrer_id: string;

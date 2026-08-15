@@ -38,6 +38,7 @@ import { AdminCategoriesPage } from '@/pages/admin/AdminCategoriesPage';
 import { AdminSettingsPage } from '@/pages/admin/AdminSettingsPage';
 import { AdminLiveChatPage } from '@/pages/admin/AdminLiveChatPage';
 import { AdminVerificationsPage } from '@/pages/admin/AdminVerificationsPage';
+import { AdminAdsPage } from '@/pages/admin/AdminAdsPage';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -155,6 +156,7 @@ function AppRoutes() {
         <Route path="live-chat" element={<AdminLiveChatPage />} />
         <Route path="verifications" element={<AdminVerificationsPage />} />
         <Route path="categories" element={<AdminCategoriesPage />} />
+        <Route path="ads" element={<AdminAdsPage />} />
         <Route path="settings" element={<AdminSettingsPage />} />
       </Route>
 

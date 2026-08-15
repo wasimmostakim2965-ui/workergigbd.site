@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Wallet, Smartphone, Send, CheckCircle } from 'lucide-react';
+import { Wallet, Send, CheckCircle, Lock } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { Card } from '@/components/ui/Card';
@@ -9,6 +9,7 @@ import { Input, Select } from '@/components/ui/Input';
 import { Alert } from '@/components/ui/Alert';
 import { EmptyState, LoadingSpinner } from '@/components/ui/EmptyState';
 import { DepositRequest, AdminSetting } from '@/types';
+import { PaymentLogo } from '@/components/PaymentLogo';
 import { useSeo } from '@/lib/useSeo';
 
 export function DepositPage() {
@@ -34,11 +35,14 @@ export function DepositPage() {
   const bkashNumber = settings.find(s => s.key === 'payment_bkash')?.value || '';
   const nagadNumber = settings.find(s => s.key === 'payment_nagad')?.value || '';
   const rocketNumber = settings.find(s => s.key === 'payment_rocket')?.value || '';
+  const bkashEnabled = settings.find(s => s.key === 'payment_bkash_enabled')?.value !== 'false';
+  const nagadEnabled = settings.find(s => s.key === 'payment_nagad_enabled')?.value === 'true';
+  const rocketEnabled = settings.find(s => s.key === 'payment_rocket_enabled')?.value === 'true';
 
   const paymentMethods = [
-    { id: 'bkash', name: 'bKash', number: bkashNumber, color: 'bg-pink-500' },
-    { id: 'nagad', name: 'Nagad', number: nagadNumber, color: 'bg-orange-500' },
-    { id: 'rocket', name: 'Rocket', number: rocketNumber, color: 'bg-purple-500' },
+    { id: 'bkash', name: 'bKash', number: bkashNumber, enabled: bkashEnabled },
+    { id: 'nagad', name: 'Nagad', number: nagadNumber, enabled: nagadEnabled },
+    { id: 'rocket', name: 'Rocket', number: rocketNumber, enabled: rocketEnabled },
   ];
 
   useEffect(() => {
@@ -143,14 +147,22 @@ export function DepositPage() {
             {paymentMethods.map((pm) => (
               <button
                 key={pm.id}
-                onClick={() => setMethod(pm.id)}
-                className={`flex flex-col items-center gap-2 rounded-xl border-2 p-3 transition-all ${
-                  method === pm.id ? 'border-primary-500 bg-primary-50' : 'border-gray-200 hover:border-gray-300'
+                onClick={() => pm.enabled && setMethod(pm.id)}
+                disabled={!pm.enabled}
+                className={`relative flex flex-col items-center gap-2 rounded-xl border-2 p-3 transition-all ${
+                  !pm.enabled
+                    ? 'border-gray-100 opacity-40 cursor-not-allowed'
+                    : method === pm.id
+                    ? 'border-primary-500 bg-primary-50'
+                    : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
-                <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${pm.color} text-white`}>
-                  <Smartphone className="h-5 w-5" />
-                </div>
+                {!pm.enabled && (
+                  <div className="absolute top-1 right-1 text-gray-300">
+                    <Lock className="h-3.5 w-3.5" />
+                  </div>
+                )}
+                <PaymentLogo method={pm.id as 'bkash' | 'nagad' | 'rocket'} />
                 <span className="text-xs font-semibold text-gray-700">{pm.name}</span>
               </button>
             ))}

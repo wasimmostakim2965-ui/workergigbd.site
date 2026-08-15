@@ -12,13 +12,6 @@ import { Alert } from '@/components/ui/Alert';
 import { Job, Category } from '@/types';
 import { useSeo } from '@/lib/useSeo';
 
-const flagEmojis: Record<string, string> = {
-  Facebook: '📘', Twitter: '🐦', Instagram: '📸', 'YouTube/Toffe': '📺',
-  TikTok: '🎵', 'Sign Up': '✍️', 'Ads Click': '🖱️', Survey: '📋',
-  'Gmail Account': '📧', 'Mobile Application': '📱', 'Write an Article': '📝',
-  Comment: '💬', LinkedIn: '💼', Reddit: '🔴',
-};
-
 const sortOptions = [
   { value: 'latest', label: 'Latest' },
   { value: 'high_price', label: 'High Price' },
@@ -349,11 +342,10 @@ export function FindJobsPage() {
                   Premium Only
                 </span>
               )}
-              <span className="text-base">{flagEmojis[selectedJob.category] ?? '🌍'}</span>
             </div>
 
             <div className="flex items-center justify-between gap-2">
-              <h2 className="font-heading text-xl font-bold uppercase text-gray-900">
+              <h2 className="font-heading text-xl font-medium text-gray-900">
                 {selectedJob.title}
               </h2>
               <ReportButton jobId={selectedJob.id} label="Report job" />
@@ -563,10 +555,9 @@ export function FindJobsPage() {
                 {/* Top row */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 flex-wrap min-w-0">
-                    <h3 className="text-base font-bold uppercase text-gray-900 line-clamp-1">
+                    <h3 className="text-base font-medium text-gray-900 line-clamp-1">
                       {job.title}
                     </h3>
-                    <span className="text-base">{flagEmojis[job.category] ?? '🌍'}</span>
                     {totalReward >= 0.1 && (
                       <span className="rounded bg-success-100 px-2 py-0.5 text-[11px] font-extrabold uppercase text-success-700">
                         TOP JOB

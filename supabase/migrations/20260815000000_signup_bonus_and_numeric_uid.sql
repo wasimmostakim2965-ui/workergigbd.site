@@ -31,7 +31,7 @@ SET search_path = public
 AS $$
 DECLARE
   v_existing  integer;
-  v_bonus     numeric(12,3) := 10;   -- ৳10 sign-up bonus for the first 100 users
+  v_bonus     numeric(12,3) := 0.10;   -- $0.10 sign-up bonus (৳10) for the first 100 users
   v_referred  text;
   v_code      text;
   v_digits    text;
@@ -72,7 +72,7 @@ BEGIN
 
   -- Early-bird welcome bonus for the first 100 users only. Counting existing
   -- profiles here (BEFORE this row would be counted) gives the registrant's
-  -- position; if they are among the first 100, credit the ৳10 bonus.
+  -- position; if they are among the first 100, credit the $0.10 bonus.
   SELECT count(*) INTO v_existing FROM public.profiles WHERE id <> NEW.id;
   IF v_existing < 100 THEN
     UPDATE public.profiles
@@ -82,7 +82,7 @@ BEGIN
       WHERE id = NEW.id;
     INSERT INTO public.transactions (user_id, type, amount, balance_type, description, reference_id)
       VALUES (NEW.id, 'deposit', v_bonus, 'deposit',
-              'Welcome bonus — early bird (৳10)', NEW.id);
+              'Welcome bonus — early bird ($0.10)', NEW.id);
   END IF;
 
   RETURN NEW;

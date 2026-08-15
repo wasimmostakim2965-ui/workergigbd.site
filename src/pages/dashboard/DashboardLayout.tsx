@@ -44,6 +44,23 @@ export function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [settings, setSettings] = useState<AdminSetting[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (!profile) return;
+    const fetchUnread = () => {
+      supabase.from('notifications')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', profile.id)
+        .eq('is_read', false)
+        .then(({ count }) => setUnreadCount(count ?? 0));
+    };
+    fetchUnread();
+    const channel = supabase.channel('notifications-unread')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${profile.id}` }, fetchUnread)
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [profile]);
 
   useEffect(() => {
     supabase.from('admin_settings').select('*').then(({ data }) => {
@@ -141,7 +158,11 @@ export function DashboardLayout() {
               {/* Center-Left: Notification Bell */}
               <Link to="/dashboard/notifications" className="relative p-2">
                 <Bell className="h-5.5 w-5.5 text-white" />
-                <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500"></span>
+                {unreadCount > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
               </Link>
 
               {/* Center: User ID */}

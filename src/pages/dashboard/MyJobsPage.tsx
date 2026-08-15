@@ -42,16 +42,14 @@ export function MyJobsPage() {
       setError('Completed or rejected jobs cannot be reactivated.');
       return;
     }
-    const newStatus = job.status === 'active' ? 'paused' : 'active';
-    const { error: e } = await supabase.from('jobs').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', job.id);
+    const rpcName = job.status === 'active' ? 'hold_job' : 'resume_job';
+    const { error: e } = await supabase.rpc(rpcName, { p_job_id: job.id });
     if (e) setError(e.message);
     loadJobs();
   };
 
   const deleteJob = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this job? Unused prepaid budget will be refunded.')) return;
-    // Use the delete_job RPC so the prepaid budget is refunded and affected
-    // workers are notified instead of a raw cascade delete.
+    if (!confirm('Delete this job? Submitted tasks will be auto-approved and paid. Unused budget for unfilled slots will be refunded to your deposit balance.')) return;
     const { error: e } = await supabase.rpc('delete_job', { p_job_id: id });
     if (e) setError(e.message);
     loadJobs();

@@ -11,12 +11,6 @@ import { Alert } from '@/components/ui/Alert';
 import { Job, Category } from '@/types';
 import { useSeo } from '@/lib/useSeo';
 
-const flagEmojis: Record<string, string> = {
-  Facebook: '📘', Twitter: '🐦', Instagram: '📸', 'YouTube/Toffe': '📺',
-  TikTok: '🎵', 'Sign Up': '✍️', 'Ads Click': '🖱️', Survey: '📋',
-  'Gmail Account': '📧', 'Mobile Application': '📱', 'Write an Article': '📝',
-  Comment: '💬', LinkedIn: '💼', Reddit: '🔴',
-};
 
 const COLORS = {
   primaryGreen: '#058824',
@@ -250,11 +244,10 @@ export function DashboardHome() {
               <span className="rounded-lg bg-primary-50 px-2.5 py-1 text-xs font-semibold text-primary-700">{selectedJob.category}</span>
               {selectedJob.subcategory && <span className="rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">{selectedJob.subcategory}</span>}
               {selectedJob.is_premium_only && <span className="rounded-lg bg-accent-50 px-2.5 py-1 text-xs font-semibold text-accent-700">Premium Only</span>}
-              <span className="text-base">{flagEmojis[selectedJob.category] ?? '🌍'}</span>
             </div>
 
             <div className="flex items-center justify-between gap-2">
-              <h2 className="font-heading text-xl font-bold uppercase text-gray-900">{selectedJob.title}</h2>
+              <h2 className="font-heading text-xl font-medium text-gray-900">{selectedJob.title}</h2>
               <ReportButton jobId={selectedJob.id} label="Report job" />
             </div>
 
@@ -427,8 +420,7 @@ export function DashboardHome() {
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 flex-wrap min-w-0 flex-1">
-                    <h3 className="text-base font-bold uppercase text-gray-900 line-clamp-1">{job.title}</h3>
-                    <span className="text-base">{flagEmojis[job.category] ?? '🌍'}</span>
+                    <h3 className="text-base font-medium text-gray-900 line-clamp-1">{job.title}</h3>
                     {totalReward >= 0.1 && (
                       <span className="rounded px-2 py-0.5 text-[11px] font-extrabold uppercase" style={{ backgroundColor: '#C8F7DC', color: COLORS.primaryGreen }}>
                         TOP JOB

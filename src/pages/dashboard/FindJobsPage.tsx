@@ -259,15 +259,6 @@ export function FindJobsPage() {
       setSubmitError(error.message);
     } else {
       setSubmitSuccess(true);
-      // Notify the job owner that a worker submitted a task. Done via the
-      // notify_user RPC so it bypasses RLS (worker != owner). Falls back
-      // gracefully if the RPC isn't deployed yet.
-      await supabase.rpc('notify_user', {
-        target_uid: selectedJob.user_id,
-        n_title: 'New Task Submission',
-        n_message: `A worker has submitted a task for "${selectedJob.title}". Review it in your admin panel.`,
-        n_type: 'info',
-      });
       // Show the success message briefly, then redirect to the dashboard so
       // the worker can't resubmit the same job. The job is also hidden from
       // the find-jobs list on the next load (loadJobs filters doneJobIds).

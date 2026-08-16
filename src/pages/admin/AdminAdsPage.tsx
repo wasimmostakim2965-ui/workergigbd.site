@@ -19,6 +19,7 @@ export function AdminAdsPage() {
   const [editing, setEditing] = useState<AdBanner | null>(null);
   const [form, setForm] = useState({ title: '', link_url: '', image_url: '', position: 'job_list_top', display_order: '0' });
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
 
   const load = useCallback(async () => {
@@ -50,11 +51,28 @@ export function AdminAdsPage() {
     setShowModal(true);
   };
 
+  const handleUpload = async (file: File) => {
+    if (!file) return;
+    setUploading(true);
+    setError('');
+    try {
+      const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
+      const fileName = `ads/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: upErr } = await supabase.storage.from('job-assets').upload(fileName, file, { upsert: false });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from('job-assets').getPublicUrl(fileName);
+      setForm((f) => ({ ...f, image_url: pub.publicUrl }));
+    } catch (err: any) {
+      setError(err.message || 'Upload failed.');
+    }
+    setUploading(false);
+  };
+
   const handleSave = async () => {
     setSaving(true);
     setError('');
     if (!form.title.trim()) { setError('Title is required.'); setSaving(false); return; }
-    if (!form.link_url.trim()) { setError('Ad link URL is required.'); setSaving(false); return; }
+    if (!form.image_url.trim()) { setError('Please upload a screenshot image.'); setSaving(false); return; }
 
     const payload = {
       title: form.title.trim(),
@@ -185,18 +203,27 @@ export function AdminAdsPage() {
             required
           />
           <Input
-            label="Ad Link URL"
+            label="Ad Link URL (optional)"
             placeholder="https://example.com"
             value={form.link_url}
             onChange={(e) => setForm({ ...form, link_url: e.target.value })}
-            required
           />
-          <Input
-            label="Image URL (optional)"
-            placeholder="https://example.com/banner.jpg"
-            value={form.image_url}
-            onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-          />
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">Screenshot Image</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); }}
+              className="block w-full text-sm text-gray-500 file:mr-3 file:rounded-lg file:border-0 file:bg-primary-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-primary-700 hover:file:bg-primary-100"
+            />
+            {uploading && <p className="mt-1 text-xs text-gray-500">Uploading...</p>}
+            {form.image_url && (
+              <div className="mt-2">
+                <img src={form.image_url} alt="Preview" className="max-h-40 rounded-lg border border-gray-200 object-cover" />
+                <button onClick={() => setForm({ ...form, image_url: '' })} className="mt-1 text-xs text-red-600 hover:underline">Remove image</button>
+              </div>
+            )}
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">Position</label>

@@ -196,12 +196,6 @@ export function DashboardHome() {
       setSubmitError(error.message);
     } else {
       setSubmitSuccess(true);
-      await supabase.rpc('notify_user', {
-        target_uid: selectedJob.user_id,
-        n_title: 'New Task Submission',
-        n_message: `A worker has submitted a task for "${selectedJob.title}". Review it in My Tasks.`,
-        n_type: 'info',
-      });
       // Reload the feed (hides the just-done job) and refresh balance.
       setTimeout(async () => {
         setSubmitSuccess(false);
@@ -368,26 +362,17 @@ export function DashboardHome() {
             </button>
           )}
         </div>
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            <button
-              onClick={() => setCategoryFilter('all')}
-              className={`shrink-0 rounded-lg px-3.5 py-2 text-xs font-bold transition-all ${categoryFilter === 'all' ? 'text-white' : 'bg-white text-gray-600 border border-gray-200'}`}
-              style={categoryFilter === 'all' ? { backgroundColor: COLORS.filterBlue } : {}}
-            >
-              All
-            </button>
+        <div className="flex items-center gap-2">
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:border-primary-500 focus:outline-none"
+          >
+            <option value="all">All Categories</option>
             {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setCategoryFilter(cat.name)}
-                className={`shrink-0 rounded-lg px-3.5 py-2 text-xs font-bold whitespace-nowrap transition-all ${categoryFilter === cat.name ? 'text-white' : 'bg-white text-gray-600 border border-gray-200'}`}
-                style={categoryFilter === cat.name ? { backgroundColor: COLORS.filterBlue } : {}}
-              >
-                {cat.name}
-              </button>
+              <option key={cat.id} value={cat.name}>{cat.name}</option>
             ))}
-          </div>
+          </select>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}

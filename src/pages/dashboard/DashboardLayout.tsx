@@ -225,25 +225,16 @@ export function DashboardLayout() {
             </div>
           </div>
 
-          {/* SECTION C: PAID AD BANNER */}
-          {showBanner && bannerTitle && (
+          {/* SECTION C: PAID AD BANNER — small screenshot, clickable */}
+          {showBanner && bannerImage && (
             <div className="px-4 pt-3">
-              <div className="rounded-xl bg-white p-2.5 shadow-sm">
-                <div className="text-center text-[11px] font-medium text-gray-400 mb-1.5">Paid</div>
+              <div className="rounded-xl bg-white p-1.5 shadow-sm">
                 {bannerUrl ? (
                   <a href={bannerUrl} target="_blank" rel="noopener noreferrer" className="block">
-                    {bannerImage ? (
-                      <img src={bannerImage} alt={bannerTitle} className="w-full rounded-lg" />
-                    ) : (
-                      <div className="rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-2.5 text-center text-sm text-white font-semibold">
-                        {bannerTitle}
-                      </div>
-                    )}
+                    <img src={bannerImage} alt={bannerTitle} className="max-h-20 w-full rounded-lg object-cover" />
                   </a>
                 ) : (
-                  <div className="rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-2.5 text-center text-sm text-white font-semibold">
-                    {bannerTitle}
-                  </div>
+                  <img src={bannerImage} alt={bannerTitle} className="max-h-20 w-full rounded-lg object-cover" />
                 )}
               </div>
             </div>

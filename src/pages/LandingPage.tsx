@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import {
   ArrowRight, CheckCircle, Users, TrendingUp, Wallet, Shield,
-  Zap, BarChart3, Lock,
+  Zap, BarChart3, Lock, Globe,
 } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { useSeo } from '@/lib/useSeo';

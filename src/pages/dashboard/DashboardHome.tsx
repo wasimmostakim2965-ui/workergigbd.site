@@ -1,11 +1,10 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Search, Briefcase, ExternalLink, X, Pin, Star, Camera, ArrowLeft } from 'lucide-react';
+import { Search, Briefcase, ExternalLink, X, Star, Camera, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { checkProofScreenshots } from '@/lib/fraudGuard';
 import { Button } from '@/components/ui/Button';
-import { ReportButton } from '@/components/ui/ReportButton';
-import { Input, Textarea } from '@/components/ui/Input';
+import { Textarea } from '@/components/ui/Input';
 import { EmptyState, LoadingSpinner } from '@/components/ui/EmptyState';
 import { Alert } from '@/components/ui/Alert';
 import { Job, Category } from '@/types';
@@ -222,7 +221,7 @@ export function DashboardHome() {
     const shotInstructions = parseShotInstructions(selectedJob.screenshot_instructions ?? '', shotCount);
 
     return (
-      <div className="space-y-4">
+      <div className="space-y-3">
         <button onClick={closeJobDetail} className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900">
           <ArrowLeft className="h-4 w-4" /> Back to jobs
         </button>
@@ -237,40 +236,50 @@ export function DashboardHome() {
           </div>
         ) : (
           <>
-            {/* 1. Title (top) with category badges + compact reward */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="rounded-lg bg-primary-50 px-2.5 py-1 text-xs font-semibold text-primary-700">{selectedJob.category}</span>
-              {selectedJob.subcategory && <span className="rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">{selectedJob.subcategory}</span>}
-              {selectedJob.is_premium_only && <span className="rounded-lg bg-accent-50 px-2.5 py-1 text-xs font-semibold text-accent-700">Premium Only</span>}
-              <span className="ml-auto text-sm font-semibold text-success-600">
-                $ {totalReward.toFixed(3)} · {selectedJob.total_slots - selectedJob.filled_slots} slots left
-              </span>
+            {/* 1. Title + slots info (compact, at top) */}
+            <div className="rounded-xl border border-gray-200 bg-white p-4">
+              <div className="flex items-start justify-between gap-2">
+                <h2 className="font-heading text-lg font-semibold text-gray-900 leading-snug">{selectedJob.title}</h2>
+                {totalReward >= 0.1 && (
+                  <span className="shrink-0 rounded px-2 py-0.5 text-[11px] font-extrabold uppercase" style={{ backgroundColor: '#C8F7DC', color: COLORS.primaryGreen }}>
+                    TOP JOB
+                  </span>
+                )}
+              </div>
+              <div className="mt-3 flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-semibold text-gray-500">{selectedJob.filled_slots} OF {selectedJob.total_slots}</div>
+                  <div className="mt-1 h-1.5 w-28 overflow-hidden rounded-full bg-gray-200">
+                    <div className="h-full rounded-full" style={{ width: `${Math.min((selectedJob.filled_slots / selectedJob.total_slots) * 100, 100)}%`, backgroundColor: COLORS.primaryGreen }} />
+                  </div>
+                </div>
+                <div className="text-lg font-extrabold" style={{ color: COLORS.primaryGreen }}>$ {totalReward.toFixed(3)}</div>
+              </div>
             </div>
 
-            <div className="flex items-center justify-between gap-2">
-              <h2 className="font-heading text-xl font-medium text-gray-900">{selectedJob.title}</h2>
-              <ReportButton jobId={selectedJob.id} label="Report job" />
-            </div>
-
-            {/* 2. Description */}
-            <p className="text-sm text-gray-600">{selectedJob.description}</p>
-
-            {selectedJob.url && (
-              <a href={selectedJob.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm font-medium text-primary-600 hover:text-primary-700">
-                <ExternalLink className="h-4 w-4" /> Open task link
-              </a>
+            {/* 2. Description (clean text) */}
+            {selectedJob.description?.trim() && (
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
+                <div className="text-sm font-semibold text-gray-700 mb-1">Description</div>
+                <p className="whitespace-pre-line text-sm text-gray-600 leading-relaxed">{selectedJob.description}</p>
+                {selectedJob.url && (
+                  <a href={selectedJob.url} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-primary-600 hover:text-primary-700">
+                    <ExternalLink className="h-4 w-4" /> Open task link
+                  </a>
+                )}
+              </div>
             )}
 
-            {/* 3. Requirements */}
+            {/* 3. Requirements (below description) */}
             {selectedJob.proof_instructions?.trim() && (
-              <div className="rounded-lg bg-gray-50 p-4">
-                <div className="text-sm font-semibold text-gray-700">Requirements</div>
-                <p className="mt-1 whitespace-pre-line text-sm text-gray-600">{selectedJob.proof_instructions}</p>
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
+                <div className="text-sm font-semibold text-gray-700 mb-1">Requirements</div>
+                <p className="whitespace-pre-line text-sm text-gray-600 leading-relaxed">{selectedJob.proof_instructions}</p>
               </div>
             )}
 
             {shotCount > 0 && (
-              <div className="rounded-lg bg-primary-50/50 p-4">
+              <div className="rounded-lg bg-primary-50/50 px-4 py-2.5">
                 <div className="text-sm font-semibold text-primary-700">Screenshots required: {shotCount}</div>
               </div>
             )}
@@ -278,38 +287,38 @@ export function DashboardHome() {
             {submitError && <Alert variant="error">{submitError}</Alert>}
 
             {/* 4. Proof submission box (where workers write their answer) */}
-            <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-4">
-              <div className="text-sm font-semibold text-gray-700">Submit Your Proof</div>
-              <Textarea label="Proof Details" placeholder="Describe or paste your proof..." rows={3} value={proofText} onChange={(e) => setProofText(e.target.value)} />
+            <div className="rounded-xl border border-gray-200 bg-white p-4">
+              <div className="text-sm font-semibold text-gray-700 mb-2">Submit Your Proof</div>
+              <Textarea placeholder="Describe or paste your proof here..." rows={3} value={proofText} onChange={(e) => setProofText(e.target.value)} />
 
-              {/* 5. Screenshot upload (required screenshots) */}
+              {/* 5. Screenshot upload (below proof box) */}
               {shotCount > 0 && (
-                <div className="space-y-3">
-                  <label className="label-text">
+                <div className="mt-3 space-y-2">
+                  <label className="text-xs font-medium text-gray-600">
                     Upload {shotCount} screenshot(s){' '}
-                    <span className="text-gray-400">({screenshots.filter(Boolean).length}/{shotCount} uploaded)</span>
+                    <span className="text-gray-400">({screenshots.filter(Boolean).length}/{shotCount})</span>
                   </label>
                   {Array.from({ length: shotCount }).map((_, i) => {
                     const url = screenshots[i];
                     const instruction = shotInstructions[i];
                     return (
-                      <div key={i} className="rounded-lg border border-gray-200 p-3">
+                      <div key={i} className="rounded-lg border border-gray-200 p-2.5">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-semibold text-gray-700">Screenshot {i + 1}</span>
-                          {instruction ? <span className="text-xs text-gray-500">{instruction}</span> : null}
+                          <span className="text-xs font-semibold text-gray-700">Screenshot {i + 1}</span>
+                          {instruction ? <span className="text-[11px] text-gray-500">{instruction}</span> : null}
                         </div>
-                        {instruction && <p className="mb-2 whitespace-pre-line text-xs text-gray-600">{instruction}</p>}
+                        {instruction && <p className="mb-1.5 whitespace-pre-line text-[11px] text-gray-500">{instruction}</p>}
                         {url ? (
                           <div className="relative inline-block">
-                            <img src={url} alt={`Screenshot ${i + 1}`} className="h-24 w-24 rounded-lg border border-gray-200 object-cover" />
+                            <img src={url} alt={`Screenshot ${i + 1}`} className="h-20 w-20 rounded-lg border border-gray-200 object-cover" />
                             <button type="button" onClick={() => removeScreenshot(i)} className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-error-500 text-white shadow">
                               <X className="h-3 w-3" />
                             </button>
                           </div>
                         ) : (
-                          <label className={`mt-1 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 p-3 text-sm text-gray-500 transition-colors hover:border-primary-400 hover:bg-primary-50/30 ${uploadingShot ? 'opacity-60' : ''}`}>
+                          <label className={`mt-1 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 py-2.5 text-xs text-gray-500 transition-colors hover:border-primary-400 hover:bg-primary-50/30 ${uploadingShot ? 'opacity-60' : ''}`}>
                             <Camera className="h-4 w-4" />
-                            <span>{uploadingShot ? 'Uploading...' : 'Click to upload screenshot ' + (i + 1)}</span>
+                            <span>{uploadingShot ? 'Uploading...' : 'Upload screenshot ' + (i + 1)}</span>
                             <input type="file" accept="image/*" className="hidden" onChange={(e) => handleScreenshotUpload(e, i)} disabled={uploadingShot} />
                           </label>
                         )}
@@ -320,15 +329,15 @@ export function DashboardHome() {
               )}
             </div>
 
-            {/* 6. Job image (optional, at the bottom) */}
+            {/* 6. Job image (at the very bottom, if posted) */}
             {selectedJob.image_url && (
-              <div>
-                <div className="text-xs font-semibold text-gray-500 mb-1">Job Image</div>
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
+                <div className="text-xs font-semibold text-gray-500 mb-1.5">Job Image</div>
                 <img src={selectedJob.image_url} alt="Job" className="w-full rounded-lg border border-gray-200" />
               </div>
             )}
 
-            <div className="flex gap-3">
+            <div className="flex gap-3 pt-1">
               <Button variant="secondary" fullWidth onClick={closeJobDetail}>Cancel</Button>
               <Button fullWidth loading={submitting} disabled={isFull} onClick={handleAcceptJob}>
                 {isFull ? 'Slots Full' : 'Submit Task'}
@@ -399,44 +408,36 @@ export function DashboardHome() {
           <EmptyState icon={<Briefcase className="h-8 w-8" />} title="No jobs found" description="Try adjusting your filters or check back later." />
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {jobs.map((job) => {
             const progress = job.total_slots > 0 ? (job.filled_slots / job.total_slots) * 100 : 0;
             const totalReward = job.reward_per_worker ?? 0;
-            const isPinned = job.is_premium_only;
 
             return (
               <button
                 key={job.id}
                 onClick={() => openJob(job)}
-                className="block w-full text-left rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-primary-200 hover:shadow-md"
-                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)' }}
+                className="block w-full text-left rounded-xl border border-gray-200 bg-white p-3.5 shadow-sm transition-all hover:border-primary-200 hover:shadow-md"
               >
                 <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2 flex-wrap min-w-0 flex-1">
-                    <h3 className="text-base font-medium text-gray-900 line-clamp-1">{job.title}</h3>
+                  <div className="flex items-center gap-1.5 flex-wrap min-w-0 flex-1">
+                    <h3 className="text-sm font-semibold text-gray-900 line-clamp-1">{job.title}</h3>
                     {totalReward >= 0.1 && (
-                      <span className="rounded px-2 py-0.5 text-[11px] font-extrabold uppercase" style={{ backgroundColor: '#C8F7DC', color: COLORS.primaryGreen }}>
+                      <span className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-extrabold uppercase" style={{ backgroundColor: '#C8F7DC', color: COLORS.primaryGreen }}>
                         TOP JOB
                       </span>
                     )}
                   </div>
-                  {isPinned && (
-                    <div className="flex shrink-0 items-center gap-1" style={{ color: COLORS.badgePurple }}>
-                      <Pin className="h-4 w-4 fill-current" />
-                      <span className="text-sm font-bold">Pinned</span>
-                    </div>
-                  )}
                 </div>
 
-                <div className="mt-4 flex items-end justify-between">
+                <div className="mt-2.5 flex items-end justify-between">
                   <div>
-                    <div className="text-xs font-semibold text-gray-600 mb-1">{job.filled_slots} OF {job.total_slots}</div>
-                    <div className="h-1.5 w-28 overflow-hidden rounded-full bg-gray-200">
+                    <div className="text-[11px] font-semibold text-gray-500">{job.filled_slots} OF {job.total_slots}</div>
+                    <div className="mt-1 h-1.5 w-24 overflow-hidden rounded-full bg-gray-200">
                       <div className="h-full rounded-full" style={{ width: `${Math.min(progress, 100)}%`, backgroundColor: COLORS.primaryGreen }} />
                     </div>
                   </div>
-                  <div className="text-xl font-extrabold" style={{ color: COLORS.primaryGreen }}>$ {totalReward.toFixed(3)}</div>
+                  <div className="text-lg font-extrabold" style={{ color: COLORS.primaryGreen }}>$ {totalReward.toFixed(3)}</div>
                 </div>
               </button>
             );

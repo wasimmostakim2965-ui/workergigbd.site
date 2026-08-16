@@ -4,7 +4,7 @@ import {
   Home, Search, PlusCircle, Crown, Briefcase, Bell, Wallet,
   Share2, ArrowDownToLine, ArrowUpFromLine, Megaphone, Ticket,
   User, LogOut, Menu, X, ShieldCheck, ChevronDown, Settings,
-  Zap, MessageSquare, RefreshCw, Filter, MapPin,
+  Zap, MessageSquare, RefreshCw,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -227,37 +227,27 @@ export function DashboardLayout() {
 
           {/* SECTION C: PAID AD BANNER */}
           {showBanner && bannerTitle && (
-            <div className="mx-4 mb-4 rounded-xl bg-white p-3 shadow-sm">
-              <div className="text-center text-sm font-medium" style={{ color: '#666' }}>
-                Paid
+            <div className="px-4 pt-3">
+              <div className="rounded-xl bg-white p-2.5 shadow-sm">
+                <div className="text-center text-[11px] font-medium text-gray-400 mb-1.5">Paid</div>
+                {bannerUrl ? (
+                  <a href={bannerUrl} target="_blank" rel="noopener noreferrer" className="block">
+                    {bannerImage ? (
+                      <img src={bannerImage} alt={bannerTitle} className="w-full rounded-lg" />
+                    ) : (
+                      <div className="rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-2.5 text-center text-sm text-white font-semibold">
+                        {bannerTitle}
+                      </div>
+                    )}
+                  </a>
+                ) : (
+                  <div className="rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-2.5 text-center text-sm text-white font-semibold">
+                    {bannerTitle}
+                  </div>
+                )}
               </div>
-              {bannerUrl ? (
-                <a href={bannerUrl} target="_blank" rel="noopener noreferrer" className="block mt-2">
-                  {bannerImage ? (
-                    <img src={bannerImage} alt={bannerTitle} className="w-full rounded-lg" />
-                  ) : (
-                    <div className="rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-3 text-center text-white font-semibold">
-                      {bannerTitle}
-                    </div>
-                  )}
-                </a>
-              ) : (
-                <div className="mt-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-3 text-center text-white font-semibold">
-                  {bannerTitle}
-                </div>
-              )}
             </div>
           )}
-
-          {/* SECTION D: FILTER & SORT SECTION */}
-          <div className="px-4 pt-4 pb-2" style={{ backgroundColor: COLORS.bodyBg }}>
-            <Link to="/dashboard" className="block">
-              <button className="w-full rounded-lg py-3 text-sm font-bold text-white" style={{ backgroundColor: COLORS.filterBlue }}>
-                <Filter className="inline-block h-4 w-4 mr-1.5" />
-                Browse Available Jobs
-              </button>
-            </Link>
-          </div>
 
           {/* Profile Dropdown */}
           {profileOpen && (

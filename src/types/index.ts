@@ -64,6 +64,7 @@ export interface Task {
   reviewed_at: string | null;
   created_at: string;
   tip_amount?: number;
+  admin_note?: string | null;
 }
 
 export interface DepositRequest {

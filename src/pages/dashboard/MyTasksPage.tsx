@@ -48,6 +48,7 @@ export function MyTasksPage() {
   const [actionError, setActionError] = useState('');
   const [tipAmount, setTipAmount] = useState('');
   const [tipMsg, setTipMsg] = useState('');
+  const [rejectReason, setRejectReason] = useState('');
   const [loadingJobs, setLoadingJobs] = useState(true);
   const [loadingSubs, setLoadingSubs] = useState(false);
 
@@ -113,13 +114,17 @@ export function MyTasksPage() {
   const handleReview = async (action: 'approve' | 'reject') => {
     if (!selectedSub || !profile) return;
     setProcessing(true); setActionError('');
+    // For rejections, let the buyer optionally explain why. The reason is
+    // stored on the task (admin_note) and shown in the worker's notification.
+    const note = action === 'reject' ? rejectReason.trim() : '';
     const { error } = await supabase.rpc('process_task', {
       p_task_id: selectedSub.id,
       p_admin_uid: profile.id,
       p_action: action,
-      p_note: action === 'reject' ? 'Task did not meet requirements.' : '',
+      p_note: note,
     });
     if (error) { setProcessing(false); setActionError(error.message); return; }
+    setRejectReason('');
     // Refresh the selected submission so its status/reward update immediately,
     // then reload the submissions list (awaited so the badge stays in sync).
     const refreshed = await supabase
@@ -258,6 +263,8 @@ export function MyTasksPage() {
               setTipAmount={setTipAmount}
               tipMsg={tipMsg}
               onTip={handleTip}
+              rejectReason={rejectReason}
+              setRejectReason={setRejectReason}
             />
           )}
         </>
@@ -356,11 +363,13 @@ interface SubmissionReviewProps {
   setTipAmount: (v: string) => void;
   tipMsg: string;
   onTip: () => void;
+  rejectReason: string;
+  setRejectReason: (v: string) => void;
 }
 
 function SubmissionReview({
   sub, job, onBack, onLightbox, processing, actionError, onApprove, onReject,
-  tipAmount, setTipAmount, tipMsg, onTip,
+  tipAmount, setTipAmount, tipMsg, onTip, rejectReason, setRejectReason,
 }: SubmissionReviewProps) {
   const { shots, plain } = parseProof(sub.proof_url);
   const isApproved = sub.status === 'approved';
@@ -464,21 +473,46 @@ function SubmissionReview({
           </div>
         )}
 
-        {actionError && <p className="text-sm text-error-600">{actionError}</p>}
+        {actionError && (
+          <p className="text-sm text-error-600">
+            {actionError.includes('cannot modify financial or account-status')
+              ? 'Approve failed: the database guard blocked the payout. Run the latest migration (20260818120000) in Supabase → SQL Editor, then retry.'
+              : actionError}
+          </p>
+        )}
 
         {/* Approve / Reject buttons */}
         {isPending && (
-          <div className="flex gap-3 border-t border-gray-100 pt-3">
-            <Button variant="danger" fullWidth loading={processing} onClick={onReject}>
-              <XCircle className="h-5 w-5" /> Reject
-            </Button>
-            <Button fullWidth loading={processing} onClick={onApprove}>
-              <CheckCircle className="h-5 w-5" /> Approve & Pay $ {reward.toFixed(3)}
-            </Button>
+          <div className="space-y-3 border-t border-gray-100 pt-3">
+            {/* Optional reject reason — sent to the worker in their rejection
+                notification and kept on the task for the record. */}
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-gray-500">
+                Reject reason <span className="font-normal text-gray-400">(optional)</span>
+              </label>
+              <textarea
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                rows={2}
+                placeholder="e.g. Screenshot does not match the required page."
+                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
+              />
+            </div>
+            <div className="flex gap-3">
+              <Button variant="danger" fullWidth loading={processing} onClick={onReject}>
+                <XCircle className="h-5 w-5" /> Reject
+              </Button>
+              <Button fullWidth loading={processing} onClick={onApprove}>
+                <CheckCircle className="h-5 w-5" /> Approve & Pay $ {reward.toFixed(3)}
+              </Button>
+            </div>
           </div>
         )}
         {!isPending && (
-          <div className="text-xs text-gray-400">Reward $ {reward.toFixed(3)} {isApproved ? 'paid to worker' : ''}.</div>
+          <div className="text-xs text-gray-400">
+            Reward $ {reward.toFixed(3)} {isApproved ? 'paid to worker' : ''}.
+            {sub.admin_note ? ` Reason: ${sub.admin_note}` : ''}
+          </div>
         )}
       </Card>
     </div>

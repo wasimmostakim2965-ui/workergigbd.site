@@ -366,6 +366,7 @@ function SubmissionReview({
   const isApproved = sub.status === 'approved';
   const isPending = sub.status === 'submitted' || sub.status === 'pending';
   const reward = job.reward_per_worker ?? 0;
+  const hasProof = !!(sub.proof_text?.trim() || plain || shots.length > 0);
 
   return (
     <div className="space-y-4">
@@ -419,34 +420,47 @@ function SubmissionReview({
           </div>
         </div>
 
-        {/* Proof text (full) */}
-        {sub.proof_text && (
-          <div className="rounded-lg bg-gray-50 p-3">
-            <div className="text-xs font-semibold text-gray-500">Proof Details</div>
-            <p className="mt-1 whitespace-pre-line text-sm text-gray-700">{sub.proof_text}</p>
+        {/* Proof section — clearly labelled so the buyer sees what was submitted */}
+        {hasProof ? (
+          <div className="rounded-xl border border-gray-200 bg-white p-4">
+            <div className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-gray-700">
+              <Camera className="h-4 w-4 text-primary-600" /> Submitted Proof
+            </div>
+
+            {/* Proof text (full) */}
+            {sub.proof_text?.trim() && (
+              <div className="rounded-lg bg-gray-50 p-3">
+                <div className="text-xs font-semibold text-gray-500">Proof Details</div>
+                <p className="mt-1 whitespace-pre-line text-sm text-gray-700">{sub.proof_text}</p>
+              </div>
+            )}
+
+            {/* Plain proof URL */}
+            {plain && (
+              <a href={plain} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-primary-600 hover:text-primary-700">
+                <ExternalLink className="h-4 w-4" /> View proof link
+              </a>
+            )}
+
+            {/* Screenshots — click to open full-size lightbox */}
+            {shots.length > 0 && (
+              <div className="mt-3">
+                <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-gray-500">
+                  Screenshots ({shots.length}) — click to view full size
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {shots.map((u, i) => (
+                    <button key={i} onClick={() => onLightbox(u)} className="overflow-hidden rounded-lg ring-1 ring-gray-200 transition hover:ring-primary-400">
+                      <img src={u} alt={`Screenshot ${i + 1}`} className="h-28 w-28 cursor-zoom-in object-cover" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        )}
-
-        {/* Plain proof URL */}
-        {plain && (
-          <a href={plain} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm font-medium text-primary-600 hover:text-primary-700">
-            <ExternalLink className="h-4 w-4" /> View proof link
-          </a>
-        )}
-
-        {/* Screenshots — click to open lightbox */}
-        {shots.length > 0 && (
-          <div>
-            <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-gray-500">
-              <Camera className="h-3.5 w-3.5" /> Screenshots ({shots.length})
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {shots.map((u, i) => (
-                <button key={i} onClick={() => onLightbox(u)} className="overflow-hidden rounded-lg ring-1 ring-gray-200 transition hover:ring-primary-400">
-                  <img src={u} alt={`Screenshot ${i + 1}`} className="h-24 w-24 cursor-zoom-in object-cover" />
-                </button>
-              ))}
-            </div>
+        ) : (
+          <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4 text-center">
+            <p className="text-sm text-gray-500">This worker submitted without any proof.</p>
           </div>
         )}
 

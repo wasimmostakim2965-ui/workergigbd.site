@@ -103,18 +103,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (currentUser) await loadProfile(currentUser.id);
   };
 
-  // Get the correct redirect URL based on environment
-  const getRedirectUrl = (): string => {
-    const prodUrl = import.meta.env.VITE_AUTH_REDIRECT_URL;
-    
-    // If production URL is set in env, use it
-    if (prodUrl && import.meta.env.PROD) {
-      return `${prodUrl}/dashboard`;
-    }
-    
-    // Otherwise use current origin (for localhost development)
-    return `${window.location.origin}/dashboard`;
-  };
+  // Always redirect back to the SAME origin the user is on (e.g. the www
+  // subdomain). The previous code used a fixed VITE_AUTH_REDIRECT_URL that
+  // pointed at the non-www apex, but Vercel permanently 308-redirects the
+  // apex to www — so the OAuth callback landed on a different host than
+  // where the session cookie was exchanged, the cookie did not survive the
+  // redirect, and users were kicked to the landing page ~2s after login.
+  const getRedirectUrl = (): string => `${window.location.origin}/dashboard`;
 
   const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({

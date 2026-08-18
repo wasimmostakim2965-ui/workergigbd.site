@@ -19,18 +19,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-// Determine the correct redirect URL based on environment
-const getAuthRedirectUrl = (): string => {
-  const prodUrl = import.meta.env.VITE_AUTH_REDIRECT_URL;
-  
-  // In production (Vercel), use the domain from env
-  if (prodUrl && import.meta.env.PROD) {
-    return prodUrl;
-  }
-  
-  // In development, use localhost
-  return window.location.origin;
-};
+// Redirect URL is resolved dynamically in AuthContext (window.location.origin)
+// so the OAuth callback always returns to the exact host the user is on. This
+// avoids the www-vs-apex cookie loss that previously dropped sessions ~2s
+// after Google login.
 
 export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {

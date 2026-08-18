@@ -168,6 +168,17 @@ export function DashboardHome() {
         return;
       }
     }
+    // A submission must always carry some proof — either a written description
+    // or at least one screenshot. Without this, a zero-screenshot job could be
+    // submitted with an empty box, leaving the buyer nothing to review. This
+    // mirrors the guard in FindJobsPage and matches the require_task_proof DB
+    // trigger, so the message stays friendly instead of a raw DB error.
+    const filledShotsGuard = screenshots.filter(Boolean);
+    if (filledShotsGuard.length === 0 && !proofText.trim()) {
+      setSubmitError('Please describe your work in the proof box before submitting.');
+      setSubmitting(false);
+      return;
+    }
     const { data: existing } = await supabase
       .from('tasks')
       .select('id')

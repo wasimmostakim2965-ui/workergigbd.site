@@ -1,68 +1,77 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Pause, Play, Trash2, ExternalLink } from 'lucide-react';
+import { ExternalLink, Briefcase } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { Alert } from '@/components/ui/Alert';
 import { EmptyState, LoadingSpinner } from '@/components/ui/EmptyState';
+import { Tabs } from '@/components/ui/Tabs';
 import { useSeo } from '@/lib/useSeo';
-import { Job } from '@/types';
+import { Task, Job } from '@/types';
 
-// Matches the dashboard accent so My Jobs cards feel like the feed.
 const COLORS = { primaryGreen: '#058824' };
+
+type MyTask = Task & { jobs?: Job };
+
+function parseProof(raw: string): { shots: string[]; plain: string } {
+  if (!raw) return { shots: [], plain: '' };
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) return { shots: parsed.filter(Boolean) as string[], plain: '' };
+  } catch {
+    /* not JSON */
+  }
+  return { shots: [], plain: raw };
+}
 
 export function MyJobsPage() {
   useSeo({
-    title: 'আমার জব — WORKER GIG BD | পোস্ট করা কাজসমূহ',
-    description: 'আপনি পোস্ট করা কাজগুলো পরিচালনা করুন — পজ, রিজিউম বা ডিলিট।',
+    title: 'আমার জব — WORKER GIG BD | করা কাজসমূহ',
+    description: 'আপনি যে কাজগুলো সম্পন্ন করেছেন — Pending, Approved বা Rejected অবস্থায় দেখুন।',
     path: '/dashboard/my-jobs',
     noindex: true,
   });
-  const { profile } = useAuth();
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
-  const loadJobs = useCallback(async () => {
+  const { profile } = useAuth();
+  const [tasks, setTasks] = useState<MyTask[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState('pending');
+
+  const load = useCallback(async () => {
     if (!profile) { setLoading(false); return; }
     setLoading(true);
     try {
-      const { data, error } = await supabase.from('jobs')
-        .select('*').eq('user_id', profile.id)
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*, jobs(*)')
+        .eq('worker_id', profile.id)
         .order('created_at', { ascending: false });
       if (error) {
-        console.error('Load jobs error:', error);
-        setJobs([]);
+        console.error('Load my jobs error:', error);
+        setTasks([]);
       } else {
-        setJobs((data as Job[]) ?? []);
+        setTasks((data as MyTask[]) ?? []);
       }
     } catch (err) {
-      console.error('Load jobs error:', err);
-      setJobs([]);
+      console.error('Load my jobs error:', err);
+      setTasks([]);
     }
     setLoading(false);
   }, [profile]);
 
-  useEffect(() => { loadJobs(); }, [loadJobs]);
+  useEffect(() => { load(); }, [load]);
 
-  const toggleStatus = async (job: Job) => {
-    if (job.status !== 'active' && job.status !== 'paused') {
-      setError('Completed or rejected jobs cannot be reactivated.');
-      return;
-    }
-    const rpcName = job.status === 'active' ? 'hold_job' : 'resume_job';
-    const { error: e } = await supabase.rpc(rpcName, { p_job_id: job.id });
-    if (e) setError(e.message);
-    loadJobs();
-  };
+  const filtered = tasks.filter((t) => {
+    if (tab === 'pending') return t.status === 'pending' || t.status === 'submitted';
+    if (tab === 'approved') return t.status === 'approved';
+    if (tab === 'rejected') return t.status === 'rejected';
+    return true;
+  });
 
-  const deleteJob = async (id: string) => {
-    if (!confirm('Delete this job? Submitted tasks will be auto-approved and paid. Unused budget for unfilled slots will be refunded to your deposit balance.')) return;
-    const { error: e } = await supabase.rpc('delete_job', { p_job_id: id });
-    if (e) setError(e.message);
-    loadJobs();
-  };
+  const tabs = [
+    { id: 'pending', label: 'Pending' },
+    { id: 'approved', label: 'Approved' },
+    { id: 'rejected', label: 'Rejected' },
+  ];
 
   if (loading) return <LoadingSpinner size={40} className="py-20" />;
 
@@ -70,86 +79,81 @@ export function MyJobsPage() {
     <div className="space-y-4">
       <div>
         <h1 className="font-heading text-2xl font-bold text-gray-900">My Jobs</h1>
-        <p className="mt-1 text-sm text-gray-600">Manage jobs you have posted</p>
+        <p className="mt-1 text-sm text-gray-600">Tasks you have worked on and submitted</p>
       </div>
 
-      {error && <Alert variant="error" title="Action failed">{error}</Alert>}
+      <Tabs tabs={tabs} active={tab} onChange={setTab} />
 
-      {jobs.length === 0 ? (
+      {filtered.length === 0 ? (
         <div className="rounded-xl border border-gray-200 bg-white py-16">
           <EmptyState
-            icon={<Play className="h-8 w-8" />}
-            title="No jobs posted yet"
-            description="Post your first job to start getting workers."
+            icon={<Briefcase className="h-8 w-8" />}
+            title={`No ${tab} jobs`}
+            description="Jobs you complete and submit will show up here."
           />
         </div>
       ) : (
         <div className="space-y-2.5">
-          {jobs.map((job) => {
-            const progress = job.total_slots > 0 ? (job.filled_slots / job.total_slots) * 100 : 0;
-            const totalReward = job.reward_per_worker ?? 0;
+          {filtered.map((task) => {
+            const reward = task.jobs?.reward_per_worker ?? 0;
+            const { shots, plain } = parseProof(task.proof_url);
             const statusVariant =
-              job.status === 'active' ? 'success' :
-              job.status === 'paused' ? 'warning' :
-              job.status === 'completed' ? 'primary' : 'error';
+              task.status === 'approved' ? 'success' :
+              task.status === 'rejected' ? 'error' : 'warning';
 
             return (
               <div
-                key={job.id}
+                key={task.id}
                 className="block w-full rounded-xl border border-gray-200 bg-white p-3.5 shadow-sm transition-all hover:border-primary-200 hover:shadow-md"
               >
-                {/* Top row: badges + action buttons */}
+                {/* Top row: badges + status */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-1.5 flex-wrap min-w-0 flex-1">
-                    <Badge variant="primary">{job.category}</Badge>
-                    {job.subcategory && <Badge variant="gray">{job.subcategory}</Badge>}
-                    {job.is_premium_only && <Badge variant="accent">Premium</Badge>}
-                    {(job.screenshot_count ?? 0) > 0 && (
-                      <Badge variant="gray">{job.screenshot_count} shot</Badge>
-                    )}
+                    {task.jobs?.category && <Badge variant="primary">{task.jobs.category}</Badge>}
+                    {task.jobs?.subcategory && <Badge variant="gray">{task.jobs.subcategory}</Badge>}
+                    {task.tip_amount ? <Badge variant="accent">+tip</Badge> : null}
                   </div>
-                  <div className="flex shrink-0 gap-1.5">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => toggleStatus(job)}
-                      disabled={job.status === 'completed' || job.status === 'rejected'}
-                      className="!px-2 !py-1"
-                    >
-                      {job.status === 'active' ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-                    </Button>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => deleteJob(job.id)}
-                      className="!px-2 !py-1"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
+                  <Badge variant={statusVariant} dot>{task.status}</Badge>
                 </div>
 
-                {/* Title + status */}
-                <div className="mt-1.5 flex items-center gap-1.5">
-                  <h3 className="text-sm font-semibold text-gray-900 line-clamp-1 flex-1 min-w-0">{job.title}</h3>
-                  <Badge variant={statusVariant} dot>{job.status}</Badge>
-                </div>
+                {/* Title */}
+                <h3 className="mt-1.5 text-sm font-semibold text-gray-900 line-clamp-1">
+                  {task.jobs?.title ?? `Task #${task.id.slice(0, 8)}`}
+                </h3>
 
-                {/* Slots + progress + reward (dashboard style) */}
+                {/* Date + reward (dashboard style) */}
                 <div className="mt-2.5 flex items-end justify-between">
-                  <div>
-                    <div className="text-[11px] font-semibold text-gray-500">{job.filled_slots} OF {job.total_slots}</div>
-                    <div className="mt-1 h-1.5 w-24 overflow-hidden rounded-full bg-gray-200">
-                      <div className="h-full rounded-full" style={{ width: `${Math.min(progress, 100)}%`, backgroundColor: COLORS.primaryGreen }} />
-                    </div>
-                    {job.url && (
-                      <a href={job.url} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex items-center gap-1 text-[11px] text-primary-600 hover:text-primary-700">
-                        <ExternalLink className="h-3 w-3" /> Link
+                  <div className="text-[11px] font-semibold text-gray-500">
+                    {new Date(task.submitted_at ?? task.created_at).toLocaleDateString()}
+                  </div>
+                  <div className="flex items-baseline gap-1.5">
+                    {task.tip_amount ? (
+                      <span className="text-xs font-bold text-primary-600">+ $ {task.tip_amount.toFixed(3)}</span>
+                    ) : null}
+                    <span className="text-lg font-extrabold" style={{ color: COLORS.primaryGreen }}>$ {reward.toFixed(3)}</span>
+                  </div>
+                </div>
+
+                {/* Proof (screenshots + text) */}
+                {(plain || shots.length > 0 || task.proof_text) && (
+                  <div className="mt-2.5 border-t border-gray-100 pt-2">
+                    {plain && (
+                      <a href={plain} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700">
+                        <ExternalLink className="h-3 w-3" /> View proof
                       </a>
                     )}
+                    {shots.length > 0 && (
+                      <div className="mt-1 flex flex-wrap gap-1.5">
+                        {shots.map((u, i) => (
+                          <a key={i} href={u} target="_blank" rel="noopener noreferrer">
+                            <img src={u} alt={`Proof ${i + 1}`} className="h-14 w-14 rounded-md object-cover ring-1 ring-gray-200" />
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                    {task.proof_text && <p className="mt-1 text-xs text-gray-500 line-clamp-2">{task.proof_text}</p>}
                   </div>
-                  <div className="text-lg font-extrabold" style={{ color: COLORS.primaryGreen }}>$ {totalReward.toFixed(3)}</div>
-                </div>
+                )}
               </div>
             );
           })}

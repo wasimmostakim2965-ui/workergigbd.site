@@ -11,6 +11,9 @@ import { Tabs } from '@/components/ui/Tabs';
 import { Lightbox } from '@/components/ui/Lightbox';
 import { ReportButton } from '@/components/ui/ReportButton';
 import { Task, Job, Profile } from '@/types';
+import { useSeo } from '@/lib/useSeo';
+
+const COLORS = { primaryGreen: '#058824' };
 
 type Submission = Task & { jobs?: Job; profiles?: Pick<Profile, 'username' | 'avatar_url'> };
 
@@ -25,6 +28,12 @@ function parseProof(raw: string): { shots: string[]; plain: string } {
 }
 
 export function MyTasksPage() {
+  useSeo({
+    title: 'আমার টাস্ক — WORKER GIG BD | করা কাজ ও রিভিউ',
+    description: 'আপনি পোস্ট করা কাজের সাবমিশন রিভিউ করুন এবং করা কাজগুলো ট্র্যাক করুন।',
+    path: '/dashboard/my-tasks',
+    noindex: true,
+  });
   const { profile, refreshProfile } = useAuth();
   // Top-level mode: review submissions on jobs I posted, or track tasks I did.
   const [mode, setMode] = useState<'posted' | 'did'>('posted');
@@ -262,68 +271,67 @@ export function MyTasksPage() {
           ) : myTasks.length === 0 ? (
             <Card><EmptyState icon={<Briefcase className="h-8 w-8" />} title="No tasks found" description="You haven't worked on any tasks in this category yet." /></Card>
           ) : (
-            <div className="space-y-3">
-              {myTasks.map((task) => (
-                <Card key={task.id} className="p-4">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                        task.status === 'approved' ? 'bg-success-50' :
-                        task.status === 'rejected' ? 'bg-error-50' : 'bg-warning-50'
-                      }`}>
-                        {task.status === 'approved' ? <CheckCircle className="h-5 w-5 text-success-600" /> :
-                         task.status === 'rejected' ? <XCircle className="h-5 w-5 text-error-600" /> :
-                         <Clock className="h-5 w-5 text-warning-600" />}
+            <div className="space-y-2.5">
+              {myTasks.map((task) => {
+                const reward = task.jobs?.reward_per_worker ?? 0;
+                const statusVariant = task.status === 'approved' ? 'success' : task.status === 'rejected' ? 'error' : 'warning';
+                const { shots, plain } = parseProof(task.proof_url);
+                return (
+                  <div
+                    key={task.id}
+                    className="block w-full rounded-xl border border-gray-200 bg-white p-3.5 shadow-sm transition-all hover:border-primary-200 hover:shadow-md"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-1.5 flex-wrap min-w-0 flex-1">
+                        {task.jobs?.category && <Badge variant="primary">{task.jobs.category}</Badge>}
+                        {task.jobs?.subcategory && <Badge variant="gray">{task.jobs.subcategory}</Badge>}
+                        {task.tip_amount ? <Badge variant="accent">+tip</Badge> : null}
                       </div>
-                      <div>
-                        <div className="text-sm font-semibold text-gray-900">
-                          {task.jobs?.title ?? `Task #${task.id.slice(0, 8)}`}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {task.jobs?.category} • {new Date(task.created_at).toLocaleDateString()}
-                        </div>
+                      <Badge variant={statusVariant} dot>{task.status}</Badge>
+                    </div>
+
+                    <h3 className="mt-1.5 text-sm font-semibold text-gray-900 line-clamp-1">
+                      {task.jobs?.title ?? `Task #${task.id.slice(0, 8)}`}
+                    </h3>
+
+                    <div className="mt-2.5 flex items-end justify-between">
+                      <div className="text-[11px] font-semibold text-gray-500">
+                        {new Date(task.created_at).toLocaleDateString()}
+                      </div>
+                      <div className="flex items-baseline gap-1.5">
+                        {task.tip_amount ? (
+                          <span className="text-xs font-bold text-primary-600">+ $ {task.tip_amount.toFixed(3)}</span>
+                        ) : null}
+                        <span className="text-lg font-extrabold" style={{ color: COLORS.primaryGreen }}>$ {reward.toFixed(3)}</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        {/* Worker receives the base reward only (screenshot fee is platform revenue). */}
-                        <div className="text-sm font-bold text-gray-900">$ {(task.jobs?.reward_per_worker ?? 0).toFixed(3)}</div>
-                        {task.tip_amount ? <div className="text-xs text-success-600">+ $ {task.tip_amount.toFixed(3)} tip</div> : <div className="text-xs text-gray-500">Reward</div>}
-                      </div>
-                      <Badge variant={task.status === 'approved' ? 'success' : task.status === 'rejected' ? 'error' : 'warning'} dot>{task.status}</Badge>
-                    </div>
-                  </div>
-                  {(task.proof_url || task.proof_text) && (
-                    <div className="mt-3 border-t border-gray-100 pt-3">
-                      {(() => {
-                        const { shots, plain } = parseProof(task.proof_url);
-                        return (
-                          <>
-                            {plain && (
-                              <a href={plain} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700">
-                                <ExternalLink className="h-3 w-3" /> View proof
+
+                    {(plain || shots.length > 0 || task.proof_text) && (
+                      <div className="mt-2.5 border-t border-gray-100 pt-2">
+                        {plain && (
+                          <a href={plain} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700">
+                            <ExternalLink className="h-3 w-3" /> View proof
+                          </a>
+                        )}
+                        {shots.length > 0 && (
+                          <div className="mt-1 flex flex-wrap gap-1.5">
+                            {shots.map((u, i) => (
+                              <a key={i} href={u} target="_blank" rel="noopener noreferrer">
+                                <img src={u} alt={`Proof ${i + 1}`} className="h-14 w-14 rounded-md object-cover ring-1 ring-gray-200" />
                               </a>
-                            )}
-                            {shots.length > 0 && (
-                              <div className="flex flex-wrap gap-2">
-                                {shots.map((u, i) => (
-                                  <a key={i} href={u} target="_blank" rel="noopener noreferrer">
-                                    <img src={u} alt={`Proof ${i + 1}`} className="h-16 w-16 rounded-md object-cover ring-1 ring-gray-200" />
-                                  </a>
-                                ))}
-                              </div>
-                            )}
-                          </>
-                        );
-                      })()}
-                      {task.proof_text && <p className="mt-1 text-xs text-gray-500">{task.proof_text}</p>}
+                            ))}
+                          </div>
+                        )}
+                        {task.proof_text && <p className="mt-1 text-xs text-gray-500 line-clamp-2">{task.proof_text}</p>}
+                      </div>
+                    )}
+
+                    <div className="mt-2 flex justify-end">
+                      <ReportButton taskId={task.id} jobId={task.job_id} label="Report this task" />
                     </div>
-                  )}
-                  <div className="mt-3 flex justify-end">
-                    <ReportButton taskId={task.id} jobId={task.job_id} label="Report this task" />
                   </div>
-                </Card>
-              ))}
+                );
+              })}
             </div>
           )}
         </>

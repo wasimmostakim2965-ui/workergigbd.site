@@ -223,6 +223,17 @@ export function FindJobsPage() {
       }
     }
 
+    // A submission must always carry some proof — either a written description
+    // or at least one screenshot. Without this, a job that requires no
+    // screenshots could be submitted with an empty box, leaving the buyer
+    // nothing to review.
+    const filledShots = screenshots.filter(Boolean);
+    if (filledShots.length === 0 && !proofText.trim()) {
+      setSubmitError('Please describe your work in the proof box before submitting.');
+      setSubmitting(false);
+      return;
+    }
+
     // A worker may only ever complete a job ONCE (regardless of task status),
     // enforced atomically by the tasks_one_active_per_job unique index. This
     // client-side check gives a friendly message before the insert attempt.
@@ -241,7 +252,6 @@ export function FindJobsPage() {
 
     // Store screenshot URLs in proof_url as a JSON array (reuses the existing
     // column — no schema change needed).
-    const filledShots = screenshots.filter(Boolean);
     const proofUrlValue = filledShots.length
       ? JSON.stringify(filledShots)
       : null;

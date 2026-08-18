@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -24,9 +24,16 @@ export function LoginPage() {
     path: '/login',
   });
   const navigate = useNavigate();
-  const { signInWithGoogle } = useAuth();
+  const { signInWithGoogle, user, loading: authLoading } = useAuth();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // If a session is restored (e.g. right after the OAuth callback, or on a
+  // return visit) send the user straight to the dashboard instead of leaving
+  // them stranded on the login screen.
+  useEffect(() => {
+    if (!authLoading && user) navigate('/dashboard', { replace: true });
+  }, [authLoading, user, navigate]);
 
   const handleGoogle = async () => {
     setError('');
@@ -35,9 +42,8 @@ export function LoginPage() {
     if (googleError) {
       setError(googleError);
       setLoading(false);
-    } else {
-      navigate('/dashboard');
     }
+    // On success the browser leaves for Google; no client-side navigate needed.
   };
 
   return (

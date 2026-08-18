@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { Gift, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Logo } from '@/components/Logo';
@@ -24,11 +24,18 @@ export function SignupPage() {
     description: 'WORKER GIG BD-তে বিনামূল্যে সাইন আপ করুন। রেফার করে বোনাস পান, অনলাইন মাইক্রো-টাস্ক করে ঘরে বসে আয় করুন। বাংলাদেশের শীর্ষ মাইক্রো-টাস্ক প্ল্যাটফর্ম।',
     path: '/signup',
   });
-  const { signUpWithGoogle } = useAuth();
+  const { signUpWithGoogle, user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [referralCode, setReferralCode] = useState(searchParams.get('ref') ?? '');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // After the OAuth callback a session may be restored; send an authenticated
+  // user straight to the dashboard instead of leaving them on the signup form.
+  useEffect(() => {
+    if (!authLoading && user) navigate('/dashboard', { replace: true });
+  }, [authLoading, user, navigate]);
 
   const handleGoogle = async () => {
     setError('');
@@ -38,6 +45,7 @@ export function SignupPage() {
       setError(googleError);
       setLoading(false);
     }
+    // On success the browser leaves for Google; no client-side navigate needed.
   };
 
   return (

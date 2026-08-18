@@ -63,19 +63,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
+    // PKCE OAuth callback race guard: after Google login the browser lands on
+    // /dashboard?code=... and supabase-js exchanges that code asynchronously.
+    // getSession() resolves BEFORE the exchange completes (returns null), so we
+    // must NOT setLoading(false) yet — otherwise ProtectedRoute sees no user and
+    // bounces the freshly-logged-in user to /login. We wait for the exchange to
+    // finish, which arrives via onAuthStateChange (SIGNED_IN or SIGNED_OUT).
+    const url = new URL(window.location.href);
+    const hasOAuthCallback =
+      url.searchParams.has('code') ||
+      window.location.hash.includes('access_token');
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!mounted) return;
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
         loadProfile(session.user.id).finally(() => mounted && setLoading(false));
-      } else {
+      } else if (!hasOAuthCallback) {
+        // No session and no pending code exchange → genuinely logged out.
         setLoading(false);
       }
+      // else: a code is being exchanged; let onAuthStateChange finish the job.
     });
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, newSession) => {
       (async () => {
+        if (!mounted) return;
         setSession(newSession);
         setUser(newSession?.user ?? null);
         if (newSession?.user) {

@@ -169,7 +169,7 @@ export function DepositPage() {
           </div>
 
           <div className="rounded-lg bg-gray-50 p-4 mb-5">
-            <div className="text-xs text-gray-500">Send money to:</div>
+            <div className="text-xs text-gray-500">Cash Out করুন এই নম্বরে:</div>
             <div className="mt-1 text-lg font-bold text-gray-900">
               {paymentMethods.find(pm => pm.id === method)?.name}: {paymentMethods.find(pm => pm.id === method)?.number || 'Contact support'}
             </div>

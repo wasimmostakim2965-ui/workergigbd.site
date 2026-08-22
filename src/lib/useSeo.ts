@@ -8,7 +8,7 @@ type SeoConfig = {
   noindex?: boolean;
 };
 
-const SITE_URL = 'https://workergigbd.site';
+const SITE_URL = 'https://www.workergigbd.site';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 function setMeta(attr: 'name' | 'property', key: string, content: string) {

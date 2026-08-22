@@ -38,6 +38,7 @@ export function DashboardHome() {
     title: 'Dashboard — WORKER GIG BD | অনলাইন মাইক্রো-টাস্ক কাজ',
     description: 'উপলব্ধ কাজ ব্রাউজ করুন এবং আয় শুরু করুন।',
     path: '/dashboard',
+    noindex: true,
   });
   const { profile, refreshProfile } = useAuth();
   const [jobs, setJobs] = useState<Job[]>([]);

@@ -14,6 +14,7 @@ export function PostJobPage() {
     title: 'কাজ পোস্ট করুন — WORKER GIG BD | অনলাইন কাজ পোস্ট ও ওয়ার্কার নিয়োগ',
     description: 'WORKER GIG BD-তে কাজ পোস্ট করুন এবং সারা বাংলাদেশের ওয়ার্কারদের কাছ থেকে সহজে আপনার মাইক্রো-টাস্ক সম্পন্ন করান। ফেসবুক লাইক, সাইন আপ, সার্ভে ইত্যাদি কাজ পোস্ট করুন।',
     path: '/dashboard/post-job',
+    noindex: true,
   });
   const { profile, refreshProfile } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);

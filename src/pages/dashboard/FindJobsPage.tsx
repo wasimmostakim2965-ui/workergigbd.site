@@ -45,6 +45,7 @@ export function FindJobsPage() {
     title: 'কাজ খুঁজুন — WORKER GIG BD | অনলাইন মাইক্রো-টাস্ক ও ফ্রিল্যান্স কাজ',
     description: 'WORKER GIG BD-তে পাওয়া সহজ অনলাইন মাইক্রো-টাস্ক ও ফ্রিল্যান্স কাজ ব্রাউজ করুন। ফেসবুক, ইউটিউব, সাইন আপ, সার্ভে, কমেন্ট ইত্যাদি কাজ করে আয় করুন।',
     path: '/dashboard/find-jobs',
+    noindex: true,
   });
   const { profile } = useAuth();
   const { jobId } = useParams();

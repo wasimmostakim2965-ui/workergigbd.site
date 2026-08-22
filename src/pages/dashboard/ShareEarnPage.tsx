@@ -13,6 +13,7 @@ export function ShareEarnPage() {
     title: 'শেয়ার ও আয় — WORKER GIG BD | রেফার করে বোনাস পান',
     description: 'WORKER GIG BD-তে আপনার রেফার লিংক শেয়ার করে বোনাস আয় করুন। প্রতিটি রেফারেল থেকে আয় পান এবং বন্ধুদের সাথে মাইক্রো-টাস্ক প্ল্যাটফর্ম পরিচয় করিয়ে দিন।',
     path: '/dashboard/share-earn',
+    noindex: true,
   });
   const { profile } = useAuth();
   const [settings, setSettings] = useState<AdminSetting[]>([]);

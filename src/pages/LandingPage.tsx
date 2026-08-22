@@ -9,11 +9,11 @@ import { useSeo } from '@/lib/useSeo';
 import { supabase } from '@/lib/supabase';
 
 const features = [
-  { icon: Wallet, title: 'Easy Deposits & Withdrawals', desc: 'bKash, Nagad, Rocket — deposit and withdraw your earnings instantly with low fees.' },
+  { icon: Wallet, title: 'Easy Deposits & Withdrawals', desc: 'bKash, Nagad, Rocket — deposit and withdraw your earnings easily with low fees.' },
   { icon: Shield, title: 'Secure & Trusted', desc: 'Every transaction is protected. Admin-verified deposits and withdrawals keep your money safe.' },
   { icon: TrendingUp, title: 'Unlimited Earning Potential', desc: 'Complete tasks, post jobs, refer friends, and run ads — multiple income streams in one platform.' },
   { icon: Zap, title: 'Fast Task Completion', desc: 'Quick, simple micro-tasks that take minutes. Like, follow, subscribe, watch, and earn.' },
-  { icon: Users, title: 'Growing Community', desc: 'Join thousands of Bangladeshi freelancers earning online from home.' },
+  { icon: Users, title: 'Growing Community', desc: 'Join Bangladeshi freelancers earning online from home.' },
   { icon: BarChart3, title: 'Detailed Analytics', desc: 'Track your earnings, task completion rate, and growth with a powerful dashboard.' },
 ];
 
@@ -71,7 +71,7 @@ export function LandingPage() {
             <div className="animate-slide-up">
               <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary-200 bg-primary-50 px-4 py-1.5 text-sm font-medium text-primary-700">
                 <span className="flex h-2 w-2 rounded-full bg-primary-500 animate-pulse" />
-                Bangladesh's #1 Micro-Task Platform
+                Trusted Micro-Task Platform in Bangladesh
               </div>
               <h1 className="font-heading text-4xl font-extrabold leading-tight tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
                 Earn Money Doing{' '}
@@ -81,7 +81,7 @@ export function LandingPage() {
               </h1>
               <p className="mt-5 max-w-xl text-lg leading-relaxed text-gray-600">
                 Like, follow, subscribe, watch videos, complete surveys, and more.
-                Join thousands of Bangladeshis earning online from the comfort of home.
+                Join Bangladeshis earning online from the comfort of home.
               </p>
               <div className="mt-8 flex flex-wrap gap-4">
                 <Link
@@ -135,7 +135,7 @@ export function LandingPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="font-heading text-3xl font-bold text-gray-900 sm:text-4xl">
-              {categories.length}+ Task Categories
+              {categories.length > 0 ? categories.length : 45}+ Task Categories
             </h2>
             <p className="mt-3 text-lg text-gray-600">
               Pick from a wide range of micro-tasks across every major platform

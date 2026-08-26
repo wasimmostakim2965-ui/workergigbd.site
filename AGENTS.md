@@ -73,6 +73,9 @@ To log in as the owner from the browser WITHOUT touching the password:
 - Optional "Reject reason" textarea passes the note to `p_note`; shown back
   on the task row after rejection.
 
+## Live deploy verification tip
+- Vercel build output hash differs from local `npm run build` — verify live by grepping the served JS for a feature string, not by hash match.
+
 ## Pre-existing frontend type errors (not mine, not blocking the build)
 `src/pages/admin/AdminAdsPage.tsx` has TS errors (Badge variant "default",
 Modal `isOpen` vs `open`, missing SEO description). `vite build` (esbuild)

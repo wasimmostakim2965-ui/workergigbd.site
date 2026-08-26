@@ -99,22 +99,28 @@ export function LandingPage() {
                 Like, follow, subscribe, watch videos, complete surveys, and more.
                 Join Bangladeshis earning online from the comfort of home.
               </p>
-              <div className="mt-8 flex flex-wrap gap-4">
+              <div className="mt-10 flex flex-col items-center">
                 <button
                   type="button"
                   onClick={handleGoogleSignUp}
                   disabled={googleLoading}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition-all hover:bg-gray-50 hover:border-gray-400 active:scale-95 disabled:opacity-60"
+                  className="inline-flex items-center gap-3 rounded-xl border border-gray-300 bg-white px-10 py-4 text-base font-semibold text-gray-700 shadow-md transition-all hover:bg-gray-50 hover:border-gray-400 hover:shadow-lg active:scale-95 disabled:opacity-60"
                 >
                   {googleLoading
-                    ? <Loader2 className="h-4 w-4 animate-spin" />
-                    : <GoogleIcon className="h-4 w-4" />}
+                    ? <Loader2 className="h-6 w-6 animate-spin" />
+                    : <GoogleIcon className="h-6 w-6" />}
                   Sign up with Google
                 </button>
+                <Link
+                  to="/login"
+                  className="mt-4 text-xs font-medium text-gray-500 underline-offset-2 hover:text-primary-600 hover:underline"
+                >
+                  Already have an account? Log in
+                </Link>
+                {googleError && (
+                  <p className="mt-3 text-sm text-error-600">{googleError}</p>
+                )}
               </div>
-              {googleError && (
-                <p className="mt-3 text-sm text-error-600">{googleError}</p>
-              )}
 
               <div className="mt-10 flex items-center gap-8">
                 <div>
@@ -288,18 +294,27 @@ export function LandingPage() {
             Join WORKER GIG BD today and turn your free time into income.
             It's free to sign up and start working immediately.
           </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
+          <div className="mt-8 flex flex-col items-center gap-4">
             <button
               type="button"
               onClick={handleGoogleSignUp}
               disabled={googleLoading}
-              className="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-8 py-4 text-base font-semibold text-gray-700 shadow-sm transition-all hover:bg-gray-50 active:scale-95 disabled:opacity-60"
+              className="inline-flex items-center gap-3 rounded-xl border border-gray-300 bg-white px-12 py-5 text-lg font-semibold text-gray-700 shadow-md transition-all hover:bg-gray-50 hover:shadow-lg active:scale-95 disabled:opacity-60"
             >
               {googleLoading
-                ? <Loader2 className="h-5 w-5 animate-spin" />
-                : <GoogleIcon className="h-5 w-5" />}
+                ? <Loader2 className="h-6 w-6 animate-spin" />
+                : <GoogleIcon className="h-6 w-6" />}
               Sign up with Google
             </button>
+            <Link
+              to="/login"
+              className="text-xs font-medium text-gray-500 underline-offset-2 hover:text-primary-600 hover:underline"
+            >
+              Already have an account? Log in
+            </Link>
+            {googleError && (
+              <p className="text-sm text-error-600">{googleError}</p>
+            )}
           </div>
           <div className="mt-8 flex flex-wrap justify-center gap-6 text-sm text-gray-500">
             <span className="flex items-center gap-1.5"><CheckCircle className="h-4 w-4 text-success-500" /> Free to join</span>

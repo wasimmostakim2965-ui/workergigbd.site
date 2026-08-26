@@ -100,12 +100,6 @@ export function LandingPage() {
                 Join Bangladeshis earning online from the comfort of home.
               </p>
               <div className="mt-8 flex flex-wrap gap-4">
-                <Link
-                  to="/signup"
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-700 hover:shadow-md active:scale-95"
-                >
-                  Start Earning Now <ArrowRight className="h-4 w-4" />
-                </Link>
                 <button
                   type="button"
                   onClick={handleGoogleSignUp}
@@ -117,12 +111,6 @@ export function LandingPage() {
                     : <GoogleIcon className="h-4 w-4" />}
                   Sign up with Google
                 </button>
-                <Link
-                  to="/login"
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition-all hover:bg-gray-50 hover:border-gray-400 active:scale-95"
-                >
-                  Login
-                </Link>
               </div>
               {googleError && (
                 <p className="mt-3 text-sm text-error-600">{googleError}</p>
@@ -301,12 +289,6 @@ export function LandingPage() {
             It's free to sign up and start working immediately.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <Link
-              to="/signup"
-              className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-primary-600/25 transition-all hover:bg-primary-700 hover:shadow-xl active:scale-95"
-            >
-              Create Free Account <ArrowRight className="h-5 w-5" />
-            </Link>
             <button
               type="button"
               onClick={handleGoogleSignUp}
@@ -318,12 +300,6 @@ export function LandingPage() {
                 : <GoogleIcon className="h-5 w-5" />}
               Sign up with Google
             </button>
-            <Link
-              to="/login"
-              className="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-8 py-4 text-base font-semibold text-gray-700 shadow-sm transition-all hover:bg-gray-50 active:scale-95"
-            >
-              Login
-            </Link>
           </div>
           <div className="mt-8 flex flex-wrap justify-center gap-6 text-sm text-gray-500">
             <span className="flex items-center gap-1.5"><CheckCircle className="h-4 w-4 text-success-500" /> Free to join</span>

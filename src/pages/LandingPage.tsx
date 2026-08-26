@@ -2,9 +2,11 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import {
   ArrowRight, CheckCircle, Users, TrendingUp, Wallet, Shield,
-  Zap, BarChart3, Lock, Globe,
+  Zap, BarChart3, Lock, Globe, Loader2,
 } from 'lucide-react';
 import { Logo } from '@/components/Logo';
+import { GoogleIcon } from '@/components/GoogleIcon';
+import { useAuth } from '@/context/AuthContext';
 import { useSeo } from '@/lib/useSeo';
 import { supabase } from '@/lib/supabase';
 
@@ -25,10 +27,24 @@ const steps = [
 
 export function LandingPage() {
   const [categories, setCategories] = useState<string[]>([]);
+  const { signUpWithGoogle } = useAuth();
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleError, setGoogleError] = useState('');
   useEffect(() => {
     supabase.from('categories').select('name').eq('is_active', true).order('display_order')
       .then(({ data }) => setCategories((data ?? []).map((c: { name: string }) => c.name)));
   }, []);
+
+  const handleGoogleSignUp = async () => {
+    setGoogleError('');
+    setGoogleLoading(true);
+    const { error } = await signUpWithGoogle();
+    if (error) {
+      setGoogleError(error);
+      setGoogleLoading(false);
+    }
+    // On success the browser leaves for Google; no client-side navigate needed.
+  };
   useSeo({
     title: 'WORKER GIG BD: Best Micro Job Site for Earning',
     description: 'WORKER GIG BD (workergigbd.site) বাংলাদেশের শীর্ষ মাইক্রো-টাস্ক ও ফ্রিল্যান্স প্ল্যাটফর্ম। সহজ অনলাইন টাস্ক সম্পন্ন করে ঘরে বসে আয় করুন। সাইন আপ করুন, কাজ করুন, বিকাশ/নগদে টাকা তুলুন। $1 = 100 BDT.',
@@ -90,6 +106,17 @@ export function LandingPage() {
                 >
                   Start Earning Now <ArrowRight className="h-4 w-4" />
                 </Link>
+                <button
+                  type="button"
+                  onClick={handleGoogleSignUp}
+                  disabled={googleLoading}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition-all hover:bg-gray-50 hover:border-gray-400 active:scale-95 disabled:opacity-60"
+                >
+                  {googleLoading
+                    ? <Loader2 className="h-4 w-4 animate-spin" />
+                    : <GoogleIcon className="h-4 w-4" />}
+                  Sign up with Google
+                </button>
                 <Link
                   to="/login"
                   className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition-all hover:bg-gray-50 hover:border-gray-400 active:scale-95"
@@ -97,6 +124,9 @@ export function LandingPage() {
                   Login
                 </Link>
               </div>
+              {googleError && (
+                <p className="mt-3 text-sm text-error-600">{googleError}</p>
+              )}
 
               <div className="mt-10 flex items-center gap-8">
                 <div>
@@ -277,6 +307,17 @@ export function LandingPage() {
             >
               Create Free Account <ArrowRight className="h-5 w-5" />
             </Link>
+            <button
+              type="button"
+              onClick={handleGoogleSignUp}
+              disabled={googleLoading}
+              className="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-8 py-4 text-base font-semibold text-gray-700 shadow-sm transition-all hover:bg-gray-50 active:scale-95 disabled:opacity-60"
+            >
+              {googleLoading
+                ? <Loader2 className="h-5 w-5 animate-spin" />
+                : <GoogleIcon className="h-5 w-5" />}
+              Sign up with Google
+            </button>
             <Link
               to="/login"
               className="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-8 py-4 text-base font-semibold text-gray-700 shadow-sm transition-all hover:bg-gray-50 active:scale-95"

@@ -59,19 +59,6 @@ export function DashboardHome() {
   const loadJobs = useCallback(async () => {
     setLoading(true);
     try {
-      // Hide jobs this worker already did (one task per worker per job) and
-      // full jobs, so the feed only shows work the worker can still do.
-      let doneJobIds: string[] = [];
-      if (profile) {
-        const { data: myTasks } = await supabase
-          .from('tasks')
-          .select('job_id')
-          .eq('worker_id', profile.id)
-          .order('created_at', { ascending: false })
-          .limit(500);
-        doneJobIds = (myTasks ?? []).map((t) => t.job_id);
-      }
-
       const JOB_COLS =
         'id,title,description,category,subcategory,url,proof_instructions,' +
         'screenshot_count,screenshot_instructions,image_url,reward_per_worker,' +
@@ -88,11 +75,22 @@ export function DashboardHome() {
         console.error('Load jobs error:', error);
         setJobs([]);
       } else {
-        setJobs(
-          ((data as unknown as Job[]) ?? []).filter(
-            (j) => j.filled_slots < j.total_slots && !doneJobIds.includes(j.id),
-          ),
-        );
+        // Hide jobs this worker already did (one task per worker per job) and
+        // full jobs. The done-check asks the DB which of THESE page jobs the
+        // worker has a task for — at most 50 rows, index-backed — so it stays
+        // both exact (no cap that would resurface old jobs) and cheap.
+        const page = (data as unknown as Job[]) ?? [];
+        const doneJobIds = new Set<string>();
+        if (profile && page.length > 0) {
+          const { data: myTasks } = await supabase
+            .from('tasks')
+            .select('job_id')
+            .eq('worker_id', profile.id)
+            .in('job_id', page.map((j) => j.id));
+          (myTasks ?? []).forEach((t) => doneJobIds.add(t.job_id));
+        }
+
+        setJobs(page.filter((j) => j.filled_slots < j.total_slots && !doneJobIds.has(j.id)));
       }
     } catch (err) {
       console.error('Load jobs error:', err);

@@ -69,22 +69,6 @@ export function FindJobsPage() {
   const loadJobs = useCallback(async () => {
     setLoading(true);
     try {
-      // Jobs the current worker has already submitted a task for — hidden so
-      // they never reappear (one task per worker per job, enforced by the DB).
-      // We only ever show the newest 50 jobs, so capping this lookup to the
-      // worker's 500 most-recent tasks (indexed on worker_id) keeps the query
-      // bounded no matter how long they've been on the platform.
-      let doneJobIds: string[] = [];
-      if (profile) {
-        const { data: myTasks } = await supabase
-          .from('tasks')
-          .select('job_id')
-          .eq('worker_id', profile.id)
-          .order('created_at', { ascending: false })
-          .limit(500);
-        doneJobIds = (myTasks ?? []).map((t) => t.job_id);
-      }
-
       // Select only the columns the list + detail view render, not '*'. This
       // keeps every row small and the response fast as the jobs table grows.
       const JOB_COLS =
@@ -105,12 +89,23 @@ export function FindJobsPage() {
         console.error('Load jobs error:', error);
         setJobs([]);
       } else {
-        // Hide full (100% completed) jobs and jobs this worker already did.
-        setJobs(
-          ((data as unknown as Job[]) ?? []).filter(
-            (j) => j.filled_slots < j.total_slots && !doneJobIds.includes(j.id),
-          ),
-        );
+        // Hide jobs this worker already did (one task per worker per job,
+        // enforced by the DB). Ask the DB which of THESE page jobs the worker
+        // has a task for — at most 50 rows via the (worker_id, job_id) index —
+        // so the check stays both exact (no cap that would resurface old jobs)
+        // and cheap.
+        const page = (data as unknown as Job[]) ?? [];
+        const doneJobIds = new Set<string>();
+        if (profile && page.length > 0) {
+          const { data: myTasks } = await supabase
+            .from('tasks')
+            .select('job_id')
+            .eq('worker_id', profile.id)
+            .in('job_id', page.map((j) => j.id));
+          (myTasks ?? []).forEach((t) => doneJobIds.add(t.job_id));
+        }
+
+        setJobs(page.filter((j) => j.filled_slots < j.total_slots && !doneJobIds.has(j.id)));
       }
     } catch (err) {
       console.error('Load jobs error:', err);

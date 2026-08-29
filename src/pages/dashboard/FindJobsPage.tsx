@@ -4,6 +4,7 @@ import { Search, Briefcase, ExternalLink, X, Pin, Star, Camera, ArrowLeft } from
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { checkProofScreenshots } from '@/lib/fraudGuard';
+import { uploadToImgbb } from '@/lib/imgbb';
 import { Button } from '@/components/ui/Button';
 import { ReportButton } from '@/components/ui/ReportButton';
 import { Input, Select, Textarea } from '@/components/ui/Input';
@@ -70,16 +71,27 @@ export function FindJobsPage() {
     try {
       // Jobs the current worker has already submitted a task for — hidden so
       // they never reappear (one task per worker per job, enforced by the DB).
+      // We only ever show the newest 50 jobs, so capping this lookup to the
+      // worker's 500 most-recent tasks (indexed on worker_id) keeps the query
+      // bounded no matter how long they've been on the platform.
       let doneJobIds: string[] = [];
       if (profile) {
         const { data: myTasks } = await supabase
           .from('tasks')
           .select('job_id')
-          .eq('worker_id', profile.id);
+          .eq('worker_id', profile.id)
+          .order('created_at', { ascending: false })
+          .limit(500);
         doneJobIds = (myTasks ?? []).map((t) => t.job_id);
       }
 
-      let query = supabase.from('jobs').select('*').eq('status', 'active');
+      // Select only the columns the list + detail view render, not '*'. This
+      // keeps every row small and the response fast as the jobs table grows.
+      const JOB_COLS =
+        'id,title,description,category,subcategory,url,proof_instructions,' +
+        'screenshot_count,screenshot_instructions,image_url,reward_per_worker,' +
+        'total_slots,filled_slots,status,is_premium_only,created_at';
+      let query = supabase.from('jobs').select(JOB_COLS).eq('status', 'active');
       if (categoryFilter !== 'all') query = query.eq('category', categoryFilter);
       if (search) query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
 
@@ -95,7 +107,7 @@ export function FindJobsPage() {
       } else {
         // Hide full (100% completed) jobs and jobs this worker already did.
         setJobs(
-          ((data as Job[]) ?? []).filter(
+          ((data as unknown as Job[]) ?? []).filter(
             (j) => j.filled_slots < j.total_slots && !doneJobIds.includes(j.id),
           ),
         );
@@ -128,7 +140,11 @@ export function FindJobsPage() {
         .maybeSingle();
       if (!active) return;
       if (existing) { navigate('/dashboard/find-jobs', { replace: true }); return; }
-      const { data, error } = await supabase.from('jobs').select('*').eq('id', jobId).maybeSingle();
+      const { data, error } = await supabase
+        .from('jobs')
+        .select('id,title,description,category,subcategory,url,proof_instructions,screenshot_count,screenshot_instructions,image_url,reward_per_worker,total_slots,filled_slots,status,is_premium_only,created_at')
+        .eq('id', jobId)
+        .maybeSingle();
       if (active && data && !error) openJob(data as Job);
       else if (active) navigate('/dashboard/find-jobs', { replace: true });
     })();
@@ -166,16 +182,21 @@ export function FindJobsPage() {
         setSubmitError('This screenshot has already been used as proof. Please take a fresh screenshot.');
         return;
       }
-      const ext = file.name.split('.').pop();
-      const fileName = `task-proofs/${profile.id}/${selectedJob.id}/${Date.now()}-${slotIndex}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error: upErr } = await supabase.storage.from('job-assets').upload(fileName, file, { contentType: file.type });
-      if (upErr) { setSubmitError('Screenshot upload failed: ' + upErr.message); return; }
-      const { data: urlData } = supabase.storage.from('job-assets').getPublicUrl(fileName);
-      setScreenshots((prev) => {
-        const next = [...prev];
-        next[slotIndex] = urlData.publicUrl;
-        return next;
-      });
+      // Proof screenshots are disposable and public by design, so they go to
+      // ImgBB instead of Supabase Storage — this keeps our free storage/egress
+      // quota from ever being the bottleneck. Only the returned URL string is
+      // kept in proof_url, exactly where the old Supabase public URL lived.
+      try {
+        const { url } = await uploadToImgbb(file, `proof-${selectedJob.id}-${slotIndex}`);
+        setScreenshots((prev) => {
+          const next = [...prev];
+          next[slotIndex] = url;
+          return next;
+        });
+      } catch (e) {
+        setSubmitError(e instanceof Error ? e.message : 'Screenshot upload failed.');
+        return;
+      }
     } finally {
       setUploadingShot(false);
     }

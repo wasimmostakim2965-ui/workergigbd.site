@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Plus, Trash2, Edit, Megaphone, Link2, ImageIcon, ToggleLeft, ToggleRight, ExternalLink } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { uploadToImgbb } from '@/lib/imgbb';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -56,12 +57,9 @@ export function AdminAdsPage() {
     setUploading(true);
     setError('');
     try {
-      const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
-      const fileName = `ads/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error: upErr } = await supabase.storage.from('job-assets').upload(fileName, file, { upsert: false });
-      if (upErr) throw upErr;
-      const { data: pub } = supabase.storage.from('job-assets').getPublicUrl(fileName);
-      setForm((f) => ({ ...f, image_url: pub.publicUrl }));
+      // Ad banner images are public -> ImgBB; only the URL is stored.
+      const { url } = await uploadToImgbb(file, `ad-${Date.now()}`);
+      setForm((f) => ({ ...f, image_url: url }));
     } catch (err: any) {
       setError(err.message || 'Upload failed.');
     }

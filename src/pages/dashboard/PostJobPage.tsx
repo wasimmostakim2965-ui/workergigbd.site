@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { PlusCircle, ImagePlus, X, Info, Camera } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { uploadToImgbb } from '@/lib/imgbb';
 import { useAuth } from '@/context/AuthContext';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -90,20 +91,15 @@ export function PostJobPage() {
       setError('Only image files (JPG, PNG, WEBP, GIF) are allowed.'); return;
     }
 
-    const ext = file.name.split('.').pop();
-    const fileName = `job-images/${profile.id}/${Date.now()}.${ext}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('job-assets')
-      .upload(fileName, file, { contentType: file.type });
-
-    if (uploadError) {
-      setError('Image upload failed: ' + uploadError.message);
-      return;
+    // Job images are public and disposable -> ImgBB. Only the URL is stored in
+    // jobs.image_url, exactly where the old Supabase public URL lived, so the
+    // cleanup job and all readers keep working unchanged.
+    try {
+      const { url } = await uploadToImgbb(file, `job-image-${Date.now()}`);
+      setForm({ ...form, image_url: url });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Image upload failed.');
     }
-
-    const { data: urlData } = supabase.storage.from('job-assets').getPublicUrl(fileName);
-    setForm({ ...form, image_url: urlData.publicUrl });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

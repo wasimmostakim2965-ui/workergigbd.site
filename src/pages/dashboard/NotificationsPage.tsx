@@ -48,24 +48,14 @@ export function NotificationsPage() {
 
   useEffect(() => { loadNotifications(); }, [loadNotifications]);
 
-  // Realtime: refresh the list when a new notification arrives so users see
-  // deposit/withdrawal/task approvals appear live without manual refresh.
+  // Refresh the list on a slow poll while the page is open instead of holding
+  // a dedicated Realtime channel. This page is only mounted for users actively
+  // looking at notifications, but polling keeps it cheap and consistent with
+  // the dashboard badge, so we don't multiply live channels at scale.
   useEffect(() => {
     if (!profile) return;
-    const channel = supabase
-      .channel(`notifications-${profile.id}`)
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${profile.id}` },
-        () => loadNotifications()
-      )
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${profile.id}` },
-        () => loadNotifications()
-      )
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    const interval = setInterval(() => loadNotifications(), 30000);
+    return () => clearInterval(interval);
   }, [profile, loadNotifications]);
 
   const markAllRead = async () => {

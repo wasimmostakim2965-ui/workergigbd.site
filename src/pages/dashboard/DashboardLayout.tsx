@@ -57,10 +57,13 @@ export function DashboardLayout() {
         .then(({ count }) => setUnreadCount(count ?? 0));
     };
     fetchUnread();
-    const channel = supabase.channel('notifications-unread')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${profile.id}` }, fetchUnread)
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    // Refresh the badge on a slow poll instead of holding a live Realtime
+    // channel open for every signed-in user on every page. Realtime channels
+    // are the scarcest resource on the free tier (~200 concurrent), so they
+    // are reserved for pages that actually need them (live chat). 30s is more
+    // than fresh enough for a non-blocking count badge.
+    const interval = setInterval(fetchUnread, 30000);
+    return () => { clearInterval(interval); };
   }, [profile]);
 
   useEffect(() => {

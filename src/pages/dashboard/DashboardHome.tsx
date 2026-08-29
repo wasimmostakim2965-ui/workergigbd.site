@@ -3,6 +3,7 @@ import { Search, Briefcase, ExternalLink, X, Star, Camera, ArrowLeft } from 'luc
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { checkProofScreenshots } from '@/lib/fraudGuard';
+import { uploadToImgbb } from '@/lib/imgbb';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Input';
 import { EmptyState, LoadingSpinner } from '@/components/ui/EmptyState';
@@ -65,11 +66,17 @@ export function DashboardHome() {
         const { data: myTasks } = await supabase
           .from('tasks')
           .select('job_id')
-          .eq('worker_id', profile.id);
+          .eq('worker_id', profile.id)
+          .order('created_at', { ascending: false })
+          .limit(500);
         doneJobIds = (myTasks ?? []).map((t) => t.job_id);
       }
 
-      let query = supabase.from('jobs').select('*').eq('status', 'active');
+      const JOB_COLS =
+        'id,title,description,category,subcategory,url,proof_instructions,' +
+        'screenshot_count,screenshot_instructions,image_url,reward_per_worker,' +
+        'total_slots,filled_slots,status,is_premium_only,created_at';
+      let query = supabase.from('jobs').select(JOB_COLS).eq('status', 'active');
       if (categoryFilter !== 'all') query = query.eq('category', categoryFilter);
       if (search) query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
       if (sortBy === 'latest') query = query.order('is_premium_only', { ascending: false }).order('created_at', { ascending: false });
@@ -82,7 +89,7 @@ export function DashboardHome() {
         setJobs([]);
       } else {
         setJobs(
-          ((data as Job[]) ?? []).filter(
+          ((data as unknown as Job[]) ?? []).filter(
             (j) => j.filled_slots < j.total_slots && !doneJobIds.includes(j.id),
           ),
         );
@@ -129,12 +136,14 @@ export function DashboardHome() {
         setSubmitError('This screenshot has already been used as proof. Please take a fresh screenshot.');
         return;
       }
-      const ext = file.name.split('.').pop();
-      const fileName = `task-proofs/${profile.id}/${selectedJob.id}/${Date.now()}-${slotIndex}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error: upErr } = await supabase.storage.from('job-assets').upload(fileName, file, { contentType: file.type });
-      if (upErr) { setSubmitError('Screenshot upload failed: ' + upErr.message); return; }
-      const { data: urlData } = supabase.storage.from('job-assets').getPublicUrl(fileName);
-      setScreenshots((prev) => { const next = [...prev]; next[slotIndex] = urlData.publicUrl; return next; });
+      // Proof screenshots are disposable/public -> ImgBB (see FindJobsPage).
+      try {
+        const { url } = await uploadToImgbb(file, `proof-${selectedJob.id}-${slotIndex}`);
+        setScreenshots((prev) => { const next = [...prev]; next[slotIndex] = url; return next; });
+      } catch (e) {
+        setSubmitError(e instanceof Error ? e.message : 'Screenshot upload failed.');
+        return;
+      }
     } finally {
       setUploadingShot(false);
     }

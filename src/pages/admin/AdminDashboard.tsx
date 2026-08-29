@@ -36,65 +36,22 @@ export function AdminDashboard() {
   useEffect(() => {
     async function loadStats() {
       try {
-        const now = new Date();
-        const todayStart = new Date();
-        todayStart.setHours(0, 0, 0, 0);
-        // First day of current month
-        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-        // First day of current year
-        const yearStart = new Date(now.getFullYear(), 0, 1);
-
-        const [
-          usersCount, activeCount, todayUsers, pendingDep, pendingWd,
-          approvedDep, approvedWd, yearDep, activeJobs, totalJobs, completedTasks,
-          monthEarn, todayDep, todayWd, recentDepData, recentWdData, recentUsersData,
-        ] = await Promise.all([
-          supabase.from('profiles').select('id', { count: 'exact' }).neq('status', 'admin'),
-          supabase.from('profiles').select('id', { count: 'exact' }).eq('status', 'active'),
-          supabase.from('profiles').select('id', { count: 'exact' }).neq('status', 'admin').gte('created_at', todayStart.toISOString()),
-          supabase.from('deposit_requests').select('id', { count: 'exact' }).eq('status', 'pending'),
-          supabase.from('withdrawal_requests').select('id', { count: 'exact' }).eq('status', 'pending'),
-          // Sum financial totals via Postgres aggregation instead of downloading
-          // every row client-side (which silently truncates at the 1000-row
-          // default limit and gives wrong totals as data grows).
-          supabase.from('deposit_requests').select('amount').eq('status', 'approved').limit(10000),
-          supabase.from('withdrawal_requests').select('amount').eq('status', 'approved').limit(10000),
-          supabase.from('deposit_requests').select('amount').eq('status', 'approved').gte('created_at', yearStart.toISOString()).limit(10000),
-          supabase.from('jobs').select('id', { count: 'exact' }).eq('status', 'active'),
-          supabase.from('jobs').select('id', { count: 'exact' }),
-          supabase.from('tasks').select('id', { count: 'exact' }).eq('status', 'approved'),
-          // Platform earnings paid out to workers this month (type='earning' task payouts)
-          supabase.from('transactions').select('amount').eq('type', 'earning').gte('created_at', monthStart.toISOString()).limit(10000),
-          supabase.from('deposit_requests').select('amount').eq('status', 'approved').gte('created_at', todayStart.toISOString()).limit(10000),
-          supabase.from('withdrawal_requests').select('amount').eq('status', 'approved').gte('created_at', todayStart.toISOString()).limit(10000),
+        // All headline stats come from a single read-only SQL RPC
+        // (get_admin_stats) that computes counts and sums in the database.
+        // This replaces 14 parallel queries — including six `limit(10000)`
+        // amount downloads that were silently truncating totals and would have
+        // crushed the DB at scale. Only the three small "recent" lists are
+        // still fetched here.
+        const [statsRes, recentDepData, recentWdData, recentUsersData] = await Promise.all([
+          supabase.rpc('get_admin_stats'),
           supabase.from('deposit_requests').select('*, profiles(username)').order('created_at', { ascending: false }).limit(5),
           supabase.from('withdrawal_requests').select('*, profiles(username)').order('created_at', { ascending: false }).limit(5),
           supabase.from('profiles').select('username, created_at, status').neq('status', 'admin').order('created_at', { ascending: false }).limit(5),
         ]);
 
-        const totalDepAmount = (approvedDep.data as any[])?.reduce((sum, d) => sum + d.amount, 0) ?? 0;
-        const totalWdAmount = (approvedWd.data as any[])?.reduce((sum, d) => sum + d.amount, 0) ?? 0;
-        const yearDepAmount = (yearDep.data as any[])?.reduce((sum, d) => sum + d.amount, 0) ?? 0;
-        const monthEarnAmount = (monthEarn.data as any[])?.reduce((sum, d) => sum + d.amount, 0) ?? 0;
-        const todayDepAmount = (todayDep.data as any[])?.reduce((sum, d) => sum + d.amount, 0) ?? 0;
-        const todayWdAmount = (todayWd.data as any[])?.reduce((sum, d) => sum + d.amount, 0) ?? 0;
+        if (statsRes.error) throw statsRes.error;
+        setStats(statsRes.data as AdminStats);
 
-        setStats({
-          totalUsers: usersCount.count ?? 0,
-          activeUsers: activeCount.count ?? 0,
-          todayNewUsers: todayUsers.count ?? 0,
-          pendingDeposits: pendingDep.count ?? 0,
-          pendingWithdrawals: pendingWd.count ?? 0,
-          totalDeposits: totalDepAmount,
-          totalWithdrawals: totalWdAmount,
-          yearDeposits: yearDepAmount,
-          monthEarnings: monthEarnAmount,
-          totalJobsPosted: totalJobs.count ?? 0,
-          activeJobs: activeJobs.count ?? 0,
-          completedTasks: completedTasks.count ?? 0,
-          todayDeposits: todayDepAmount,
-          todayWithdrawals: todayWdAmount,
-        });
         setRecentDeposits((recentDepData.data as any[]) ?? []);
         setRecentWithdrawals((recentWdData.data as any[]) ?? []);
         setRecentUsers((recentUsersData.data as any[]) ?? []);

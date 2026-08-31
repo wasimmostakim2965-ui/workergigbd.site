@@ -20,6 +20,9 @@ Allow: /login
 Allow: /signup
 Allow: /privacy-policy
 Allow: /terms-of-service
+Allow: /about
+Allow: /contact
+Allow: /blog
 
 # Sitemap
 Sitemap: https://www.workergigbd.site/sitemap.xml

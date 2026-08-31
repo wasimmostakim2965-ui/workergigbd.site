@@ -59,7 +59,7 @@ export function PrivacyPolicyPage() {
 
       <h2>৭. যোগাযোগ</h2>
       <p>
-        যেকোনো প্রশ্নে support@workergigbd.site-এ ইমেইল করুন অথবা ড্যাশবোর্ড থেকে
+        যেকোনো প্রশ্নে wasimmostakim2965@gmail.com-এ ইমেইল করুন অথবা ড্যাশবোর্ড থেকে
         সাপোর্ট টিকেট খুলুন।
       </p>
     </LegalPage>

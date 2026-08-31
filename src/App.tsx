@@ -8,6 +8,10 @@ import { LoginPage } from '@/pages/LoginPage';
 import { SignupPage } from '@/pages/SignupPage';
 import { PrivacyPolicyPage } from '@/pages/PrivacyPolicyPage';
 import { TermsOfServicePage } from '@/pages/TermsOfServicePage';
+import { AboutUsPage } from '@/pages/AboutUsPage';
+import { ContactUsPage } from '@/pages/ContactUsPage';
+import { BlogPage } from '@/pages/BlogPage';
+import { BlogPostPage } from '@/pages/BlogPostPage';
 import { DashboardLayout } from '@/pages/dashboard/DashboardLayout';
 import { DashboardHome } from '@/pages/dashboard/DashboardHome';
 import { PostJobPage } from '@/pages/dashboard/PostJobPage';
@@ -122,6 +126,10 @@ function AppRoutes() {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
       <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+      <Route path="/about" element={<AboutUsPage />} />
+      <Route path="/contact" element={<ContactUsPage />} />
+      <Route path="/blog" element={<BlogPage />} />
+      <Route path="/blog/:slug" element={<BlogPostPage />} />
       <Route path="/admin-login" element={<AdminGatePage />} />
 
       <Route path="/dashboard" element={<ProtectedRoute><AccountStatusGate><DashboardLayout /></AccountStatusGate></ProtectedRoute>}>

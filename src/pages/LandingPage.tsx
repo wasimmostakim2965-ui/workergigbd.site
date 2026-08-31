@@ -61,6 +61,9 @@ export function LandingPage() {
             <a href="#categories" className="text-sm font-medium text-gray-600 transition-colors hover:text-primary-600">Categories</a>
             <a href="#how-it-works" className="text-sm font-medium text-gray-600 transition-colors hover:text-primary-600">How It Works</a>
             <a href="#faq" className="text-sm font-medium text-gray-600 transition-colors hover:text-primary-600">FAQ</a>
+            <Link to="/blog" className="text-sm font-medium text-gray-600 transition-colors hover:text-primary-600">Blog</Link>
+            <Link to="/about" className="text-sm font-medium text-gray-600 transition-colors hover:text-primary-600">About</Link>
+            <Link to="/contact" className="text-sm font-medium text-gray-600 transition-colors hover:text-primary-600">Contact</Link>
           </div>
           <div className="flex items-center gap-3">
             <Link to="/login" className="text-sm font-semibold text-gray-700 transition-colors hover:text-primary-600">
@@ -346,7 +349,9 @@ export function LandingPage() {
             <div>
               <h4 className="font-semibold text-gray-900 mb-3">Support</h4>
               <ul className="space-y-2 text-sm text-gray-500">
-                <li><Link to="/dashboard/ticket" className="hover:text-primary-600">Help Center</Link></li>
+                <li><Link to="/about" className="hover:text-primary-600">About Us</Link></li>
+                <li><Link to="/contact" className="hover:text-primary-600">Contact Us</Link></li>
+                <li><Link to="/blog" className="hover:text-primary-600">Blog &amp; Guides</Link></li>
                 <li><a href="#faq" className="hover:text-primary-600">FAQ</a></li>
                 <li><Link to="/terms-of-service" className="hover:text-primary-600">Terms of Service</Link></li>
                 <li><Link to="/privacy-policy" className="hover:text-primary-600">Privacy Policy</Link></li>
@@ -355,7 +360,8 @@ export function LandingPage() {
             <div>
               <h4 className="font-semibold text-gray-900 mb-3">Contact</h4>
               <ul className="space-y-2 text-sm text-gray-500">
-                <li>support@workergigbd.site</li>
+                <li><a href="mailto:wasimmostakim2965@gmail.com" className="hover:text-primary-600">wasimmostakim2965@gmail.com</a></li>
+                <li><a href="https://wa.me/8801338882758" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600">WhatsApp: +880 1338-882758</a></li>
                 <li>workergigbd.site</li>
               </ul>
             </div>

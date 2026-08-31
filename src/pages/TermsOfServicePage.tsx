@@ -69,7 +69,7 @@ export function TermsOfServicePage() {
 
       <h2>৯. যোগাযোগ</h2>
       <p>
-        প্রশ্নে support@workergigbd.site বা সাপোর্ট টিকেটের মাধ্যমে যোগাযোগ করুন।
+        প্রশ্নে wasimmostakim2965@gmail.com বা সাপোর্ট টিকেটের মাধ্যমে যোগাযোগ করুন।
       </p>
     </LegalPage>
   );

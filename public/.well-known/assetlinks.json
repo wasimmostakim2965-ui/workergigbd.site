@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "site.workergigbd.www.twa",
+      "sha256_cert_fingerprints": ["54:5D:D5:32:FE:48:49:5A:D6:D3:84:BD:01:6E:23:6E:76:9C:E0:4A:3B:EA:60:97:53:1A:FC:92:E9:5A:D2:1C"]
+    }
+  }
+]

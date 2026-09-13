@@ -8,48 +8,50 @@ export function AboutUsPage() {
       path="/about"
       updated="August 2026"
     >
+      <p>
+        WORKER GIG BD is operated as an online marketplace for users in Bangladesh. The
+        information on this page describes the service as it is intended to work; it is not a
+        promise of income, task availability, approval, or withdrawal timing.
+      </p>
+
       <h2>Our Mission</h2>
       <p>
-        WORKER GIG BD was built with one simple goal: to give every Bangladeshi with a smartphone
-        and an internet connection a real, honest way to earn money online. Millions of people in
-        Bangladesh want to work online but do not know where to start, and thousands of businesses
-        need small digital tasks done quickly. We connect these two sides in one trusted marketplace.
+        WORKER GIG BD aims to make small online tasks easier to discover and manage for workers and
+        employers in Bangladesh. We try to explain task requirements, proof requirements, payment
+        status, and account rules clearly so that users can make informed decisions.
       </p>
 
       <h2>What We Do</h2>
       <p>
-        We are a micro-job marketplace. Employers post small tasks — such as following a page,
-        watching a video, installing an app, writing a short review, or testing a website — and
-        set a reward for each completed task. Workers browse the marketplace, complete the tasks,
-        submit proof (usually a screenshot), and get paid once the employer approves the work.
-        From social media engagement to surveys and sign-ups, there are more than 45 categories
-        of tasks available every day.
+        We are a micro-job marketplace. Employers post tasks, set requirements and set a reward.
+        Workers review the instructions, decide whether a task is suitable, submit the requested
+        proof, and wait for review under the platform rules. Task availability, rewards, approval
+        decisions, and processing times can change and should always be checked on the task page.
       </p>
 
       <h2>How Payments Work</h2>
       <p>
-        Trust is everything in online earning. That is why every employer must deposit funds into
-        the platform <strong>before</strong> a job goes live, so the money for a task is already
-        secured before a worker starts it. Workers can withdraw their earnings through bKash,
-        Nagad, and Rocket — the mobile banking services Bangladeshis already use every day.
-        Deposits and withdrawals are reviewed by our team to keep both sides safe.
+        Employers are required to deposit funds before an eligible job goes live. Workers may
+        request withdrawals through the available mobile-financial-service options after meeting
+        the current requirements. Requests can be reviewed, delayed, rejected, or changed under
+        the Terms of Service; users should not treat a balance or a task reward as guaranteed cash
+        until the withdrawal is completed.
       </p>
 
       <h2>Safety and Fairness</h2>
       <p>
-        We verify users, monitor task quality, and act on reports from both workers and employers.
-        Duplicate or fake proof submissions are automatically detected, accounts that break the
-        rules are suspended, and every payment leaves an auditable transaction record. Our support
-        team is reachable through the in-platform ticket system and live chat, and you can always
-        reach us through the details on our <a href="/contact">Contact page</a>.
+        We review reports from workers and employers and may restrict accounts or tasks that break
+        the rules. Users should report suspicious instructions, requests for passwords or payment,
+        duplicate proof, impersonation, and misleading tasks. Our support team is reachable through
+        the in-platform ticket system and the details on our <a href="/contact">Contact page</a>.
       </p>
 
       <h2>Who We Serve</h2>
       <p>
-        Whether you are a student looking for part-time income, a homemaker earning from your
-        phone, or a business owner who needs a thousand real people to engage with your brand —
-        WORKER GIG BD is built for you. We are proud to be a Bangladeshi platform, made for
-        Bangladesh, and available nationwide.
+        The service is intended for adults and businesses that can follow the platform rules and
+        applicable laws. It is not employment, financial advice, or a guarantee of income. Users
+        are responsible for checking whether a task is lawful, truthful, safe, and consistent with
+        the rules of any third-party service involved.
       </p>
 
       <p>

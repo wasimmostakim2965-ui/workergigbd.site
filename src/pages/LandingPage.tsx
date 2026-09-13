@@ -12,17 +12,17 @@ import { supabase } from '@/lib/supabase';
 
 const features = [
   { icon: Wallet, title: 'Easy Deposits & Withdrawals', desc: 'bKash, Nagad, Rocket — deposit and withdraw your earnings easily with low fees.' },
-  { icon: Shield, title: 'Secure & Trusted', desc: 'Every transaction is protected. Admin-verified deposits and withdrawals keep your money safe.' },
-  { icon: TrendingUp, title: 'Unlimited Earning Potential', desc: 'Complete tasks, post jobs, refer friends, and run ads — multiple income streams in one platform.' },
+  { icon: Shield, title: 'Clear Platform Rules', desc: 'Task requirements, proof expectations, account rules, and payment status are shown so users can make informed decisions.' },
+  { icon: TrendingUp, title: 'Flexible Marketplace', desc: 'Browse available tasks, post eligible jobs, and review current rewards and requirements before taking action.' },
   { icon: Zap, title: 'Fast Task Completion', desc: 'Quick, simple micro-tasks that take minutes. Like, follow, subscribe, watch, and earn.' },
-  { icon: Users, title: 'Growing Community', desc: 'Join Bangladeshi freelancers earning online from home.' },
+  { icon: Users, title: 'Bangladesh-focused Support', desc: 'Get help through the published contact channels and in-platform support tools.' },
   { icon: BarChart3, title: 'Detailed Analytics', desc: 'Track your earnings, task completion rate, and growth with a powerful dashboard.' },
 ];
 
 const steps = [
-  { num: '01', title: 'Create Your Account', desc: 'Sign up for free with just your email and username. No verification hassle.' },
-  { num: '02', title: 'Choose & Complete Tasks', desc: 'Browse 45+ task categories, pick what you like, complete it, and submit proof.' },
-  { num: '03', title: 'Get Your Earnings', desc: 'Withdraw your earnings to bKash, Nagad, or Rocket once you reach the minimum amount.' },
+  { num: '01', title: 'Create Your Account', desc: 'Sign up with your email and username, then review the account and verification requirements.' },
+  { num: '02', title: 'Review & Complete Tasks', desc: 'Read the requirements, decide whether a task is suitable, complete it, and submit truthful proof.' },
+  { num: '03', title: 'Request a Withdrawal', desc: 'After meeting the current requirements, you may request a withdrawal through an available payment method.' },
 ];
 
 export function LandingPage() {
@@ -46,8 +46,8 @@ export function LandingPage() {
     // On success the browser leaves for Google; no client-side navigate needed.
   };
   useSeo({
-    title: 'WORKER GIG BD: Best Micro Job Site for Earning',
-    description: 'WORKER GIG BD (workergigbd.site) বাংলাদেশের শীর্ষ মাইক্রো-টাস্ক ও ফ্রিল্যান্স প্ল্যাটফর্ম। সহজ অনলাইন টাস্ক সম্পন্ন করে ঘরে বসে আয় করুন। সাইন আপ করুন, কাজ করুন, বিকাশ/নগদে টাকা তুলুন। $1 = 100 BDT.',
+    title: 'WORKER GIG BD — Micro-task Marketplace in Bangladesh',
+    description: 'WORKER GIG BD is a Bangladesh-focused micro-task marketplace. Review task requirements, submit proof, post eligible jobs, and check current payment rules before participating.',
     path: '/',
   });
   return (
@@ -90,7 +90,7 @@ export function LandingPage() {
             <div className="animate-slide-up">
               <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary-200 bg-primary-50 px-4 py-1.5 text-sm font-medium text-primary-700">
                 <span className="flex h-2 w-2 rounded-full bg-primary-500 animate-pulse" />
-                Trusted Micro-Task Platform in Bangladesh
+                Bangladesh-focused Micro-task Marketplace
               </div>
               <h1 className="font-heading text-4xl font-extrabold leading-tight tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
                 Earn Money Doing{' '}
@@ -99,8 +99,7 @@ export function LandingPage() {
                 </span>
               </h1>
               <p className="mt-5 max-w-xl text-lg leading-relaxed text-gray-600">
-                Like, follow, subscribe, watch videos, complete surveys, and more.
-                Join Bangladeshis earning online from the comfort of home.
+                Review available tasks, understand the requirements, and decide which opportunities are suitable for you.
               </p>
               <div className="mt-10 flex flex-col items-center">
                 <button
@@ -192,7 +191,7 @@ export function LandingPage() {
               How It Works
             </h2>
             <p className="mt-3 text-lg text-gray-600">
-              Start earning in three simple steps
+              Understand the process in three simple steps
             </p>
           </div>
           <div className="grid gap-8 md:grid-cols-3">
@@ -215,7 +214,7 @@ export function LandingPage() {
               Why Choose WORKER GIG BD?
             </h2>
             <p className="mt-3 text-lg text-gray-600">
-              Everything you need to earn money online — in one platform
+              Practical tools for managing tasks and marketplace activity
             </p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

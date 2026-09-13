@@ -17,7 +17,9 @@ export function TermsOfServicePage() {
       <p>
         WORKER GIG BD একটি মাইক্রো-টাস্ক ও ফ্রিল্যান্স প্ল্যাটফর্ম যেখানে ইউজাররা
         অনলাইন টাস্ক সম্পন্ন করে আয় করতে পারেন এবং টাস্ক পোস্ট করতে পারেন।
-        পেমেন্ট বিকাশ, নগদ ও রকেট-এর মাধ্যমে হয় ($1 = 100 BDT)।
+        পেমেন্টের পদ্ধতি, রেট, ফি, ন্যূনতম সীমা এবং processing time পরিবর্তনশীল; বর্তমান
+        তথ্য সংশ্লিষ্ট dashboard বা task page-এ যাচাই করতে হবে। কোনো আয় বা withdrawal-এর
+        নিশ্চয়তা দেওয়া হয় না।
       </p>
 
       <h2>২. অ্যাকাউন্ট</h2>
@@ -31,7 +33,8 @@ export function TermsOfServicePage() {
       <ul>
         <li>কাজের প্রমাণ সঠিকভাবে জমা দিতে হবে; ভুয়া প্রমাণ নিষিদ্ধ।</li>
         <li>প্রিমিয়াম কাজ শুধু প্রিমিয়াম ইউজারদের জন্য।</li>
-        <li>অ্যাডমিন যেকোনো কাজ বা টাস্ক প্রত্যাখ্যান বা মুছে ফেলার অধিকার রাখেন।</li>
+        <li>কোনো task তৃতীয় পক্ষের platform rule, applicable law, privacy বা সত্যতা লঙ্ঘন করতে পারবে না।</li>
+        <li>অ্যাডমিন task review, pause, reject বা remove করতে পারেন; কারণ জানানো এবং appeal-এর সুযোগ task-এর ধরন অনুযায়ী পরিবর্তিত হতে পারে।</li>
       </ul>
 
       <h2>৪. ডিপোজিট ও উইথড্র</h2>
@@ -47,6 +50,8 @@ export function TermsOfServicePage() {
         <li>বট, অটোমেশন বা প্রতারণামূলক পদ্ধতি নিষিদ্ধ।</li>
         <li>অন্য ইউজারকে হয়রানি বা প্রতারণা করা যাবে না।</li>
         <li>অবৈধ বা আপত্তিকর কনটেন্ট পোস্ট নিষিদ্ধ।</li>
+        <li>বিজ্ঞাপনে click বা impression কৃত্রিমভাবে বাড়ানো, incentivized ad interaction, spam, fake account, fake review, impersonation, credential sharing, বা অন্যের ব্যক্তিগত তথ্য সংগ্রহের task নিষিদ্ধ।</li>
+        <li>তৃতীয় পক্ষের service-এর terms ভঙ্গ করে এমন follow, like, subscribe, review, referral, backlink বা account-related task নিষিদ্ধ হতে পারে এবং report হলে সরিয়ে দেওয়া হবে।</li>
       </ul>
 
       <h2>৬. অ্যাকাউন্ট সাসপেনশন</h2>

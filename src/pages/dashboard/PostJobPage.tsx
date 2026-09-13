@@ -13,7 +13,7 @@ import { useSeo } from '@/lib/useSeo';
 export function PostJobPage() {
   useSeo({
     title: 'কাজ পোস্ট করুন — WORKER GIG BD | অনলাইন কাজ পোস্ট ও ওয়ার্কার নিয়োগ',
-    description: 'WORKER GIG BD-তে কাজ পোস্ট করুন এবং সারা বাংলাদেশের ওয়ার্কারদের কাছ থেকে সহজে আপনার মাইক্রো-টাস্ক সম্পন্ন করান। ফেসবুক লাইক, সাইন আপ, সার্ভে ইত্যাদি কাজ পোস্ট করুন।',
+    description: 'WORKER GIG BD-তে কাজ পোস্ট করুন। নতুন job admin review-এর পর eligible হলে workers-এর কাছে প্রকাশিত হবে।',
     path: '/dashboard/post-job',
     noindex: true,
   });
@@ -175,12 +175,12 @@ export function PostJobPage() {
     <div className="space-y-6">
       <div>
         <h1 className="font-heading text-2xl font-bold text-gray-900">Post New Job</h1>
-        <p className="mt-1 text-sm text-gray-600">Create a task for workers to complete</p>
+        <p className="mt-1 text-sm text-gray-600">Create a task for workers to complete. Every new job is reviewed before publication.</p>
       </div>
 
       {success && (
         <Alert variant="success" title="Job Posted Successfully!">
-          Your job has been posted and is now visible to workers. ${totalCost.toFixed(3)} has been deducted from your deposit balance.
+          Your job was submitted for admin review. ${totalCost.toFixed(3)} has been deducted from your deposit balance and will be refunded if the job is rejected.
         </Alert>
       )}
       {error && <Alert variant="error">{error}</Alert>}

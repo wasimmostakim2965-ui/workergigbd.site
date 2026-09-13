@@ -36,6 +36,7 @@ import { AdminWithdrawalsPage } from '@/pages/admin/AdminWithdrawalsPage';
 import { AdminJobsPage } from '@/pages/admin/AdminJobsPage';
 import { AdminGatePage } from '@/pages/admin/AdminGatePage';
 import { AdminTasksPage } from '@/pages/admin/AdminTasksPage';
+import { AdminTaskReviewPage } from '@/pages/admin/AdminTaskReviewPage';
 import { AdminReportsPage } from '@/pages/admin/AdminReportsPage';
 import { AdminTicketsPage } from '@/pages/admin/AdminTicketsPage';
 import { AdminCategoriesPage } from '@/pages/admin/AdminCategoriesPage';
@@ -158,6 +159,7 @@ function AppRoutes() {
         <Route path="deposits" element={<AdminDepositsPage />} />
         <Route path="withdrawals" element={<AdminWithdrawalsPage />} />
         <Route path="jobs" element={<AdminJobsPage />} />
+        <Route path="task-review" element={<AdminTaskReviewPage />} />
         <Route path="tasks" element={<AdminTasksPage />} />
         <Route path="reports" element={<AdminReportsPage />} />
         <Route path="tickets" element={<AdminTicketsPage />} />

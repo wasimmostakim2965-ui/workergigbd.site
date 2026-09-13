@@ -47,7 +47,7 @@ export interface Job {
   reward_per_worker: number;
   total_slots: number;
   filled_slots: number;
-  status: 'active' | 'paused' | 'completed' | 'rejected';
+  status: 'pending_review' | 'active' | 'paused' | 'completed' | 'rejected';
   is_premium_only: boolean;
   created_at: string;
   updated_at: string;

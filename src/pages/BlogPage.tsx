@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, BookOpen, Clock, Sparkles, ShieldCheck, BriefcaseBusiness } from 'lucide-react';
+import { ArrowRight, BookOpen, Clock, Sparkles, ShieldCheck, Briefcase } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { useSeo } from '@/lib/useSeo';
 import { BLOG_POSTS } from '@/data/blogPosts';
@@ -46,7 +46,7 @@ export function BlogPage() {
               <div className="mt-8 flex flex-wrap gap-3">
                 <div className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm"><BookOpen className="h-4 w-4 text-primary-600" /> Step-by-step guides</div>
                 <div className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm"><ShieldCheck className="h-4 w-4 text-primary-600" /> Safer participation</div>
-                <div className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm"><BriefcaseBusiness className="h-4 w-4 text-primary-600" /> Worker + employer tips</div>
+                <div className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm"><Briefcase className="h-4 w-4 text-primary-600" /> Worker + employer tips</div>
               </div>
             </div>
           </div>

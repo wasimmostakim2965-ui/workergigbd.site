@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 const DIST = path.resolve('dist');
-const ORIGIN = 'https://www.workergigbd.site';
+const ORIGIN = 'https://workergigbd.site';
 
 const routes = [
   ['/', 'WORKER GIG BD | Micro Jobs & Online Work in Bangladesh', 'বাংলাদেশে ছোট অনলাইন কাজ খুঁজুন বা বৈধ micro-task পোস্ট করুন। WORKER GIG BD-তে workers ও employers-এর জন্য task, proof এবং marketplace workflow সম্পর্কে জানুন।', 'বাংলাদেশের Micro Job ও ছোট অনলাইন কাজের প্ল্যাটফর্ম', 'WORKER GIG BD বাংলাদেশ-কেন্দ্রিক micro-task marketplace। কর্মীরা বৈধ ছোট কাজ খুঁজতে পারেন এবং employers নির্দিষ্ট নিয়ম, reward ও proof requirements দিয়ে কাজ পোস্ট করতে পারেন। কাজ নেওয়ার আগে instructions, reward এবং proof requirements বুঝে নেওয়া গুরুত্বপূর্ণ।'],

@@ -3,7 +3,7 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://www.workergigbd.site/</loc>
-    <lastmod>2026-08-11T00:00:00+00:00</lastmod>
+    <lastmod>2026-09-14T00:00:00+00:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -12,81 +12,22 @@
     </image:image>
   </url>
   <url>
-    <loc>https://www.workergigbd.site/privacy-policy</loc>
-    <lastmod>2026-08-11T00:00:00+00:00</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://www.workergigbd.site/terms-of-service</loc>
-    <lastmod>2026-08-11T00:00:00+00:00</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://www.workergigbd.site/about</loc>
-    <lastmod>2026-08-29T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://www.workergigbd.site/contact</loc>
-    <lastmod>2026-08-29T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://www.workergigbd.site/blog</loc>
-    <lastmod>2026-08-29T00:00:00+00:00</lastmod>
+    <loc>https://www.workergigbd.site/for-employers</loc>
+    <lastmod>2026-09-14T00:00:00+00:00</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.95</priority>
   </url>
-  <url>
-    <loc>https://www.workergigbd.site/blog/earn-money-online-bangladesh-micro-tasks</loc>
-    <lastmod>2026-08-29T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.workergigbd.site/blog/withdraw-earnings-bkash-nagad-rocket</loc>
-    <lastmod>2026-08-29T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.workergigbd.site/blog/post-a-job-get-work-done</loc>
-    <lastmod>2026-08-29T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.workergigbd.site/blog/avoid-scams-keep-account-safe</loc>
-    <lastmod>2026-08-29T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.workergigbd.site/blog/free-vs-premium-membership</loc>
-    <lastmod>2026-08-29T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.workergigbd.site/blog/how-task-approval-works</loc>
-    <lastmod>2026-08-29T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.workergigbd.site/blog/referral-program-earn-inviting-friends</loc>
-    <lastmod>2026-08-29T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.workergigbd.site/blog/beginners-guide-micro-jobs-first-payment</loc>
-    <lastmod>2026-08-29T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
+  <url><loc>https://www.workergigbd.site/privacy-policy</loc><lastmod>2026-08-11T00:00:00+00:00</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://www.workergigbd.site/terms-of-service</loc><lastmod>2026-08-11T00:00:00+00:00</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://www.workergigbd.site/about</loc><lastmod>2026-08-29T00:00:00+00:00</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.workergigbd.site/contact</loc><lastmod>2026-08-29T00:00:00+00:00</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.workergigbd.site/blog</loc><lastmod>2026-08-29T00:00:00+00:00</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.workergigbd.site/blog/earn-money-online-bangladesh-micro-tasks</loc><lastmod>2026-08-29T00:00:00+00:00</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.workergigbd.site/blog/withdraw-earnings-bkash-nagad-rocket</loc><lastmod>2026-08-29T00:00:00+00:00</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.workergigbd.site/blog/post-a-job-get-work-done</loc><lastmod>2026-08-29T00:00:00+00:00</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.workergigbd.site/blog/avoid-scams-keep-account-safe</loc><lastmod>2026-08-29T00:00:00+00:00</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.workergigbd.site/blog/free-vs-premium-membership</loc><lastmod>2026-08-29T00:00:00+00:00</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.workergigbd.site/blog/how-task-approval-works</loc><lastmod>2026-08-29T00:00:00+00:00</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.workergigbd.site/blog/referral-program-earn-inviting-friends</loc><lastmod>2026-08-29T00:00:00+00:00</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.workergigbd.site/blog/beginners-guide-micro-jobs-first-payment</loc><lastmod>2026-08-29T00:00:00+00:00</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
 </urlset>

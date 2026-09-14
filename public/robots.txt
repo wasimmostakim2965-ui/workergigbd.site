@@ -15,4 +15,4 @@ Allow: /blog
 Allow: /privacy-policy
 Allow: /terms-of-service
 
-Sitemap: https://www.workergigbd.site/sitemap.xml
+Sitemap: https://workergigbd.site/sitemap.xml

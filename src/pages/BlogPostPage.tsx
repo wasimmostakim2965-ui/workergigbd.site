@@ -1,5 +1,5 @@
 import { Link, useParams, Navigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Clock } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Clock } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { useSeo } from '@/lib/useSeo';
 import { BLOG_POSTS } from '@/data/blogPosts';
@@ -18,64 +18,43 @@ export function BlogPostPage() {
   if (!post) return <Navigate to="/blog" replace />;
 
   return (
-    <div className="min-h-screen bg-white">
-      <nav className="border-b border-gray-100 bg-white">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3 sm:px-6">
-          <Link to="/" className="flex items-center">
-            <Logo size={32} />
-          </Link>
-          <Link
-            to="/blog"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700 transition-colors hover:text-primary-600"
-          >
-            <ArrowLeft className="h-4 w-4" /> All articles
-          </Link>
+    <div className="min-h-screen bg-slate-50">
+      <nav className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <Link to="/" aria-label="WORKER GIG BD home"><Logo size={36} /></Link>
+          <Link to="/blog" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-primary-600"><ArrowLeft className="h-4 w-4" /> All guides</Link>
         </div>
       </nav>
 
-      <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
-        <span className="text-xs font-semibold uppercase tracking-wide text-primary-600">
-          {post.category}
-        </span>
-        <h1 className="mt-2 font-heading text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-          {post.title}
-        </h1>
-        <p className="mt-3 flex items-center gap-1.5 text-sm text-gray-500">
-          <Clock className="h-4 w-4" /> {post.readingTime} read · Published {post.date}
-        </p>
+      <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
+        <Link to="/blog" className="inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:text-primary-700"><ArrowLeft className="h-4 w-4" /> Learning Center</Link>
+        <article className="mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+          <header className="border-b border-slate-100 px-6 py-9 sm:px-10 sm:py-12">
+            <span className="rounded-full bg-primary-50 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-primary-700">{post.category}</span>
+            <h1 className="mt-5 text-3xl font-extrabold leading-tight tracking-tight text-slate-950 sm:text-5xl">{post.title}</h1>
+            <div className="mt-5 flex flex-wrap items-center gap-4 text-sm text-slate-500"><span className="inline-flex items-center gap-1.5"><Clock className="h-4 w-4" /> {post.readingTime} read</span><span>Published {post.date}</span></div>
+          </header>
 
-        <div className="prose prose-gray mt-8 max-w-none text-gray-700">
-          {post.content.map((block, i) => {
-            if (block.type === 'h2') return <h2 key={i}>{block.text}</h2>;
-            if (block.type === 'ul')
-              return (
-                <ul key={i}>
-                  {block.items?.map((item, j) => <li key={j}>{item}</li>)}
-                </ul>
-              );
-            return <p key={i}>{block.text}</p>;
-          })}
-        </div>
+          <div className="px-6 py-8 sm:px-10 sm:py-12">
+            <div className="prose prose-slate max-w-none text-slate-700 prose-headings:font-heading prose-headings:text-slate-950 prose-a:text-primary-600 prose-strong:text-slate-900">
+              {post.content.map((block, i) => {
+                if (block.type === 'h2') return <h2 key={i}>{block.text}</h2>;
+                if (block.type === 'ul') return <ul key={i}>{block.items?.map((item, j) => <li key={j}>{item}</li>)}</ul>;
+                return <p key={i}>{block.text}</p>;
+              })}
+            </div>
+          </div>
+        </article>
 
-        <div className="mt-12 rounded-2xl border border-primary-100 bg-primary-50 p-6 text-center">
-          <p className="font-semibold text-gray-900">Ready to start earning?</p>
-          <p className="mt-1 text-sm text-gray-600">
-            Join thousands of Bangladeshis earning online with simple tasks.
-          </p>
-          <Link
-            to="/signup"
-            className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
-          >
-            Create free account <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-      </article>
+        <section className="mt-8 rounded-3xl bg-slate-950 p-7 text-white sm:p-9">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <div><div className="flex items-center gap-2 text-primary-300"><BookOpen className="h-5 w-5" /><span className="text-sm font-bold uppercase tracking-wider">Ready to learn more?</span></div><h2 className="mt-2 text-2xl font-extrabold">Explore more practical guides.</h2><p className="mt-2 text-sm leading-6 text-slate-300">Build your understanding before you start working or posting a task.</p></div>
+            <Link to="/blog" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-slate-900 hover:bg-slate-100">Browse guides <ArrowRight className="h-4 w-4" /></Link>
+          </div>
+        </section>
+      </main>
 
-      <footer className="border-t border-gray-200 bg-gray-50 py-8">
-        <div className="mx-auto max-w-3xl px-4 text-center text-sm text-gray-500 sm:px-6">
-          © 2026 WORKER GIG BD. All rights reserved.
-        </div>
-      </footer>
+      <footer className="border-t border-slate-200 bg-white py-8"><div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 text-sm text-slate-500 sm:px-6 lg:px-8 sm:flex-row sm:items-center sm:justify-between"><span>© 2026 WORKER GIG BD. All rights reserved.</span><Link to="/" className="font-semibold hover:text-primary-600">Back to home</Link></div></footer>
     </div>
   );
 }

@@ -10,8 +10,8 @@ import { useSeo } from '@/lib/useSeo';
 
 export function SignupPage() {
   useSeo({
-    title: 'সাইন আপ — WORKER GIG BD | ফ্রি রেজিস্ট্রেশন করুন ও আয় শুরু করুন',
-    description: 'WORKER GIG BD-তে বিনামূল্যে সাইন আপ করুন। রেফার করে বোনাস পান, অনলাইন মাইক্রো-টাস্ক করে ঘরে বসে আয় করুন। বাংলাদেশের শীর্ষ মাইক্রো-টাস্ক প্ল্যাটফর্ম।',
+    title: 'সাইন আপ — WORKER GIG BD',
+    description: 'Create a WORKER GIG BD account to access the marketplace and manage your work from one place.',
     path: '/signup',
   });
   const { signUpWithGoogle, user, loading: authLoading } = useAuth();
@@ -109,22 +109,16 @@ export function SignupPage() {
             Start earning<br />from today
           </h1>
           <p className="mt-4 max-w-md text-lg text-primary-100">
-            Join thousands of Bangladeshis who are already earning money by completing simple online tasks.
+            Create your account and access the marketplace from a single, focused dashboard.
           </p>
 
-          <div className="mt-10 grid grid-cols-3 gap-4">
-            <div className="rounded-xl bg-white/10 p-4 backdrop-blur-sm">
-              <div className="text-2xl font-bold text-white">10K+</div>
-              <div className="text-xs text-primary-200">Users</div>
-            </div>
-            <div className="rounded-xl bg-white/10 p-4 backdrop-blur-sm">
-              <div className="text-2xl font-bold text-white">45+</div>
-              <div className="text-xs text-primary-200">Categories</div>
-            </div>
-            <div className="rounded-xl bg-white/10 p-4 backdrop-blur-sm">
-              <div className="text-2xl font-bold text-white">500K+</div>
-              <div className="text-xs text-primary-200">Tasks</div>
-            </div>
+          <div className="mt-10 space-y-3">
+            {['Review task requirements before starting', 'Submit proof for completed work', 'Manage approved work and account activity'].map((item) => (
+              <div key={item} className="flex items-center gap-3 text-primary-100">
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10"><span className="text-sm">✓</span></div>
+                <span className="text-sm font-medium">{item}</span>
+              </div>
+            ))}
           </div>
         </div>
 

@@ -10,7 +10,7 @@ import { useSeo } from '@/lib/useSeo';
 export function LoginPage() {
   useSeo({
     title: 'লগইন — WORKER GIG BD | অনলাইন মাইক্রো-টাস্ক প্ল্যাটফর্ম',
-    description: 'WORKER GIG BD-তে লগইন করুন এবং অনলাইন মাইক্রো-টাস্ক সম্পন্ন করে আয় করা শুরু করুন। বাংলাদেশের শীর্ষ মাইক্রো-টাস্ক প্ল্যাটফর্ম।',
+    description: 'Sign in to WORKER GIG BD to access your marketplace dashboard and account activity.',
     path: '/login',
   });
   const navigate = useNavigate();
@@ -56,7 +56,7 @@ export function LoginPage() {
           </p>
 
           <div className="mt-10 space-y-4">
-            {['Complete tasks and earn instantly', 'Track your earnings in real-time', 'Withdraw to bKash, Nagad, Rocket'].map((item) => (
+            {['Review tasks and requirements', 'Submit proof for completed work', 'Manage your account activity'].map((item) => (
               <div key={item} className="flex items-center gap-3 text-primary-100">
                 <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10">
                   <ArrowRight className="h-3 w-3" />

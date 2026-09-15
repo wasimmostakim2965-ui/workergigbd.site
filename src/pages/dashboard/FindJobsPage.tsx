@@ -327,18 +327,18 @@ export function FindJobsPage() {
       <div className="space-y-4">
         <button
           onClick={closeJobDetail}
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900"
         >
           <ArrowLeft className="h-4 w-4" /> Back to jobs
         </button>
 
         {submitSuccess ? (
-          <div className="rounded-xl border border-gray-200 bg-white py-12 text-center">
+          <div className="rounded-2xl border border-slate-200 bg-white py-12 text-center">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-success-50">
               <Star className="h-7 w-7 text-success-600 fill-success-600" />
             </div>
-            <h3 className="font-heading text-lg font-bold text-gray-900">Your task is submitted</h3>
-            <p className="mt-1 text-sm text-gray-600">Your task has been submitted for review. Redirecting to dashboard…</p>
+            <h3 className="font-heading text-lg font-bold text-slate-900">Your task is submitted</h3>
+            <p className="mt-1 text-sm text-slate-600">Your task has been submitted for review. Redirecting to dashboard…</p>
           </div>
         ) : (
           <>
@@ -348,7 +348,7 @@ export function FindJobsPage() {
                 {selectedJob.category}
               </span>
               {selectedJob.subcategory && (
-                <span className="rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                <span className="rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-medium text-slate-600">
                   {selectedJob.subcategory}
                 </span>
               )}
@@ -363,14 +363,14 @@ export function FindJobsPage() {
             </div>
 
             <div className="flex items-center justify-between gap-2">
-              <h2 className="font-heading text-xl font-medium text-gray-900">
+              <h2 className="font-heading text-xl font-medium text-slate-900">
                 {selectedJob.title}
               </h2>
               <ReportButton jobId={selectedJob.id} label="Report job" />
             </div>
 
             {/* 2. Description */}
-            <p className="text-sm text-gray-600">{selectedJob.description}</p>
+            <p className="text-sm text-slate-600">{selectedJob.description}</p>
 
             {selectedJob.url && (
               <a
@@ -385,9 +385,9 @@ export function FindJobsPage() {
 
             {/* 3. Requirements / what workers must submit */}
             {selectedJob.proof_instructions?.trim() && (
-              <div className="rounded-lg bg-gray-50 p-4">
-                <div className="text-sm font-semibold text-gray-700">Requirements</div>
-                <p className="mt-1 whitespace-pre-line text-sm text-gray-600">{selectedJob.proof_instructions}</p>
+              <div className="rounded-lg bg-slate-50 p-4">
+                <div className="text-sm font-semibold text-slate-700">Requirements</div>
+                <p className="mt-1 whitespace-pre-line text-sm text-slate-600">{selectedJob.proof_instructions}</p>
               </div>
             )}
 
@@ -402,8 +402,8 @@ export function FindJobsPage() {
             {submitError && <Alert variant="error">{submitError}</Alert>}
 
             {/* 4. Proof submission box (where workers write their answer) */}
-            <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-4">
-              <div className="text-sm font-semibold text-gray-700">Submit Your Proof</div>
+            <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4">
+              <div className="text-sm font-semibold text-slate-700">Submit Your Proof</div>
 
               <Textarea
                 label="Proof Details"
@@ -424,19 +424,19 @@ export function FindJobsPage() {
                     const url = screenshots[i];
                     const instruction = shotInstructions[i];
                     return (
-                      <div key={i} className="rounded-lg border border-gray-200 p-3">
+                      <div key={i} className="rounded-2xl border border-slate-200 p-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-semibold text-gray-700">Screenshot {i + 1}</span>
+                          <span className="text-sm font-semibold text-slate-700">Screenshot {i + 1}</span>
                           {instruction ? (
-                            <span className="text-xs text-gray-500">{instruction}</span>
+                            <span className="text-xs text-slate-500">{instruction}</span>
                           ) : null}
                         </div>
                         {instruction && (
-                          <p className="mb-2 whitespace-pre-line text-xs text-gray-600">{instruction}</p>
+                          <p className="mb-2 whitespace-pre-line text-xs text-slate-600">{instruction}</p>
                         )}
                         {url ? (
                           <div className="relative inline-block">
-                            <img src={url} alt={`Screenshot ${i + 1}`} className="h-24 w-24 rounded-lg border border-gray-200 object-cover" />
+                            <img src={url} alt={`Screenshot ${i + 1}`} className="h-24 w-24 rounded-2xl border border-slate-200 object-cover" />
                             <button
                               type="button"
                               onClick={() => removeScreenshot(i)}
@@ -446,7 +446,7 @@ export function FindJobsPage() {
                             </button>
                           </div>
                         ) : (
-                          <label className={`mt-1 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 p-3 text-sm text-gray-500 transition-colors hover:border-primary-400 hover:bg-primary-50/30 ${uploadingShot ? 'opacity-60' : ''}`}>
+                          <label className={`mt-1 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 p-3 text-sm text-slate-500 transition-colors hover:border-primary-400 hover:bg-primary-50/30 ${uploadingShot ? 'opacity-60' : ''}`}>
                             <Camera className="h-4 w-4" />
                             <span>{uploadingShot ? 'Uploading...' : 'Click to upload screenshot ' + (i + 1)}</span>
                             <input type="file" accept="image/*" className="hidden" onChange={(e) => handleScreenshotUpload(e, i)} disabled={uploadingShot} />
@@ -462,8 +462,8 @@ export function FindJobsPage() {
             {/* 6. Job image (optional, at the bottom) */}
             {selectedJob.image_url && (
               <div>
-                <div className="text-xs font-semibold text-gray-500 mb-1">Job Image</div>
-                <img src={selectedJob.image_url} alt="Job" className="w-full rounded-lg border border-gray-200" />
+                <div className="text-xs font-semibold text-slate-500 mb-1">Job Image</div>
+                <img src={selectedJob.image_url} alt="Job" className="w-full rounded-2xl border border-slate-200" />
               </div>
             )}
 
@@ -484,8 +484,8 @@ export function FindJobsPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="font-heading text-2xl font-bold text-gray-900">Find Jobs</h1>
-        <p className="mt-1 text-sm text-gray-600">Browse available tasks and start earning</p>
+        <h1 className="font-heading text-2xl font-bold text-slate-900">Find Jobs</h1>
+        <p className="mt-1 text-sm text-slate-600">Browse available tasks and start earning</p>
       </div>
 
       {/* Filter bar */}
@@ -514,12 +514,12 @@ export function FindJobsPage() {
             placeholder="Search jobs..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full rounded-lg border border-gray-200 bg-white pl-9 pr-9 py-2.5 text-sm text-gray-700 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
+            className="w-full rounded-2xl border border-slate-200 bg-white pl-9 pr-9 py-2.5 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
           />
           {(search || categoryFilter !== 'all') && (
             <button
               onClick={() => { onSearchChange(''); setCategoryFilter('all'); }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-slate-600"
             >
               <X className="h-4 w-4" />
             </button>
@@ -531,7 +531,7 @@ export function FindJobsPage() {
       {loading ? (
         <LoadingSpinner size={36} className="py-16" />
       ) : jobs.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white py-16">
+        <div className="rounded-2xl border border-slate-200 bg-white py-16">
           <EmptyState
             icon={<Briefcase className="h-8 w-8" />}
             title="No jobs found"
@@ -551,12 +551,12 @@ export function FindJobsPage() {
                 key={job.id}
                 onClick={() => openJob(job)}
                 disabled={isFull}
-                className="block w-full text-left rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-primary-200 hover:shadow-md disabled:opacity-60"
+                className="block w-full text-left rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:border-primary-200 hover:shadow-md disabled:opacity-60"
               >
                 {/* Top row */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 flex-wrap min-w-0">
-                    <h3 className="text-base font-medium text-gray-900 line-clamp-1">
+                    <h3 className="text-base font-medium text-slate-900 line-clamp-1">
                       {job.title}
                     </h3>
                     {totalReward >= 0.1 && (
@@ -576,7 +576,7 @@ export function FindJobsPage() {
                 {/* Bottom row */}
                 <div className="mt-4 flex items-end justify-between">
                   <div>
-                    <div className="text-xs font-semibold text-gray-600">
+                    <div className="text-xs font-semibold text-slate-600">
                       {job.filled_slots} OF {job.total_slots}
                     </div>
                     <div className="mt-1 h-1.5 w-28 overflow-hidden rounded-full bg-gray-200">

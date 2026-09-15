@@ -115,7 +115,7 @@ export function DepositPage() {
   if (!depositEnabled && settings.length > 0) {
     return (
       <div className="space-y-6">
-        <h1 className="font-heading text-2xl font-bold text-gray-900">Deposit</h1>
+        <h1 className="font-heading text-2xl font-bold text-slate-900">Deposit</h1>
         <Alert variant="warning" title="Deposits Disabled">
           Deposit requests are currently disabled by the administrator.
         </Alert>
@@ -126,8 +126,8 @@ export function DepositPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-heading text-2xl font-bold text-gray-900">Deposit Money</h1>
-        <p className="mt-1 text-sm text-gray-600">Add funds to your account via mobile banking</p>
+        <h1 className="font-heading text-2xl font-bold text-slate-900">Deposit Money</h1>
+        <p className="mt-1 text-sm text-slate-600">Add funds to your account via mobile banking</p>
       </div>
 
       {success && (
@@ -140,7 +140,7 @@ export function DepositPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Deposit form */}
         <Card className="p-6">
-          <h3 className="font-heading font-bold text-gray-900 mb-4">Send Money</h3>
+          <h3 className="font-heading font-bold text-slate-900 mb-4">Send Money</h3>
 
           {/* Payment methods */}
           <div className="grid grid-cols-3 gap-3 mb-5">
@@ -163,17 +163,17 @@ export function DepositPage() {
                   </div>
                 )}
                 <PaymentLogo method={pm.id as 'bkash' | 'nagad' | 'rocket'} />
-                <span className="text-xs font-semibold text-gray-700">{pm.name}</span>
+                <span className="text-xs font-semibold text-slate-700">{pm.name}</span>
               </button>
             ))}
           </div>
 
-          <div className="rounded-lg bg-gray-50 p-4 mb-5">
-            <div className="text-xs text-gray-500">Cash Out করুন এই নম্বরে:</div>
-            <div className="mt-1 text-lg font-bold text-gray-900">
+          <div className="rounded-lg bg-slate-50 p-4 mb-5">
+            <div className="text-xs text-slate-500">Cash Out করুন এই নম্বরে:</div>
+            <div className="mt-1 text-lg font-bold text-slate-900">
               {paymentMethods.find(pm => pm.id === method)?.name}: {paymentMethods.find(pm => pm.id === method)?.number || 'Contact support'}
             </div>
-            <div className="mt-1 text-xs text-gray-500">
+            <div className="mt-1 text-xs text-slate-500">
               After sending, fill out the form below with your transaction details.
             </div>
           </div>
@@ -190,7 +190,7 @@ export function DepositPage() {
               required
               icon={<Wallet className="h-4 w-4" />}
             />
-            <p className="text-xs text-gray-500">$1 = 110 BDT</p>
+            <p className="text-xs text-slate-500">$1 = 110 BDT</p>
             <Input
               label="Your Sender Number"
               placeholder="01XXXXXXXXX"
@@ -214,7 +214,7 @@ export function DepositPage() {
         {/* Deposit history */}
         <Card>
           <div className="border-b border-gray-100 px-5 py-4">
-            <h3 className="font-heading font-bold text-gray-900">Recent Deposits</h3>
+            <h3 className="font-heading font-bold text-slate-900">Recent Deposits</h3>
           </div>
           {history.length === 0 ? (
             <EmptyState
@@ -227,8 +227,8 @@ export function DepositPage() {
               {history.map((dep) => (
                 <div key={dep.id} className="flex items-center justify-between p-4">
                   <div>
-                    <div className="text-sm font-semibold text-gray-900">$ {dep.amount.toFixed(3)}</div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-sm font-semibold text-slate-900">$ {dep.amount.toFixed(3)}</div>
+                    <div className="text-xs text-slate-500">
                       {dep.method} • {new Date(dep.created_at).toLocaleDateString()}
                     </div>
                   </div>

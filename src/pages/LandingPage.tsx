@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   ArrowRight, CheckCircle2, ClipboardCheck, ShieldCheck, Wallet,
   Search, Users, Zap, ChevronDown, LockKeyhole, BadgeCheck,
@@ -9,38 +9,22 @@ import { Logo } from '@/components/Logo';
 import { GoogleIcon } from '@/components/GoogleIcon';
 import { useAuth } from '@/context/AuthContext';
 import { useSeo } from '@/lib/useSeo';
-import { supabase } from '@/lib/supabase';
 
 const benefits = [
   {
-    icon: Search,
-    title: 'Choose work with clarity',
-    desc: 'See the task requirements and reward before you decide whether a task is right for you.',
+    icon: ShieldCheck,
+    title: 'Work with clear expectations',
+    desc: 'See the requirements, reward, and proof instructions before you decide to start a task.',
   },
   {
     icon: ClipboardCheck,
-    title: 'Submit real proof',
-    desc: 'Complete the task and submit the proof requested by the job owner for review.',
+    title: 'Complete and submit proof',
+    desc: 'Follow the task instructions, submit the requested proof, and keep the process easy to understand.',
   },
   {
     icon: Wallet,
-    title: 'Manage your earnings',
-    desc: 'Keep track of your balance, completed work, and withdrawal requests from your dashboard.',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Rules stay visible',
-    desc: 'Platform rules, task requirements, and account expectations are presented before you act.',
-  },
-  {
-    icon: Users,
-    title: 'Built for Bangladesh',
-    desc: 'A Bangladesh-focused marketplace with support and payment options designed around local users.',
-  },
-  {
-    icon: Zap,
-    title: 'Simple workflow',
-    desc: 'Find a suitable task, follow its instructions, submit proof, and wait for review.',
+    title: 'Keep your work organised',
+    desc: 'Track approved work, balance activity, and withdrawal requests from your account dashboard.',
   },
 ];
 
@@ -91,20 +75,10 @@ const faqs = [
 ];
 
 export function LandingPage() {
-  const [categories, setCategories] = useState<string[]>([]);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState('');
   const [mobileOpen, setMobileOpen] = useState(false);
   const { signUpWithGoogle } = useAuth();
-
-  useEffect(() => {
-    supabase
-      .from('categories')
-      .select('name')
-      .eq('is_active', true)
-      .order('display_order')
-      .then(({ data }) => setCategories((data ?? []).map((c: { name: string }) => c.name)));
-  }, []);
 
   const handleGoogleSignUp = async () => {
     setGoogleError('');
@@ -134,7 +108,6 @@ export function LandingPage() {
 
           <div className="hidden items-center gap-7 lg:flex">
             <a href="#how-it-works" className="text-sm font-semibold text-slate-600 transition hover:text-primary-600">How it works</a>
-            <a href="#categories" className="text-sm font-semibold text-slate-600 transition hover:text-primary-600">Categories</a>
             <a href="#why-us" className="text-sm font-semibold text-slate-600 transition hover:text-primary-600">Why us</a>
             <a href="#faq" className="text-sm font-semibold text-slate-600 transition hover:text-primary-600">FAQ</a>
             <Link to="/blog" className="text-sm font-semibold text-slate-600 transition hover:text-primary-600">Blog</Link>
@@ -162,7 +135,6 @@ export function LandingPage() {
           <div className="border-t border-slate-200 bg-white px-5 py-4 sm:hidden">
             <div className="flex flex-col gap-1">
               <a href="#how-it-works" onClick={closeMobile} className="rounded-lg px-3 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">How it works</a>
-              <a href="#categories" onClick={closeMobile} className="rounded-lg px-3 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">Categories</a>
               <a href="#why-us" onClick={closeMobile} className="rounded-lg px-3 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">Why us</a>
               <a href="#faq" onClick={closeMobile} className="rounded-lg px-3 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">FAQ</a>
               <Link to="/login" onClick={closeMobile} className="mt-2 rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-bold text-slate-700">Log in</Link>
@@ -291,51 +263,17 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section id="categories" className="scroll-mt-24 border-y border-slate-200 bg-slate-50 py-20 sm:py-24">
-          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-              <div className="max-w-2xl">
-                <p className="text-sm font-extrabold uppercase tracking-[0.16em] text-primary-600">Available work</p>
-                <h2 className="mt-3 font-heading text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
-                  {categories.length > 0 ? 'Explore active task categories' : 'Explore task categories'}
-                </h2>
-                <p className="mt-4 text-base leading-7 text-slate-600">
-                  Categories shown here come from the platform and update automatically as active categories change.
-                </p>
-              </div>
-              <Link to="/signup" className="inline-flex w-fit items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:border-primary-200 hover:text-primary-700">
-                Join to browse tasks <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-
-            <div className="mt-10 flex flex-wrap gap-3">
-              {categories.length > 0 ? categories.map((category) => (
-                <span key={category} className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm">
-                  <span className="h-2 w-2 rounded-full bg-primary-500" />
-                  {category}
-                </span>
-              )) : (
-                ['Social engagement', 'Surveys', 'Website review', 'App tasks', 'Content tasks', 'Research tasks'].map((category) => (
-                  <span key={category} className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm">
-                    <span className="h-2 w-2 rounded-full bg-slate-300" />
-                    {category}
-                  </span>
-                ))
-              )}
-            </div>
-          </div>
-        </section>
 
         <section id="why-us" className="scroll-mt-24 py-20 sm:py-24">
           <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-2xl text-center">
-              <p className="text-sm font-extrabold uppercase tracking-[0.16em] text-primary-600">Why WORKER GIG BD</p>
-              <h2 className="mt-3 font-heading text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">Less noise. More clarity.</h2>
-              <p className="mt-4 text-base leading-7 text-slate-600">The landing page should tell you what the platform actually does — without inflated numbers or promises.</p>
+              <p className="text-sm font-extrabold uppercase tracking-[0.16em] text-primary-600">Built around the work</p>
+              <h2 className="mt-3 font-heading text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">Everything you need to get started.</h2>
+              <p className="mt-4 text-base leading-7 text-slate-600">A focused marketplace experience: understand the task, do the work, submit proof, and manage your account.</p>
             </div>
-            <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mx-auto mt-12 grid max-w-5xl gap-5 md:grid-cols-3">
               {benefits.map((benefit) => (
-                <article key={benefit.title} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg">
+                <article key={benefit.title} className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg">
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-50 text-primary-700"><benefit.icon className="h-5 w-5" /></div>
                   <h3 className="mt-5 font-heading text-lg font-extrabold text-slate-900">{benefit.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-slate-600">{benefit.desc}</p>
@@ -395,14 +333,13 @@ export function LandingPage() {
             <div>
               <Logo size={40} />
               <p className="mt-4 max-w-sm text-sm leading-6 text-slate-600">
-                A Bangladesh-focused micro-task marketplace for finding work, following clear requirements, and managing approved earnings.
+                A focused marketplace for people who want to discover tasks, understand the requirements, and manage completed work from one account.
               </p>
             </div>
             <div>
               <h3 className="text-sm font-extrabold text-slate-900">Platform</h3>
               <ul className="mt-4 space-y-3 text-sm text-slate-600">
                 <li><a href="#how-it-works" className="hover:text-primary-600">How it works</a></li>
-                <li><a href="#categories" className="hover:text-primary-600">Categories</a></li>
                 <li><a href="#why-us" className="hover:text-primary-600">Why us</a></li>
                 <li><Link to="/for-employers" className="hover:text-primary-600">For employers</Link></li>
               </ul>

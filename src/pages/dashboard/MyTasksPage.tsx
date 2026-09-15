@@ -13,7 +13,7 @@ import { ReportButton } from '@/components/ui/ReportButton';
 import { Task, Job, Profile } from '@/types';
 import { useSeo } from '@/lib/useSeo';
 
-const COLORS = { primaryGreen: '#058824' };
+const COLORS = { primaryGreen: '#0F8A4B' };
 
 type Submission = Task & { jobs?: Job; profiles?: Pick<Profile, 'username' | 'avatar_url'> };
 
@@ -170,8 +170,8 @@ export function MyTasksPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-heading text-2xl font-bold text-gray-900">My Tasks</h1>
-        <p className="mt-1 text-sm text-gray-600">
+        <h1 className="font-heading text-2xl font-bold text-slate-900">My Tasks</h1>
+        <p className="mt-1 text-sm text-slate-600">
           Review submissions on jobs you posted, and track tasks you completed.
         </p>
       </div>
@@ -192,11 +192,11 @@ export function MyTasksPage() {
                   <button
                     key={job.id}
                     onClick={() => openJob(job)}
-                    className="flex w-full items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3 text-left transition-all hover:border-primary-200 hover:shadow-sm"
+                    className="flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left transition-all hover:border-primary-200 hover:shadow-sm"
                   >
                     <div className="min-w-0">
-                      <div className="truncate text-sm font-semibold text-gray-900">{job.title}</div>
-                      <div className="text-xs text-gray-500">{job.category} • {job.total_slots - job.filled_slots} of {job.total_slots} slots left</div>
+                      <div className="truncate text-sm font-semibold text-slate-900">{job.title}</div>
+                      <div className="text-xs text-slate-500">{job.category} • {job.total_slots - job.filled_slots} of {job.total_slots} slots left</div>
                     </div>
                     <Badge variant={job.status === 'active' ? 'success' : 'warning'} dot>{job.status}</Badge>
                   </button>
@@ -206,10 +206,10 @@ export function MyTasksPage() {
           ) : !selectedSub ? (
             // ---- Level 2: submissions for the selected job (compact list) ----
             <div className="space-y-3">
-              <button onClick={backToJobs} className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900">
+              <button onClick={backToJobs} className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900">
                 <ArrowLeft className="h-4 w-4" /> Back to jobs
               </button>
-              <h2 className="font-heading text-lg font-bold text-gray-900">{selectedJob.title}</h2>
+              <h2 className="font-heading text-lg font-bold text-slate-900">{selectedJob.title}</h2>
               {loadingSubs ? (
                 <LoadingSpinner size={36} className="py-12" />
               ) : submissions.length === 0 ? (
@@ -224,7 +224,7 @@ export function MyTasksPage() {
                       <button
                         key={sub.id}
                         onClick={() => { setSelectedSub(sub); setActionError(''); setTipMsg(''); }}
-                        className="flex w-full items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-left transition-all hover:border-primary-200 hover:shadow-sm"
+                        className="flex w-full items-center justify-between gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-left transition-all hover:border-primary-200 hover:shadow-sm"
                       >
                         <div className="flex min-w-0 items-center gap-2">
                           <Badge
@@ -233,7 +233,7 @@ export function MyTasksPage() {
                           >
                             {sub.status}
                           </Badge>
-                          <span className="truncate text-sm font-medium text-gray-800">
+                          <span className="truncate text-sm font-medium text-slate-800">
                             {sub.profiles?.username || sub.worker_id.slice(0, 8)}
                           </span>
                         </div>
@@ -286,7 +286,7 @@ export function MyTasksPage() {
                 return (
                   <div
                     key={task.id}
-                    className="block w-full rounded-xl border border-gray-200 bg-white p-3.5 shadow-sm transition-all hover:border-primary-200 hover:shadow-md"
+                    className="block w-full rounded-2xl border border-slate-200 bg-white p-3.5 shadow-sm transition-all hover:border-primary-200 hover:shadow-md"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-1.5 flex-wrap min-w-0 flex-1">
@@ -297,12 +297,12 @@ export function MyTasksPage() {
                       <Badge variant={statusVariant} dot>{task.status}</Badge>
                     </div>
 
-                    <h3 className="mt-1.5 text-sm font-semibold text-gray-900 line-clamp-1">
+                    <h3 className="mt-1.5 text-sm font-semibold text-slate-900 line-clamp-1">
                       {task.jobs?.title ?? `Task #${task.id.slice(0, 8)}`}
                     </h3>
 
                     <div className="mt-2.5 flex items-end justify-between">
-                      <div className="text-[11px] font-semibold text-gray-500">
+                      <div className="text-[11px] font-semibold text-slate-500">
                         {new Date(task.created_at).toLocaleDateString()}
                       </div>
                       <div className="flex items-baseline gap-1.5">
@@ -329,7 +329,7 @@ export function MyTasksPage() {
                             ))}
                           </div>
                         )}
-                        {task.proof_text && <p className="mt-1 text-xs text-gray-500 line-clamp-2">{task.proof_text}</p>}
+                        {task.proof_text && <p className="mt-1 text-xs text-slate-500 line-clamp-2">{task.proof_text}</p>}
                       </div>
                     )}
 
@@ -379,7 +379,7 @@ function SubmissionReview({
 
   return (
     <div className="space-y-4">
-      <button onClick={onBack} className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900">
+      <button onClick={onBack} className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900">
         <ArrowLeft className="h-4 w-4" /> Back to submissions
       </button>
 
@@ -387,12 +387,12 @@ function SubmissionReview({
         {/* Header: worker + tip box on the right */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-center gap-3">
-            <div className={`flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-sm font-bold text-gray-600`}>
+            <div className={`flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-sm font-bold text-slate-600`}>
               {(sub.profiles?.username || '?').charAt(0).toUpperCase()}
             </div>
             <div>
-              <div className="text-sm font-semibold text-gray-900">{sub.profiles?.username || sub.worker_id.slice(0, 8)}</div>
-              <div className="text-xs text-gray-500">
+              <div className="text-sm font-semibold text-slate-900">{sub.profiles?.username || sub.worker_id.slice(0, 8)}</div>
+              <div className="text-xs text-slate-500">
                 {new Date(sub.submitted_at || sub.created_at).toLocaleString()}
               </div>
             </div>
@@ -400,8 +400,8 @@ function SubmissionReview({
           </div>
 
           {/* Tip box (top-right) — only after approval */}
-          <div className="rounded-lg border border-gray-200 p-3 sm:w-56">
-            <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-700">
+          <div className="rounded-2xl border border-slate-200 p-3 sm:w-56">
+            <div className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
               <Gift className="h-4 w-4 text-primary-600" /> Tip this worker
             </div>
             {isApproved ? (
@@ -420,7 +420,7 @@ function SubmissionReview({
                     />
                     <Button size="sm" onClick={onTip} loading={processing}>Tip</Button>
                   </div>
-                  {tipMsg && <p className="mt-1 text-xs text-gray-500">{tipMsg}</p>}
+                  {tipMsg && <p className="mt-1 text-xs text-slate-500">{tipMsg}</p>}
                 </>
               )
             ) : (
@@ -431,16 +431,16 @@ function SubmissionReview({
 
         {/* Proof section — clearly labelled so the buyer sees what was submitted */}
         {hasProof ? (
-          <div className="rounded-xl border border-gray-200 bg-white p-4">
-            <div className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-gray-700">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-slate-700">
               <Camera className="h-4 w-4 text-primary-600" /> Submitted Proof
             </div>
 
             {/* Proof text (full) */}
             {sub.proof_text?.trim() && (
-              <div className="rounded-lg bg-gray-50 p-3">
-                <div className="text-xs font-semibold text-gray-500">Proof Details</div>
-                <p className="mt-1 whitespace-pre-line text-sm text-gray-700">{sub.proof_text}</p>
+              <div className="rounded-lg bg-slate-50 p-3">
+                <div className="text-xs font-semibold text-slate-500">Proof Details</div>
+                <p className="mt-1 whitespace-pre-line text-sm text-slate-700">{sub.proof_text}</p>
               </div>
             )}
 
@@ -454,7 +454,7 @@ function SubmissionReview({
             {/* Screenshots — click to open full-size lightbox */}
             {shots.length > 0 && (
               <div className="mt-3">
-                <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-gray-500">
+                <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-slate-500">
                   Screenshots ({shots.length}) — click to view full size
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -468,8 +468,8 @@ function SubmissionReview({
             )}
           </div>
         ) : (
-          <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4 text-center">
-            <p className="text-sm text-gray-500">This worker submitted without any proof.</p>
+          <div className="rounded-xl border border-dashed border-gray-300 bg-slate-50 p-4 text-center">
+            <p className="text-sm text-slate-500">This worker submitted without any proof.</p>
           </div>
         )}
 
@@ -487,7 +487,7 @@ function SubmissionReview({
             {/* Optional reject reason — sent to the worker in their rejection
                 notification and kept on the task for the record. */}
             <div>
-              <label className="mb-1 block text-xs font-semibold text-gray-500">
+              <label className="mb-1 block text-xs font-semibold text-slate-500">
                 Reject reason <span className="font-normal text-gray-400">(optional)</span>
               </label>
               <textarea
@@ -495,7 +495,7 @@ function SubmissionReview({
                 onChange={(e) => setRejectReason(e.target.value)}
                 rows={2}
                 placeholder="e.g. Screenshot does not match the required page."
-                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
+                className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
               />
             </div>
             <div className="flex gap-3">

@@ -12,13 +12,13 @@ import { AdminSetting } from '@/types';
 
 // Color constants matching the spec
 const COLORS = {
-  headerBlue: '#2B70E4',
-  bodyBg: '#E8F4F8',
+  headerBlue: '#173B7A',
+  bodyBg: '#F5F7FB',
   cardBg: '#FFFFFF',
-  primaryGreen: '#058824',
-  darkNavy: '#0A0E3F',
-  filterBlue: '#1EA3EE',
-  badgePurple: '#5865F2',
+  primaryGreen: '#0F8A4B',
+  darkNavy: '#10213F',
+  filterBlue: '#2563EB',
+  badgePurple: '#6D5CE7',
 };
 
 const navItems = [
@@ -98,7 +98,7 @@ export function DashboardLayout() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: COLORS.bodyBg }}>
       {/* Mobile Container - Max 480px centered */}
-      <div style={{ maxWidth: '480px', margin: '0 auto', minHeight: '100vh' }}>
+      <div className="mx-auto min-h-screen w-full max-w-7xl">
         {/* Mobile overlay */}
         {sidebarOpen && (
           <div
@@ -158,7 +158,7 @@ export function DashboardLayout() {
         <div>
           {/* SECTION A: TOP NAVBAR / HEADER */}
           <header style={{ backgroundColor: COLORS.headerBlue }}>
-            <div className="flex items-center justify-between px-4 py-3">
+            <div className="mx-auto flex items-center justify-between px-4 py-3 sm:px-6">
               {/* Left: Hamburger Menu */}
               <button
                 onClick={() => setSidebarOpen(true)}
@@ -206,10 +206,10 @@ export function DashboardLayout() {
 
           {/* SECTION B: BALANCE CARDS */}
           <div style={{ backgroundColor: COLORS.headerBlue }}>
-            <div className="flex justify-center gap-3 px-4 pb-5">
+            <div className="mx-auto flex max-w-7xl justify-start gap-3 px-4 pb-5 pt-1 sm:px-6">
               {/* Earning Card */}
               <div 
-                className="rounded-lg px-5 py-2.5 text-center"
+                className="rounded-xl px-5 py-2.5 text-center shadow-sm"
                 style={{ backgroundColor: COLORS.darkNavy }}
               >
                 <div className="text-sm font-bold text-white">
@@ -314,14 +314,14 @@ export function DashboardLayout() {
           )}
 
           {/* Page content */}
-          <main className="px-4 pb-24 pt-4 animate-fade-in" style={{ backgroundColor: COLORS.bodyBg }}>
+          <main className="px-4 pb-24 pt-5 animate-fade-in sm:px-6 sm:pb-10" style={{ backgroundColor: COLORS.bodyBg }}>
             <Outlet />
           </main>
 
           {/* Bottom Navigation - Mobile Only */}
           <nav 
             className="fixed bottom-0 left-0 right-0 flex items-center justify-around border-t border-gray-200 bg-white px-2 py-2"
-            style={{ maxWidth: '480px', margin: '0 auto' }}
+            className="fixed bottom-0 left-0 right-0 z-30 mx-auto flex max-w-7xl items-center justify-around border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_30px_rgba(15,23,42,0.06)] backdrop-blur sm:hidden"
           >
             {[
               { to: '/dashboard', icon: Home, label: 'Home' },

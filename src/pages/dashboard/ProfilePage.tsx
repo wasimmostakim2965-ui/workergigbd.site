@@ -80,8 +80,8 @@ export function ProfilePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-heading text-2xl font-bold text-gray-900">My Profile</h1>
-        <p className="mt-1 text-sm text-gray-600">Manage your account information</p>
+        <h1 className="font-heading text-2xl font-bold text-slate-900">My Profile</h1>
+        <p className="mt-1 text-sm text-slate-600">Manage your account information</p>
       </div>
 
       {success && <Alert variant="success" title="Profile updated successfully!">Your changes have been saved.</Alert>}
@@ -98,14 +98,14 @@ export function ProfilePage() {
                 {profile?.username?.charAt(0) ?? 'U'}
               </div>
             )}
-            <label className="absolute bottom-0 right-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white border border-gray-200 shadow-md hover:bg-gray-50">
-              <Camera className={`h-4 w-4 text-gray-600 ${avatarUploading ? 'animate-pulse' : ''}`} />
+            <label className="absolute bottom-0 right-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white border border-gray-200 shadow-md hover:bg-slate-50">
+              <Camera className={`h-4 w-4 text-slate-600 ${avatarUploading ? 'animate-pulse' : ''}`} />
               <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} disabled={avatarUploading} />
             </label>
           </div>
           {avatarError && <p className="text-xs text-error-600">{avatarError}</p>}
-          <h3 className="font-heading text-lg font-bold text-gray-900">{profile?.username ?? 'User'}</h3>
-          <p className="text-sm text-gray-500">{user?.email ?? '—'}</p>
+          <h3 className="font-heading text-lg font-bold text-slate-900">{profile?.username ?? 'User'}</h3>
+          <p className="text-sm text-slate-500">{user?.email ?? '—'}</p>
           <p className="text-xs text-gray-400 mt-0.5">ID: {profile?.id?.slice(0, 8) ?? '—'}</p>
 
           <div className="mt-4 flex flex-wrap justify-center gap-2">
@@ -121,36 +121,36 @@ export function ProfilePage() {
           <div className="mt-6 grid grid-cols-2 gap-3 border-t border-gray-100 pt-4">
             {stats.map((stat) => (
               <div key={stat.label} className="text-left">
-                <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                <div className="flex items-center gap-1.5 text-xs text-slate-500">
                   <stat.icon className={`h-3.5 w-3.5 ${stat.color}`} />
                   {stat.label}
                 </div>
-                <div className="mt-0.5 text-sm font-bold text-gray-900">{stat.value}</div>
+                <div className="mt-0.5 text-sm font-bold text-slate-900">{stat.value}</div>
               </div>
             ))}
           </div>
 
           <div className="mt-4 border-t border-gray-100 pt-4 text-left">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Member Since</span>
-              <span className="font-semibold text-gray-900">
+              <span className="text-slate-500">Member Since</span>
+              <span className="font-semibold text-slate-900">
                 {profile ? new Date(profile.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
               </span>
             </div>
             <div className="mt-2 flex justify-between text-sm">
-              <span className="text-gray-500">Referral Code</span>
+              <span className="text-slate-500">Referral Code</span>
               <span className="font-mono font-semibold text-primary-600">{profile?.referral_code ?? '—'}</span>
             </div>
             <div className="mt-2 flex justify-between text-sm">
-              <span className="text-gray-500">Referred By</span>
-              <span className="font-semibold text-gray-900">{profile?.referred_by ?? 'None'}</span>
+              <span className="text-slate-500">Referred By</span>
+              <span className="font-semibold text-slate-900">{profile?.referred_by ?? 'None'}</span>
             </div>
           </div>
         </Card>
 
         {/* Edit form */}
         <Card className="p-6 lg:col-span-2">
-          <h3 className="font-heading font-bold text-gray-900 mb-4">Edit Information</h3>
+          <h3 className="font-heading font-bold text-slate-900 mb-4">Edit Information</h3>
           <form onSubmit={handleSave} className="space-y-4">
             <Input
               label="Username"
@@ -192,7 +192,7 @@ export function ProfilePage() {
 
           {/* Verification status */}
           <div className="mt-6 border-t border-gray-100 pt-6">
-            <h4 className="font-heading font-bold text-gray-900 mb-3">Verification Status</h4>
+            <h4 className="font-heading font-bold text-slate-900 mb-3">Verification Status</h4>
             <div className="grid gap-3 sm:grid-cols-2">
               <div className={`flex items-center gap-3 rounded-lg border p-3 ${profile?.email_verified ? 'border-success-200 bg-success-50' : 'border-warning-200 bg-warning-50'}`}>
                 {profile?.email_verified ? (
@@ -201,21 +201,21 @@ export function ProfilePage() {
                   <XCircle className="h-5 w-5 text-warning-600" />
                 )}
                 <div>
-                  <div className="text-sm font-semibold text-gray-900">Email Verification</div>
+                  <div className="text-sm font-semibold text-slate-900">Email Verification</div>
                   <div className={`text-xs ${profile?.email_verified ? 'text-success-600' : 'text-warning-600'}`}>
                     {profile?.email_verified ? 'Verified' : 'Not verified - required for withdrawals'}
                   </div>
                 </div>
               </div>
-              <div className={`flex items-center gap-3 rounded-lg border p-3 ${profile?.is_verified ? 'border-success-200 bg-success-50' : 'border-gray-200 bg-gray-50'}`}>
+              <div className={`flex items-center gap-3 rounded-lg border p-3 ${profile?.is_verified ? 'border-success-200 bg-success-50' : 'border-gray-200 bg-slate-50'}`}>
                 {profile?.is_verified ? (
                   <CheckCircle className="h-5 w-5 text-success-600" />
                 ) : (
                   <Shield className="h-5 w-5 text-gray-400" />
                 )}
                 <div>
-                  <div className="text-sm font-semibold text-gray-900">Account Verification</div>
-                  <div className={`text-xs ${profile?.is_verified ? 'text-success-600' : 'text-gray-500'}`}>
+                  <div className="text-sm font-semibold text-slate-900">Account Verification</div>
+                  <div className={`text-xs ${profile?.is_verified ? 'text-success-600' : 'text-slate-500'}`}>
                     {profile?.is_verified ? 'Verified' : 'Not verified'}
                   </div>
                 </div>

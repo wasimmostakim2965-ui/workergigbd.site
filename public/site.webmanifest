@@ -1,7 +1,7 @@
 {
   "name": "WORKER GIG BD",
   "short_name": "WORKER GIG",
-  "description": "বাংলাদেশের শীর্ষ মাইক্রো-টাস্ক ও ফ্রিল্যান্স প্ল্যাটফর্ম। সহজ অনলাইন টাস্ক সম্পন্ন করে ঘরে বসে আয় করুন।",
+  "description": "বাংলাদেশ-কেন্দ্রিক micro-task marketplace যেখানে task requirements, proof এবং account activity এক জায়গায় পরিচালনা করা যায়।",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

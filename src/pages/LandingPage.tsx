@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import {
   ArrowRight, CheckCircle2, ClipboardCheck, ShieldCheck, Wallet,
   Search, Users, Zap, ChevronDown, LockKeyhole, BadgeCheck,
-  BriefcaseBusiness, Sparkles, Menu, X, CircleDollarSign,
+  Briefcase, Sparkles, Menu, X, CircleDollarSign,
 } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { GoogleIcon } from '@/components/GoogleIcon';
@@ -241,7 +241,7 @@ export function LandingPage() {
                         {['Follow & engage', 'Review a website', 'Simple signup', 'Survey & feedback'].map((label) => (
                           <div key={label} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                             <div className="flex items-center justify-between">
-                              <BriefcaseBusiness className="h-5 w-5 text-primary-600" />
+                              <Briefcase className="h-5 w-5 text-primary-600" />
                               <span className="h-2 w-12 rounded-full bg-slate-100" />
                             </div>
                             <p className="mt-3 text-xs font-bold text-slate-800">{label}</p>

@@ -13,9 +13,9 @@ import { useSeo } from '@/lib/useSeo';
 
 
 const COLORS = {
-  primaryGreen: '#058824',
-  filterBlue: '#1EA3EE',
-  badgePurple: '#5865F2',
+  primaryGreen: '#0F8A4B',
+  filterBlue: '#2563EB',
+  badgePurple: '#6D5CE7',
 };
 
 function parseShotInstructions(raw: string, count: number): string[] {
@@ -364,8 +364,8 @@ export function DashboardHome() {
 
   // ---- Jobs list view ----
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-3">
+    <div className="space-y-6">
+      <div className="grid gap-3 lg:grid-cols-[1fr_auto] lg:items-center">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
@@ -373,7 +373,7 @@ export function DashboardHome() {
             placeholder="Search jobs..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-gray-200 bg-white pl-9 pr-9 py-2.5 text-sm text-gray-700 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
+            className="w-full rounded-2xl border border-slate-200 bg-white pl-10 pr-9 py-3 text-sm text-slate-700 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
           />
           {(search || categoryFilter !== 'all') && (
             <button onClick={() => { setSearch(''); setCategoryFilter('all'); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -385,7 +385,7 @@ export function DashboardHome() {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 focus:border-primary-500 focus:outline-none"
+            className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-semibold text-slate-600 focus:border-primary-500 focus:outline-none"
           >
             <option value="all">All Categories</option>
             {categories.map((cat) => (
@@ -395,7 +395,7 @@ export function DashboardHome() {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="shrink-0 rounded-lg border border-gray-200 bg-white px-2 py-2 text-xs font-medium text-gray-600"
+            className="shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-semibold text-slate-600"
           >
             <option value="latest">Latest</option>
             <option value="high_price">High Price</option>
@@ -408,7 +408,7 @@ export function DashboardHome() {
       {loading ? (
         <LoadingSpinner size={36} className="py-16" />
       ) : jobs.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white py-16">
+        <div className="rounded-2xl border border-slate-200 bg-white py-16 shadow-sm">
           <EmptyState icon={<Briefcase className="h-8 w-8" />} title="No jobs found" description="Try adjusting your filters or check back later." />
         </div>
       ) : (

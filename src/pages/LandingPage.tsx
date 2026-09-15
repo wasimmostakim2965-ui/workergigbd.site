@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import {
-  ArrowRight, CheckCircle, Users, TrendingUp, Wallet, Shield,
-  Zap, BarChart3, Lock, Globe, Loader2,
+  ArrowRight, CheckCircle2, ClipboardCheck, ShieldCheck, Wallet,
+  Search, Users, Zap, ChevronDown, LockKeyhole, BadgeCheck,
+  BriefcaseBusiness, Sparkles, Menu, X, CircleDollarSign,
 } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { GoogleIcon } from '@/components/GoogleIcon';
@@ -10,28 +11,98 @@ import { useAuth } from '@/context/AuthContext';
 import { useSeo } from '@/lib/useSeo';
 import { supabase } from '@/lib/supabase';
 
-const features = [
-  { icon: Wallet, title: 'Easy Deposits & Withdrawals', desc: 'bKash, Nagad, Rocket — deposit and withdraw your earnings easily with low fees.' },
-  { icon: Shield, title: 'Clear Platform Rules', desc: 'Task requirements, proof expectations, account rules, and payment status are shown so users can make informed decisions.' },
-  { icon: TrendingUp, title: 'Flexible Marketplace', desc: 'Browse available tasks, post eligible jobs, and review current rewards and requirements before taking action.' },
-  { icon: Zap, title: 'Fast Task Completion', desc: 'Quick, simple micro-tasks that take minutes. Like, follow, subscribe, watch, and earn.' },
-  { icon: Users, title: 'Bangladesh-focused Support', desc: 'Get help through the published contact channels and in-platform support tools.' },
-  { icon: BarChart3, title: 'Detailed Analytics', desc: 'Track your earnings, task completion rate, and growth with a powerful dashboard.' },
+const benefits = [
+  {
+    icon: Search,
+    title: 'Choose work with clarity',
+    desc: 'See the task requirements and reward before you decide whether a task is right for you.',
+  },
+  {
+    icon: ClipboardCheck,
+    title: 'Submit real proof',
+    desc: 'Complete the task and submit the proof requested by the job owner for review.',
+  },
+  {
+    icon: Wallet,
+    title: 'Manage your earnings',
+    desc: 'Keep track of your balance, completed work, and withdrawal requests from your dashboard.',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Rules stay visible',
+    desc: 'Platform rules, task requirements, and account expectations are presented before you act.',
+  },
+  {
+    icon: Users,
+    title: 'Built for Bangladesh',
+    desc: 'A Bangladesh-focused marketplace with support and payment options designed around local users.',
+  },
+  {
+    icon: Zap,
+    title: 'Simple workflow',
+    desc: 'Find a suitable task, follow its instructions, submit proof, and wait for review.',
+  },
 ];
 
 const steps = [
-  { num: '01', title: 'Create Your Account', desc: 'Sign up with your email and username, then review the account and verification requirements.' },
-  { num: '02', title: 'Review & Complete Tasks', desc: 'Read the requirements, decide whether a task is suitable, complete it, and submit truthful proof.' },
-  { num: '03', title: 'Request a Withdrawal', desc: 'After meeting the current requirements, you may request a withdrawal through an available payment method.' },
+  {
+    number: '01',
+    icon: Users,
+    title: 'Create your account',
+    desc: 'Sign up with Google and complete the account information required by the platform.',
+  },
+  {
+    number: '02',
+    icon: Search,
+    title: 'Find a suitable task',
+    desc: 'Review the available work, reward, requirements, and proof instructions before starting.',
+  },
+  {
+    number: '03',
+    icon: ClipboardCheck,
+    title: 'Complete & submit proof',
+    desc: 'Follow the instructions honestly, submit the requested proof, and let the job owner review it.',
+  },
+  {
+    number: '04',
+    icon: CircleDollarSign,
+    title: 'Track your balance',
+    desc: 'Approved work is reflected in your account so you can manage your earnings and withdrawals.',
+  },
+];
+
+const faqs = [
+  {
+    q: 'WORKER GIG BD কী?',
+    a: 'WORKER GIG BD একটি বাংলাদেশ-কেন্দ্রিক মাইক্রো-টাস্ক মার্কেটপ্লেস। এখানে ব্যবহারকারীরা উপলভ্য কাজের শর্ত ও পুরস্কার দেখে উপযুক্ত কাজ বেছে নিয়ে সম্পন্ন করতে পারেন।',
+  },
+  {
+    q: 'সাইন আপ করতে কি টাকা লাগে?',
+    a: 'না। অ্যাকাউন্ট তৈরি করা ফ্রি। সাইন আপ করতে Google ব্যবহার করতে পারেন এবং প্রয়োজনে একটি referral code দিতে পারেন।',
+  },
+  {
+    q: 'কাজ শুরু করার আগে কী দেখতে পারব?',
+    a: 'প্রতিটি কাজের নির্দেশনা, প্রয়োজনীয় proof এবং প্রাসঙ্গিক reward/শর্ত দেখে তারপর কাজটি নেওয়ার সিদ্ধান্ত নিতে পারবেন।',
+  },
+  {
+    q: 'টাকা কীভাবে তুলব?',
+    a: 'আপনার অ্যাকাউন্টের বর্তমান withdrawal rules পূরণ হলে dashboard থেকে available withdrawal method ব্যবহার করে request করতে পারবেন।',
+  },
 ];
 
 export function LandingPage() {
   const [categories, setCategories] = useState<string[]>([]);
-  const { signUpWithGoogle } = useAuth();
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState('');
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const { signUpWithGoogle } = useAuth();
+
   useEffect(() => {
-    supabase.from('categories').select('name').eq('is_active', true).order('display_order')
+    supabase
+      .from('categories')
+      .select('name')
+      .eq('is_active', true)
+      .order('display_order')
       .then(({ data }) => setCategories((data ?? []).map((c: { name: string }) => c.name)));
   }, []);
 
@@ -43,330 +114,318 @@ export function LandingPage() {
       setGoogleError(error);
       setGoogleLoading(false);
     }
-    // On success the browser leaves for Google; no client-side navigate needed.
   };
+
   useSeo({
-    title: 'WORKER GIG BD — Micro-task Marketplace in Bangladesh',
-    description: 'WORKER GIG BD is a Bangladesh-focused micro-task marketplace. Review task requirements, submit proof, post eligible jobs, and check current payment rules before participating.',
+    title: 'WORKER GIG BD — Bangladesh Micro-task Marketplace',
+    description: 'Find suitable micro-tasks, review requirements, submit proof, and manage your earnings on WORKER GIG BD.',
     path: '/',
   });
+
+  const closeMobile = () => setMobileOpen(false);
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-40 border-b border-gray-100 bg-white/80 backdrop-blur-lg">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-          <Logo size={40} />
-          <div className="hidden items-center gap-8 md:flex">
-            <a href="#features" className="text-sm font-medium text-gray-600 transition-colors hover:text-primary-600">Features</a>
-            <a href="#categories" className="text-sm font-medium text-gray-600 transition-colors hover:text-primary-600">Categories</a>
-            <a href="#how-it-works" className="text-sm font-medium text-gray-600 transition-colors hover:text-primary-600">How It Works</a>
-            <a href="#faq" className="text-sm font-medium text-gray-600 transition-colors hover:text-primary-600">FAQ</a>
-            <Link to="/blog" className="text-sm font-medium text-gray-600 transition-colors hover:text-primary-600">Blog</Link>
-            <Link to="/about" className="text-sm font-medium text-gray-600 transition-colors hover:text-primary-600">About</Link>
-            <Link to="/contact" className="text-sm font-medium text-gray-600 transition-colors hover:text-primary-600">Contact</Link>
+    <div className="min-h-screen overflow-x-hidden bg-white text-slate-950">
+      <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl">
+        <nav className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-5 sm:px-6 lg:px-8" aria-label="Main navigation">
+          <Link to="/" aria-label="WORKER GIG BD home" onClick={closeMobile}>
+            <Logo size={40} />
+          </Link>
+
+          <div className="hidden items-center gap-7 lg:flex">
+            <a href="#how-it-works" className="text-sm font-semibold text-slate-600 transition hover:text-primary-600">How it works</a>
+            <a href="#categories" className="text-sm font-semibold text-slate-600 transition hover:text-primary-600">Categories</a>
+            <a href="#why-us" className="text-sm font-semibold text-slate-600 transition hover:text-primary-600">Why us</a>
+            <a href="#faq" className="text-sm font-semibold text-slate-600 transition hover:text-primary-600">FAQ</a>
+            <Link to="/blog" className="text-sm font-semibold text-slate-600 transition hover:text-primary-600">Blog</Link>
           </div>
-          <div className="flex items-center gap-3">
-            <Link to="/login" className="text-sm font-semibold text-gray-700 transition-colors hover:text-primary-600">
-              Login
-            </Link>
-            <Link
-              to="/signup"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-700 hover:shadow-md active:scale-95"
-            >
-              Get Started <ArrowRight className="h-4 w-4" />
+
+          <div className="hidden items-center gap-3 sm:flex">
+            <Link to="/login" className="rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:bg-slate-100">Log in</Link>
+            <Link to="/signup" className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-lg">
+              Create account <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-        </div>
-      </nav>
 
-      {/* Hero */}
-      <section className="relative overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-28">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary-50/50 via-white to-white" />
-        <div className="absolute -top-40 -right-40 h-96 w-96 rounded-full bg-primary-200/30 blur-3xl" />
-        <div className="absolute -top-20 -left-20 h-72 w-72 rounded-full bg-accent-200/20 blur-3xl" />
+          <button
+            type="button"
+            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileOpen}
+            onClick={() => setMobileOpen((v) => !v)}
+            className="rounded-xl p-2 text-slate-700 hover:bg-slate-100 sm:hidden"
+          >
+            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </nav>
 
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid items-center gap-12 lg:grid-cols-2">
-            <div className="animate-slide-up">
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary-200 bg-primary-50 px-4 py-1.5 text-sm font-medium text-primary-700">
-                <span className="flex h-2 w-2 rounded-full bg-primary-500 animate-pulse" />
-                Bangladesh-focused Micro-task Marketplace
+        {mobileOpen && (
+          <div className="border-t border-slate-200 bg-white px-5 py-4 sm:hidden">
+            <div className="flex flex-col gap-1">
+              <a href="#how-it-works" onClick={closeMobile} className="rounded-lg px-3 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">How it works</a>
+              <a href="#categories" onClick={closeMobile} className="rounded-lg px-3 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">Categories</a>
+              <a href="#why-us" onClick={closeMobile} className="rounded-lg px-3 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">Why us</a>
+              <a href="#faq" onClick={closeMobile} className="rounded-lg px-3 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">FAQ</a>
+              <Link to="/login" onClick={closeMobile} className="mt-2 rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-bold text-slate-700">Log in</Link>
+              <Link to="/signup" onClick={closeMobile} className="rounded-xl bg-primary-600 px-4 py-3 text-center text-sm font-bold text-white">Create account</Link>
+            </div>
+          </div>
+        )}
+      </header>
+
+      <main>
+        <section className="relative isolate overflow-hidden border-b border-slate-100 bg-slate-50/70">
+          <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_0%,rgba(37,99,235,0.12),transparent_45%)]" />
+          <div className="mx-auto max-w-7xl px-5 pb-20 pt-16 sm:px-6 sm:pb-24 sm:pt-20 lg:px-8 lg:pb-28 lg:pt-24">
+            <div className="mx-auto max-w-4xl text-center">
+              <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-primary-200 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-primary-700 shadow-sm">
+                <Sparkles className="h-4 w-4" />
+                Bangladesh-focused micro-task marketplace
               </div>
-              <h1 className="font-heading text-4xl font-extrabold leading-tight tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
-                Earn Money Doing{' '}
-                <span className="bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
-                  Simple Tasks
-                </span>
+
+              <h1 className="mt-7 font-heading text-4xl font-extrabold leading-[1.05] tracking-[-0.045em] text-slate-950 sm:text-6xl lg:text-7xl">
+                Turn spare time into
+                <span className="block bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">productive work.</span>
               </h1>
-              <p className="mt-5 max-w-xl text-lg leading-relaxed text-gray-600">
-                Review available tasks, understand the requirements, and decide which opportunities are suitable for you.
+
+              <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
+                Discover simple online tasks, understand the requirements before you start, submit the requested proof, and manage approved earnings from one place.
               </p>
-              <div className="mt-10 flex flex-col items-center">
+
+              <div className="mt-9 flex flex-col items-center justify-center gap-3">
                 <button
                   type="button"
                   onClick={handleGoogleSignUp}
                   disabled={googleLoading}
-                  className="inline-flex items-center gap-3 rounded-xl border border-gray-300 bg-white px-10 py-4 text-base font-semibold text-gray-700 shadow-md transition-all hover:bg-gray-50 hover:border-gray-400 hover:shadow-lg active:scale-95 disabled:opacity-60"
+                  className="group inline-flex min-w-[250px] items-center justify-center gap-3 rounded-2xl bg-primary-600 px-7 py-4 text-base font-extrabold text-white shadow-[0_16px_35px_rgba(37,99,235,0.22)] transition hover:-translate-y-1 hover:bg-primary-700 hover:shadow-[0_20px_45px_rgba(37,99,235,0.28)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {googleLoading
-                    ? <Loader2 className="h-6 w-6 animate-spin" />
-                    : <GoogleIcon className="h-6 w-6" />}
-                  Sign up with Google
+                  <GoogleIcon className="h-5 w-5 rounded-full bg-white" />
+                  {googleLoading ? 'Connecting…' : 'Start with Google'}
+                  {!googleLoading && <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />}
                 </button>
-                <Link
-                  to="/login"
-                  className="mt-4 text-xs font-medium text-gray-500 underline-offset-2 hover:text-primary-600 hover:underline"
-                >
-                  Already have an account? Log in
+
+                <Link to="/signup" className="text-sm font-bold text-slate-500 transition hover:text-primary-600">
+                  Prefer a referral code? Create an account
                 </Link>
+
                 {googleError && (
-                  <p className="mt-3 text-sm text-error-600">{googleError}</p>
+                  <p role="alert" className="max-w-md text-sm font-medium text-error-600">{googleError}</p>
                 )}
               </div>
 
-              <div className="mt-10 flex items-center gap-8">
-                <div>
-                  <div className="text-3xl font-bold text-gray-900">45+</div>
-                  <div className="text-sm text-gray-500">Task Categories</div>
-                </div>
-                <div className="h-12 w-px bg-gray-200" />
-                <div>
-                  <div className="text-3xl font-bold text-gray-900">bKash</div>
-                  <div className="text-sm text-gray-500">Nagad & Rocket</div>
-                </div>
-                <div className="h-12 w-px bg-gray-200" />
-                <div>
-                  <div className="text-3xl font-bold text-gray-900">Free</div>
-                  <div className="text-sm text-gray-500">To Join</div>
-                </div>
+              <div className="mx-auto mt-9 flex max-w-2xl flex-wrap items-center justify-center gap-x-7 gap-y-3 text-xs font-semibold text-slate-500">
+                <span className="inline-flex items-center gap-1.5"><LockKeyhole className="h-4 w-4 text-primary-600" /> Google authentication</span>
+                <span className="inline-flex items-center gap-1.5"><BadgeCheck className="h-4 w-4 text-primary-600" /> Clear task requirements</span>
+                <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-primary-600" /> Proof-based review</span>
               </div>
             </div>
 
-            <div className="relative animate-slide-up" style={{ animationDelay: '0.15s' }}>
-              <div className="relative rounded-2xl shadow-2xl overflow-hidden">
-                <img
-                  src="https://images.pexels.com/photos/3183130/pexels-photo-3183130.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
-                  alt="Young people working online"
-                  className="w-full h-[420px] object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-primary-900/40 to-transparent" />
+            <div className="mx-auto mt-14 max-w-5xl">
+              <div className="rounded-[28px] border border-slate-200 bg-white p-2 shadow-[0_28px_80px_rgba(15,23,42,0.12)] sm:p-3">
+                <div className="overflow-hidden rounded-[22px] border border-slate-200 bg-slate-50">
+                  <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 sm:px-6">
+                    <div className="flex items-center gap-2">
+                      <span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
+                    </div>
+                    <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">Task marketplace</span>
+                    <div className="h-7 w-20 rounded-lg bg-slate-100" />
+                  </div>
+                  <div className="grid gap-5 p-5 sm:grid-cols-[1.1fr_0.9fr] sm:p-8">
+                    <div>
+                      <div className="h-3 w-28 rounded-full bg-primary-100" />
+                      <div className="mt-4 h-7 w-4/5 rounded-lg bg-slate-900/90" />
+                      <div className="mt-3 h-3 w-full max-w-lg rounded-full bg-slate-200" />
+                      <div className="mt-2 h-3 w-3/4 max-w-md rounded-full bg-slate-200" />
+                      <div className="mt-7 grid gap-3 sm:grid-cols-2">
+                        {['Follow & engage', 'Review a website', 'Simple signup', 'Survey & feedback'].map((label) => (
+                          <div key={label} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                            <div className="flex items-center justify-between">
+                              <BriefcaseBusiness className="h-5 w-5 text-primary-600" />
+                              <span className="h-2 w-12 rounded-full bg-slate-100" />
+                            </div>
+                            <p className="mt-3 text-xs font-bold text-slate-800">{label}</p>
+                            <div className="mt-2 h-2 w-20 rounded-full bg-slate-100" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-500">Task details</span>
+                        <CheckCircle2 className="h-5 w-5 text-primary-600" />
+                      </div>
+                      <div className="mt-5 h-4 w-2/3 rounded-full bg-slate-200" />
+                      <div className="mt-4 space-y-3">
+                        <div className="rounded-xl bg-slate-50 p-3"><div className="h-2.5 w-24 rounded-full bg-slate-200" /><div className="mt-2 h-2.5 w-40 rounded-full bg-slate-100" /></div>
+                        <div className="rounded-xl bg-slate-50 p-3"><div className="h-2.5 w-20 rounded-full bg-slate-200" /><div className="mt-2 h-2.5 w-32 rounded-full bg-slate-100" /></div>
+                      </div>
+                      <div className="mt-5 h-11 rounded-xl bg-primary-600" />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Categories */}
-      <section id="categories" className="py-20 bg-gray-50">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="font-heading text-3xl font-bold text-gray-900 sm:text-4xl">
-              {categories.length > 0 ? categories.length : 45}+ Task Categories
-            </h2>
-            <p className="mt-3 text-lg text-gray-600">
-              Pick from a wide range of micro-tasks across every major platform
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
-            {categories.map((cat) => (
-              <div
-                key={cat}
-                className="group flex flex-col items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-primary-300 hover:shadow-md hover:-translate-y-0.5"
-              >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-50 text-primary-600 transition-colors group-hover:bg-primary-600 group-hover:text-white">
-                  <CheckCircle className="h-6 w-6" />
+        <section id="how-it-works" className="scroll-mt-24 py-20 sm:py-24">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="text-sm font-extrabold uppercase tracking-[0.16em] text-primary-600">Simple by design</p>
+              <h2 className="mt-3 font-heading text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">A clear path from task to completion</h2>
+              <p className="mt-4 text-base leading-7 text-slate-600">Everything important happens in a straightforward sequence.</p>
+            </div>
+            <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+              {steps.map((step) => (
+                <div key={step.number} className="relative rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-50 text-primary-700"><step.icon className="h-5 w-5" /></div>
+                    <span className="font-heading text-4xl font-extrabold text-slate-100">{step.number}</span>
+                  </div>
+                  <h3 className="mt-6 font-heading text-lg font-extrabold text-slate-900">{step.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{step.desc}</p>
                 </div>
-                <span className="text-center text-xs font-medium text-gray-700">{cat}</span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* How It Works */}
-      <section id="how-it-works" className="py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <h2 className="font-heading text-3xl font-bold text-gray-900 sm:text-4xl">
-              How It Works
-            </h2>
-            <p className="mt-3 text-lg text-gray-600">
-              Understand the process in three simple steps
-            </p>
-          </div>
-          <div className="grid gap-8 md:grid-cols-3">
-            {steps.map((step) => (
-              <div key={step.num} className="relative">
-                <div className="mb-4 text-5xl font-extrabold text-primary-100">{step.num}</div>
-                <h3 className="font-heading text-lg font-bold text-gray-900">{step.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-gray-600">{step.desc}</p>
+        <section id="categories" className="scroll-mt-24 border-y border-slate-200 bg-slate-50 py-20 sm:py-24">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+              <div className="max-w-2xl">
+                <p className="text-sm font-extrabold uppercase tracking-[0.16em] text-primary-600">Available work</p>
+                <h2 className="mt-3 font-heading text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+                  {categories.length > 0 ? 'Explore active task categories' : 'Explore task categories'}
+                </h2>
+                <p className="mt-4 text-base leading-7 text-slate-600">
+                  Categories shown here come from the platform and update automatically as active categories change.
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+              <Link to="/signup" className="inline-flex w-fit items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:border-primary-200 hover:text-primary-700">
+                Join to browse tasks <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
 
-      {/* Features */}
-      <section id="features" className="py-20 bg-gray-50 sm:py-28">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <h2 className="font-heading text-3xl font-bold text-gray-900 sm:text-4xl">
-              Why Choose WORKER GIG BD?
-            </h2>
-            <p className="mt-3 text-lg text-gray-600">
-              Practical tools for managing tasks and marketplace activity
-            </p>
+            <div className="mt-10 flex flex-wrap gap-3">
+              {categories.length > 0 ? categories.map((category) => (
+                <span key={category} className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm">
+                  <span className="h-2 w-2 rounded-full bg-primary-500" />
+                  {category}
+                </span>
+              )) : (
+                ['Social engagement', 'Surveys', 'Website review', 'App tasks', 'Content tasks', 'Research tasks'].map((category) => (
+                  <span key={category} className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm">
+                    <span className="h-2 w-2 rounded-full bg-slate-300" />
+                    {category}
+                  </span>
+                ))
+              )}
+            </div>
           </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((feat) => (
-              <div
-                key={feat.title}
-                className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:border-primary-200 hover:shadow-lg"
+        </section>
+
+        <section id="why-us" className="scroll-mt-24 py-20 sm:py-24">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="text-sm font-extrabold uppercase tracking-[0.16em] text-primary-600">Why WORKER GIG BD</p>
+              <h2 className="mt-3 font-heading text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">Less noise. More clarity.</h2>
+              <p className="mt-4 text-base leading-7 text-slate-600">The landing page should tell you what the platform actually does — without inflated numbers or promises.</p>
+            </div>
+            <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {benefits.map((benefit) => (
+                <article key={benefit.title} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-50 text-primary-700"><benefit.icon className="h-5 w-5" /></div>
+                  <h3 className="mt-5 font-heading text-lg font-extrabold text-slate-900">{benefit.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{benefit.desc}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-y border-slate-200 bg-slate-950 py-20 text-white sm:py-24">
+          <div className="mx-auto max-w-4xl px-5 text-center sm:px-6">
+            <p className="text-sm font-extrabold uppercase tracking-[0.16em] text-primary-300">Ready when you are</p>
+            <h2 className="mt-3 font-heading text-3xl font-extrabold tracking-tight sm:text-5xl">Find work that fits your time.</h2>
+            <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
+              Create your account, review the available work, and choose tasks based on their actual requirements.
+            </p>
+            <div className="mt-8 flex flex-col items-center gap-3">
+              <button
+                type="button"
+                onClick={handleGoogleSignUp}
+                disabled={googleLoading}
+                className="inline-flex min-w-[250px] items-center justify-center gap-3 rounded-2xl bg-white px-7 py-4 text-base font-extrabold text-slate-950 shadow-xl transition hover:-translate-y-1 hover:bg-slate-100 disabled:opacity-60"
               >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 text-white shadow-md transition-transform group-hover:scale-110">
-                  <feat.icon className="h-6 w-6" />
-                </div>
-                <h3 className="font-heading text-lg font-bold text-gray-900">{feat.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-gray-600">{feat.desc}</p>
-              </div>
-            ))}
+                <GoogleIcon className="h-5 w-5" />
+                {googleLoading ? 'Connecting…' : 'Create account with Google'}
+                {!googleLoading && <ArrowRight className="h-5 w-5" />}
+              </button>
+              <Link to="/login" className="text-sm font-semibold text-slate-400 hover:text-white">Already registered? Log in</Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* FAQ */}
-      <section id="faq" className="py-20 bg-gray-50">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="font-heading text-3xl font-bold text-gray-900 sm:text-4xl">
-              সাধারণ জিজ্ঞাসা
-            </h2>
-            <p className="mt-3 text-lg text-gray-600">
-              WORKER GIG BD সম্পর্কে যে প্রশ্নগুলো সবচেয়ে বেশি করা হয়
-            </p>
+        <section id="faq" className="scroll-mt-24 py-20 sm:py-24">
+          <div className="mx-auto max-w-3xl px-5 sm:px-6">
+            <div className="text-center">
+              <p className="text-sm font-extrabold uppercase tracking-[0.16em] text-primary-600">FAQ</p>
+              <h2 className="mt-3 font-heading text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">Questions, answered clearly.</h2>
+            </div>
+            <div className="mt-10 space-y-3">
+              {faqs.map((faq) => (
+                <details key={faq.q} className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-5 font-bold text-slate-900 [&::-webkit-details-marker]:hidden">
+                    {faq.q}
+                    <ChevronDown className="h-5 w-5 shrink-0 text-slate-400 transition group-open:rotate-180" />
+                  </summary>
+                  <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-600">{faq.a}</p>
+                </details>
+              ))}
+            </div>
           </div>
-          <div className="space-y-4">
-            <details className="group rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-              <summary className="flex cursor-pointer items-center justify-between font-semibold text-gray-900">
-                WORKER GIG BD কী?
-                <span className="text-primary-600 transition-transform group-open:rotate-45">+</span>
-              </summary>
-              <p className="mt-3 text-sm leading-relaxed text-gray-600">
-                WORKER GIG BD বাংলাদেশের একটি মাইক্রো-টাস্ক ও ফ্রিল্যান্স প্ল্যাটফর্ম, যেখানে আপনি সহজ অনলাইন টাস্ক (ফেসবুক লাইক, সাইন আপ, সার্ভে ইত্যাদি) সম্পন্ন করে ঘরে বসে আয় করতে পারেন।
-              </p>
-            </details>
-            <details className="group rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-              <summary className="flex cursor-pointer items-center justify-between font-semibold text-gray-900">
-                আয় করা টাকা কীভাবে তুলব?
-                <span className="text-primary-600 transition-transform group-open:rotate-45">+</span>
-              </summary>
-              <p className="mt-3 text-sm leading-relaxed text-gray-600">
-                ড্যাশবোর্ড থেকে উইথড্র অপশনে গিয়ে বিকাশ, নগদ বা রকেট অ্যাকাউন্ট দিয়ে ন্যূনতম পরিমাণ পূরণ করে টাকা তুলতে পারেন। $1 = 100 BDT.
-              </p>
-            </details>
-            <details className="group rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-              <summary className="flex cursor-pointer items-center justify-between font-semibold text-gray-900">
-                সাইন আপ করতে কি টাকা লাগে?
-                <span className="text-primary-600 transition-transform group-open:rotate-45">+</span>
-              </summary>
-              <p className="mt-3 text-sm leading-relaxed text-gray-600">
-                না, সাইন আপ সম্পূর্ণ ফ্রি। শুধু ইমেইল ও ইউজারনেম দিয়ে অ্যাকাউন্ট খুলে কাজ শুরু করতে পারেন।
-              </p>
-            </details>
-            <details className="group rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-              <summary className="flex cursor-pointer items-center justify-between font-semibold text-gray-900">
-                কী কী ধরনের কাজ পাওয়া যায়?
-                <span className="text-primary-600 transition-transform group-open:rotate-45">+</span>
-              </summary>
-              <p className="mt-3 text-sm leading-relaxed text-gray-600">
-                ফেসবুক, টুইটার, ইনস্টাগ্রাম, ইউটিউব/টফি, টিকটক, সাইন আপ, অ্যাডস ক্লিক, সার্ভে, জিমেইল অ্যাকাউন্ট, মোবাইল অ্যাপ, আর্টিকেল, কমেন্ট, লিংকডইন ও রেডিট — ৪৫+ ক্যাটাগরিতে কাজ পাওয়া যায়।
-              </p>
-            </details>
-          </div>
-        </div>
-      </section>
+        </section>
+      </main>
 
-      {/* CTA */}
-      <section className="py-20">
-        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-          <h2 className="font-heading text-3xl font-bold text-gray-900 sm:text-4xl lg:text-5xl">
-            Ready to Start Earning?
-          </h2>
-          <p className="mt-4 text-lg text-gray-600">
-            Join WORKER GIG BD today and turn your free time into income.
-            It's free to sign up and start working immediately.
-          </p>
-          <div className="mt-8 flex flex-col items-center gap-4">
-            <button
-              type="button"
-              onClick={handleGoogleSignUp}
-              disabled={googleLoading}
-              className="inline-flex items-center gap-3 rounded-xl border border-gray-300 bg-white px-12 py-5 text-lg font-semibold text-gray-700 shadow-md transition-all hover:bg-gray-50 hover:shadow-lg active:scale-95 disabled:opacity-60"
-            >
-              {googleLoading
-                ? <Loader2 className="h-6 w-6 animate-spin" />
-                : <GoogleIcon className="h-6 w-6" />}
-              Sign up with Google
-            </button>
-            <Link
-              to="/login"
-              className="text-xs font-medium text-gray-500 underline-offset-2 hover:text-primary-600 hover:underline"
-            >
-              Already have an account? Log in
-            </Link>
-            {googleError && (
-              <p className="text-sm text-error-600">{googleError}</p>
-            )}
-          </div>
-          <div className="mt-8 flex flex-wrap justify-center gap-6 text-sm text-gray-500">
-            <span className="flex items-center gap-1.5"><CheckCircle className="h-4 w-4 text-success-500" /> Free to join</span>
-            <span className="flex items-center gap-1.5"><Lock className="h-4 w-4 text-primary-500" /> Secure payments</span>
-            <span className="flex items-center gap-1.5"><Globe className="h-4 w-4 text-primary-500" /> Available nationwide</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-gray-200 bg-gray-50 py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-8 md:grid-cols-4">
-            <div className="md:col-span-1">
-              <Logo size={36} />
-              <p className="mt-4 text-sm text-gray-500">
-                Bangladesh's premier micro-task platform. Earn money completing simple online tasks.
+      <footer className="border-t border-slate-200 bg-slate-50">
+        <div className="mx-auto max-w-7xl px-5 py-12 sm:px-6 lg:px-8">
+          <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+            <div>
+              <Logo size={40} />
+              <p className="mt-4 max-w-sm text-sm leading-6 text-slate-600">
+                A Bangladesh-focused micro-task marketplace for finding work, following clear requirements, and managing approved earnings.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-gray-900 mb-3">Platform</h4>
-              <ul className="space-y-2 text-sm text-gray-500">
-                <li><a href="#features" className="hover:text-primary-600">Features</a></li>
+              <h3 className="text-sm font-extrabold text-slate-900">Platform</h3>
+              <ul className="mt-4 space-y-3 text-sm text-slate-600">
+                <li><a href="#how-it-works" className="hover:text-primary-600">How it works</a></li>
                 <li><a href="#categories" className="hover:text-primary-600">Categories</a></li>
-                <li><Link to="/login" className="hover:text-primary-600">Login</Link></li>
-                <li><Link to="/signup" className="hover:text-primary-600">Get Started</Link></li>
+                <li><a href="#why-us" className="hover:text-primary-600">Why us</a></li>
+                <li><Link to="/for-employers" className="hover:text-primary-600">For employers</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-gray-900 mb-3">Support</h4>
-              <ul className="space-y-2 text-sm text-gray-500">
-                <li><Link to="/about" className="hover:text-primary-600">About Us</Link></li>
-                <li><Link to="/contact" className="hover:text-primary-600">Contact Us</Link></li>
-                <li><Link to="/blog" className="hover:text-primary-600">Blog &amp; Guides</Link></li>
-                <li><a href="#faq" className="hover:text-primary-600">FAQ</a></li>
+              <h3 className="text-sm font-extrabold text-slate-900">Company</h3>
+              <ul className="mt-4 space-y-3 text-sm text-slate-600">
+                <li><Link to="/about" className="hover:text-primary-600">About</Link></li>
+                <li><Link to="/blog" className="hover:text-primary-600">Blog</Link></li>
+                <li><Link to="/contact" className="hover:text-primary-600">Contact</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-sm font-extrabold text-slate-900">Legal</h3>
+              <ul className="mt-4 space-y-3 text-sm text-slate-600">
                 <li><Link to="/terms-of-service" className="hover:text-primary-600">Terms of Service</Link></li>
                 <li><Link to="/privacy-policy" className="hover:text-primary-600">Privacy Policy</Link></li>
               </ul>
             </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-3">Contact</h4>
-              <ul className="space-y-2 text-sm text-gray-500">
-                <li><a href="mailto:wasimmostakim2965@gmail.com" className="hover:text-primary-600">wasimmostakim2965@gmail.com</a></li>
-                <li><a href="https://wa.me/8801338882758" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600">WhatsApp: +880 1338-882758</a></li>
-                <li>workergigbd.site</li>
-              </ul>
-            </div>
           </div>
-          <div className="mt-10 border-t border-gray-200 pt-6 text-center text-sm text-gray-500">
-            © 2026 WORKER GIG BD. All rights reserved.
+          <div className="mt-10 flex flex-col gap-3 border-t border-slate-200 pt-6 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+            <p>© 2026 WORKER GIG BD. All rights reserved.</p>
+            <p>Clear requirements. Real proof. Account-based earnings.</p>
           </div>
         </div>
       </footer>

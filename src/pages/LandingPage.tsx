@@ -155,12 +155,12 @@ export function LandingPage() {
               </div>
 
               <h1 className="mt-7 font-heading text-4xl font-extrabold leading-[1.05] tracking-[-0.045em] text-slate-950 sm:text-6xl lg:text-7xl">
-                Turn spare time into
-                <span className="block bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">productive work.</span>
+                A clearer way to
+                <span className="block bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">find and complete work.</span>
               </h1>
 
               <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
-                Discover simple online tasks, understand the requirements before you start, submit the requested proof, and manage approved earnings from one place.
+                Discover suitable work, understand the requirements before you begin, submit proof when the work is complete, and manage your account from one place.
               </p>
 
               <div className="mt-9 flex flex-col items-center justify-center gap-3">
@@ -192,53 +192,36 @@ export function LandingPage() {
             </div>
 
             <div className="mx-auto mt-14 max-w-5xl">
-              <div className="rounded-[28px] border border-slate-200 bg-white p-2 shadow-[0_28px_80px_rgba(15,23,42,0.12)] sm:p-3">
-                <div className="overflow-hidden rounded-[22px] border border-slate-200 bg-slate-50">
-                  <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 sm:px-6">
-                    <div className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
-                      <span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
-                      <span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
-                    </div>
-                    <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">Task marketplace</span>
-                    <div className="h-7 w-20 rounded-lg bg-slate-100" />
-                  </div>
-                  <div className="grid gap-5 p-5 sm:grid-cols-[1.1fr_0.9fr] sm:p-8">
+              <div className="rounded-[28px] border border-slate-200 bg-white p-2 shadow-[0_28px_80px_rgba(15,23,42,0.10)] sm:p-3">
+                <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-5 sm:p-8">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <div className="h-3 w-28 rounded-full bg-primary-100" />
-                      <div className="mt-4 h-7 w-4/5 rounded-lg bg-slate-900/90" />
-                      <div className="mt-3 h-3 w-full max-w-lg rounded-full bg-slate-200" />
-                      <div className="mt-2 h-3 w-3/4 max-w-md rounded-full bg-slate-200" />
-                      <div className="mt-7 grid gap-3 sm:grid-cols-2">
-                        {['Follow & engage', 'Review a website', 'Simple signup', 'Survey & feedback'].map((label) => (
-                          <div key={label} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                            <div className="flex items-center justify-between">
-                              <Briefcase className="h-5 w-5 text-primary-600" />
-                              <span className="h-2 w-12 rounded-full bg-slate-100" />
-                            </div>
-                            <p className="mt-3 text-xs font-bold text-slate-800">{label}</p>
-                            <div className="mt-2 h-2 w-20 rounded-full bg-slate-100" />
+                      <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-primary-600">A simpler workflow</p>
+                      <p className="mt-2 font-heading text-xl font-extrabold text-slate-950 sm:text-2xl">Everything stays clear from start to finish.</p>
+                    </div>
+                    <div className="hidden h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm sm:flex">
+                      <CheckCircle2 className="h-5 w-5 text-primary-600" />
+                    </div>
+                  </div>
+                  <div className="mt-7 grid gap-3 sm:grid-cols-4">
+                    {steps.map((step, index) => (
+                      <div key={step.number} className="relative rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                        <div className="flex items-center justify-between">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-50 text-primary-700">
+                            <step.icon className="h-4 w-4" />
                           </div>
-                        ))}
+                          <span className="text-[11px] font-extrabold tracking-wider text-slate-300">{step.number}</span>
+                        </div>
+                        <p className="mt-4 text-sm font-extrabold text-slate-900">{step.title}</p>
+                        {index < steps.length - 1 && (
+                          <ArrowRight className="absolute -right-3 top-1/2 z-10 hidden h-5 w-5 -translate-y-1/2 rounded-full bg-white p-0.5 text-slate-300 sm:block" />
+                        )}
                       </div>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-slate-500">Task details</span>
-                        <CheckCircle2 className="h-5 w-5 text-primary-600" />
-                      </div>
-                      <div className="mt-5 h-4 w-2/3 rounded-full bg-slate-200" />
-                      <div className="mt-4 space-y-3">
-                        <div className="rounded-xl bg-slate-50 p-3"><div className="h-2.5 w-24 rounded-full bg-slate-200" /><div className="mt-2 h-2.5 w-40 rounded-full bg-slate-100" /></div>
-                        <div className="rounded-xl bg-slate-50 p-3"><div className="h-2.5 w-20 rounded-full bg-slate-200" /><div className="mt-2 h-2.5 w-32 rounded-full bg-slate-100" /></div>
-                      </div>
-                      <div className="mt-5 h-11 rounded-xl bg-primary-600" />
-                    </div>
+                    ))}
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </div>          </div>
         </section>
 
         <section id="how-it-works" className="scroll-mt-24 py-20 sm:py-24">

@@ -8,7 +8,7 @@ import { Tabs } from '@/components/ui/Tabs';
 import { useSeo } from '@/lib/useSeo';
 import { Task, Job } from '@/types';
 
-const COLORS = { primaryGreen: '#058824' };
+const COLORS = { primaryGreen: '#0F8A4B' };
 
 type MyTask = Task & { jobs?: Job };
 
@@ -78,14 +78,14 @@ export function MyJobsPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="font-heading text-2xl font-bold text-gray-900">My Jobs</h1>
-        <p className="mt-1 text-sm text-gray-600">Tasks you have worked on and submitted</p>
+        <h1 className="font-heading text-2xl font-bold text-slate-900">My Jobs</h1>
+        <p className="mt-1 text-sm text-slate-600">Tasks you have worked on and submitted</p>
       </div>
 
       <Tabs tabs={tabs} active={tab} onChange={setTab} />
 
       {filtered.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white py-16">
+        <div className="rounded-2xl border border-slate-200 bg-white py-16">
           <EmptyState
             icon={<Briefcase className="h-8 w-8" />}
             title={`No ${tab} jobs`}
@@ -104,7 +104,7 @@ export function MyJobsPage() {
             return (
               <div
                 key={task.id}
-                className="block w-full rounded-xl border border-gray-200 bg-white p-3.5 shadow-sm transition-all hover:border-primary-200 hover:shadow-md"
+                className="block w-full rounded-2xl border border-slate-200 bg-white p-3.5 shadow-sm transition-all hover:border-primary-200 hover:shadow-md"
               >
                 {/* Top row: badges + status */}
                 <div className="flex items-start justify-between gap-2">
@@ -117,13 +117,13 @@ export function MyJobsPage() {
                 </div>
 
                 {/* Title */}
-                <h3 className="mt-1.5 text-sm font-semibold text-gray-900 line-clamp-1">
+                <h3 className="mt-1.5 text-sm font-semibold text-slate-900 line-clamp-1">
                   {task.jobs?.title ?? `Task #${task.id.slice(0, 8)}`}
                 </h3>
 
                 {/* Date + reward (dashboard style) */}
                 <div className="mt-2.5 flex items-end justify-between">
-                  <div className="text-[11px] font-semibold text-gray-500">
+                  <div className="text-[11px] font-semibold text-slate-500">
                     {new Date(task.submitted_at ?? task.created_at).toLocaleDateString()}
                   </div>
                   <div className="flex items-baseline gap-1.5">
@@ -151,7 +151,7 @@ export function MyJobsPage() {
                         ))}
                       </div>
                     )}
-                    {task.proof_text && <p className="mt-1 text-xs text-gray-500 line-clamp-2">{task.proof_text}</p>}
+                    {task.proof_text && <p className="mt-1 text-xs text-slate-500 line-clamp-2">{task.proof_text}</p>}
                   </div>
                 )}
               </div>

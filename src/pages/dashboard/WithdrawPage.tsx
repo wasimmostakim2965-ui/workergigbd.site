@@ -123,7 +123,7 @@ export function WithdrawPage() {
   if (!withdrawEnabled && settings.length > 0) {
     return (
       <div className="space-y-6">
-        <h1 className="font-heading text-2xl font-bold text-gray-900">Withdraw</h1>
+        <h1 className="font-heading text-2xl font-bold text-slate-900">Withdraw</h1>
         <Alert variant="warning" title="Withdrawals Disabled">
           Withdrawal requests are currently disabled by the administrator.
         </Alert>
@@ -134,8 +134,8 @@ export function WithdrawPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-heading text-2xl font-bold text-gray-900">Withdraw Earnings</h1>
-        <p className="mt-1 text-sm text-gray-600">Withdraw your earning balance to mobile banking</p>
+        <h1 className="font-heading text-2xl font-bold text-slate-900">Withdraw Earnings</h1>
+        <p className="mt-1 text-sm text-slate-600">Withdraw your earning balance to mobile banking</p>
       </div>
 
       {success && (
@@ -173,7 +173,7 @@ export function WithdrawPage() {
                   </div>
                 )}
                 <PaymentLogo method={pm.id as 'bkash' | 'nagad' | 'rocket'} />
-                <span className="text-xs font-semibold text-gray-700">{pm.name}</span>
+                <span className="text-xs font-semibold text-slate-700">{pm.name}</span>
               </button>
             ))}
           </div>
@@ -190,7 +190,7 @@ export function WithdrawPage() {
               required
               icon={<ArrowUpFromLine className="h-4 w-4" />}
             />
-            <p className="text-xs text-gray-500">$1 = 100 BDT</p>
+            <p className="text-xs text-slate-500">$1 = 100 BDT</p>
             <Input
               label="Your Account Number"
               placeholder="01XXXXXXXXX"
@@ -206,7 +206,7 @@ export function WithdrawPage() {
 
         <Card>
           <div className="border-b border-gray-100 px-5 py-4">
-            <h3 className="font-heading font-bold text-gray-900">Recent Withdrawals</h3>
+            <h3 className="font-heading font-bold text-slate-900">Recent Withdrawals</h3>
           </div>
           {history.length === 0 ? (
             <EmptyState
@@ -219,8 +219,8 @@ export function WithdrawPage() {
               {history.map((wd) => (
                 <div key={wd.id} className="flex items-center justify-between p-4">
                   <div>
-                    <div className="text-sm font-semibold text-gray-900">$ {wd.amount.toFixed(3)}</div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-sm font-semibold text-slate-900">$ {wd.amount.toFixed(3)}</div>
+                    <div className="text-xs text-slate-500">
                       {wd.method} • {new Date(wd.created_at).toLocaleDateString()}
                     </div>
                   </div>

@@ -6,6 +6,7 @@ import {
   User, LogOut, Menu, X, ShieldCheck, ChevronDown, Settings,
   Zap, MessageSquare, RefreshCw,
 } from 'lucide-react';
+import { Logo } from '@/components/Logo';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { AdminSetting } from '@/types';
@@ -158,72 +159,63 @@ export function DashboardLayout() {
         <div>
           {/* SECTION A: TOP NAVBAR / HEADER */}
           <header style={{ backgroundColor: COLORS.headerBlue }}>
-            <div className="mx-auto flex items-center justify-between px-4 py-3 sm:px-6">
-              {/* Left: Hamburger Menu */}
+            <div className="mx-auto flex min-h-[68px] items-center gap-3 px-4 sm:px-6">
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="flex flex-col gap-1 p-1"
+                aria-label="Open menu"
+                className="shrink-0 rounded-xl p-2 text-white transition hover:bg-white/10"
               >
-                <span className="block h-0.5 w-6 bg-white"></span>
-                <span className="block h-0.5 w-6 bg-white"></span>
-                <span className="block h-0.5 w-6 bg-white"></span>
+                <Menu className="h-6 w-6" />
               </button>
 
-              {/* Center-Left: Notification Bell */}
-              <Link to="/dashboard/notifications" className="relative p-2">
-                <Bell className="h-5.5 w-5.5 text-white" />
-                {unreadCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-                    {unreadCount > 99 ? '99+' : unreadCount}
-                  </span>
-                )}
+              <Link to="/dashboard" aria-label="WORKER GIG BD home" className="min-w-0 flex-1">
+                <Logo size={38} showText={true} textColor="text-white" />
               </Link>
 
-              {/* Center: User ID */}
-              <span className="text-base font-bold text-white">
+              <div className="flex shrink-0 items-center gap-1.5">
+                <Link to="/dashboard/notifications" aria-label="Notifications" className="relative rounded-xl p-2 text-white transition hover:bg-white/10">
+                  <Bell className="h-5 w-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white ring-2 ring-[#173B7A]">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </Link>
+
+                <button onClick={() => setProfileOpen(!profileOpen)} aria-label="Open profile" className="relative">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-emerald-300 bg-white text-sm font-bold text-[#173B7A]">
+                    {profile?.username?.charAt(0)?.toUpperCase() ?? 'U'}
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <div className="mx-auto flex items-center justify-between gap-3 px-4 pb-3 sm:px-6">
+              <span className="min-w-0 truncate text-[11px] font-semibold tracking-wide text-blue-100">
                 ID: {profile?.id?.slice(0, 8) ?? '—'}
               </span>
-
-              {/* Mid-Right: Refresh Icon */}
-              <button onClick={() => window.location.reload()} className="p-2" title="Refresh">
-                <RefreshCw className="h-5 w-5 text-white" />
-              </button>
-
-              {/* Right: Avatar */}
-              <button
-                onClick={() => setProfileOpen(!profileOpen)}
-                className="relative"
-              >
-                <div 
-                  className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-green-400 bg-white text-sm font-bold"
-                  style={{ color: COLORS.headerBlue }}
-                >
-                  {profile?.username?.charAt(0)?.toUpperCase() ?? 'U'}
-                </div>
+              <button onClick={() => window.location.reload()} aria-label="Refresh dashboard" className="rounded-lg p-1.5 text-blue-100 transition hover:bg-white/10">
+                <RefreshCw className="h-4 w-4" />
               </button>
             </div>
           </header>
 
-          {/* SECTION B: BALANCE CARDS */}
-          <div style={{ backgroundColor: COLORS.headerBlue }}>
-            <div className="mx-auto flex max-w-7xl justify-start gap-3 px-4 pb-5 pt-1 sm:px-6">
-              {/* Earning Card */}
-              <div 
-                className="rounded-xl px-5 py-2.5 text-center shadow-sm"
-                style={{ backgroundColor: COLORS.darkNavy }}
-              >
-                <div className="text-sm font-bold text-white">
-                  Earning: {profile?.earning_balance?.toFixed(3) ?? '0.000'}
-                </div>
-              </div>
-              {/* Deposit Card */}
-              <div 
-                className="rounded-lg px-5 py-2.5 text-center"
-                style={{ backgroundColor: COLORS.primaryGreen }}
-              >
-                <div className="text-sm font-bold text-white">
-                  Deposit: {profile?.deposit_balance?.toFixed(3) ?? '0.000'}
-                </div>
+          {/* SECTION B: BALANCE SUMMARY — only the two real balances, no duplicate "available balance" */}
+          <div className="border-b border-white/10" style={{ backgroundColor: COLORS.headerBlue }}>
+            <div className="mx-auto px-4 pb-4 sm:px-6">
+              <div className="grid grid-cols-2 overflow-hidden rounded-2xl border border-white/10 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.10)]">
+                <Link to="/dashboard/withdraw" className="min-w-0 border-r border-slate-200 px-4 py-3.5 transition hover:bg-slate-50 sm:px-6">
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Earning balance</div>
+                  <div className="mt-1 truncate text-xl font-extrabold tracking-tight text-[#10213F] sm:text-2xl">
+                    $ {profile?.earning_balance?.toFixed(3) ?? '0.000'}
+                  </div>
+                </Link>
+                <Link to="/dashboard/deposit" className="min-w-0 px-4 py-3.5 transition hover:bg-slate-50 sm:px-6">
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Deposit balance</div>
+                  <div className="mt-1 truncate text-xl font-extrabold tracking-tight text-[#0F8A4B] sm:text-2xl">
+                    $ {profile?.deposit_balance?.toFixed(3) ?? '0.000'}
+                  </div>
+                </Link>
               </div>
             </div>
           </div>
@@ -319,10 +311,7 @@ export function DashboardLayout() {
           </main>
 
           {/* Bottom Navigation - Mobile Only */}
-          <nav 
-            className="fixed bottom-0 left-0 right-0 flex items-center justify-around border-t border-gray-200 bg-white px-2 py-2"
-            className="fixed bottom-0 left-0 right-0 z-30 mx-auto flex max-w-7xl items-center justify-around border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_30px_rgba(15,23,42,0.06)] backdrop-blur sm:hidden"
-          >
+          <nav className="fixed bottom-0 left-0 right-0 z-30 mx-auto flex max-w-7xl items-center justify-around border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_30px_rgba(15,23,42,0.06)] backdrop-blur sm:hidden">
             {[
               { to: '/dashboard', icon: Home, label: 'Home' },
               { to: '/dashboard', icon: Search, label: 'Jobs' },
